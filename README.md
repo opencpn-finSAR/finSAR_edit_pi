@@ -1,2 +1,2 @@
 # finSAR_edit_pi
-For managing and editing finSAR routes
+OpenCPN plugin for managing and editing finSAR RTZ routes/extensions
