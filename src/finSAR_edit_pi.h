@@ -55,7 +55,7 @@ class finSAR_editUIDialog;
 #define finSAR_edit_TOOL_POSITION \
   -1  // Request default positioning of toolbar tool
 
-class finSAR_edit_pi : public opencpn_plugin_117 {
+class finSAR_edit_pi : public opencpn_plugin_118 {
 public:
   finSAR_edit_pi(void *ppimgr);
   ~finSAR_edit_pi(void);
