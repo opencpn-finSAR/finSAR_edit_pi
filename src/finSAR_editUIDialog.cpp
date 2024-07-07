@@ -52,7 +52,6 @@
 
 class ConfigurationDialog;
 class RouteProp;
-class treeCtrlRoutes;
 class Position;
 
 using namespace std;
@@ -418,84 +417,11 @@ void finSAR_editUIDialog::AddTestItems(wxCommandEvent& event) {
   // wxMessageBox(testca);
   // wxMessageBox(testcf);
 
-  AddAreas();
+
 }
 
-void finSAR_editUIDialog::AddAreas() {
-  int image, imageSel;
 
-  // wxString testca = wxString::Format("%i", ca);
-  //  wxMessageBox(testca);
 
-  wxTreeItemId rootId = m_treeCtrlRoutes->AddRoot("Areas");
-
-  for (int area = 0; area < ca; area++) {
-    wxTreeItemId id;
-
-    id = m_treeCtrlRoutes->AppendItem(
-        rootId, my_areas[area].Item(0), image, imageSel,
-        new MyTreeItemData(my_areas[area].Item(0)));
-
-    wxTreeItemId fileId = m_treeCtrlRoutes->AppendItem(id, "files");
-
-    for (int f = 0; f < 10; f++) {
-      // for (int as = 0; as < 10; as++) {
-      if (my_files[area + 1][f].Item(1) != wxEmptyString) {
-        wxTreeItemId fid = m_treeCtrlRoutes->AppendItem(
-            fileId, my_files[area + 1][f].Item(1), image, imageSel,
-            new MyTreeItemData(my_files[area + 1][f].Item(1)));
-      }
-    }
-  }
-}
-
-void finSAR_editUIDialog::OnBeginDrag(wxTreeEvent& event) {
-  // need to explicitly allow drag
-  if (event.GetItem() !=
-      pPlugIn->m_pfinSAR_editDialog->m_treeCtrlRoutes->GetRootItem()) {
-    m_draggedItem = event.GetItem();
-
-    wxPoint clientpt = event.GetPoint();
-    wxPoint screenpt = ClientToScreen(clientpt);
-
-    // wxMessageBox("OnBeginDrag");
-
-    event.Allow();
-  } else {
-    wxMessageBox("OnBeginDrag: this item can't be dragged.");
-  }
-}
-
-void finSAR_editUIDialog::OnEndDrag(wxTreeEvent& event) {
-  wxTreeItemId itemSrc = m_draggedItem, itemDst = event.GetItem();
-  m_draggedItem = (wxTreeItemId)0l;
-
-  // where to copy the item?
-  if (itemDst.IsOk() && !m_treeCtrlRoutes->ItemHasChildren(itemDst)) {
-    // copy to the parent then
-    itemDst = m_treeCtrlRoutes->GetItemParent(itemDst);
-  }
-  // wxMessageBox("OnEndDrag");
-  if (!itemDst.IsOk()) {
-    wxMessageBox("OnEndDrag: can't drop here.");
-
-    return;
-  }
-
-  wxString text = m_treeCtrlRoutes->GetItemText(itemSrc);
-
-  // wxMessageBox("OnEndDrag: '%s' copied", text);
-
-  // just do append here - we could also insert it just before/after the item
-  // on which it was dropped, but this requires slightly more work... we also
-  // completely ignore the client data and icon of the old item but could
-  // copy them as well.
-  //
-  // Finally, we only copy one item here but we might copy the entire tree if
-  // we were dragging a folder.
-
-  wxTreeItemId id = m_treeCtrlRoutes->AppendItem(itemDst, text, 1);
-}
 /*
 void finSAR_editUIDialog::ChartTheRoute(wxString myRoute) {
   PlugIn_Route_Ex* newRoute =
@@ -791,7 +717,244 @@ void finSAR_editUIDialog::MakeEBLEvent() {
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::OnLoadRTZ(wxCommandEvent& event) {
+void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
+
+  // This sleep is needed to give the time for the currently pressed modifier
+  // keys, if any, to be released. Notice that Control modifier could well be
+  // pressed if this command was activated from the menu using accelerator
+  // and keeping it pressed would totally derail the test below, e.g. "A" key
+  // press would actually become "Ctrl+A" selecting the entire text and so on.
+ 
+  
+  wxMessageBox("Press \"End Route\" on completion");
+
+  pParent->SetFocus();
+  wxUIActionSimulator sim;
+  sim.KeyDown(82, wxMOD_CONTROL);
+
+ 
+ // sim.KeyUp(82, wxMOD_CONTROL);
+
+}
+
+void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
+  // This sleep is needed to give the time for the currently pressed modifier
+  // keys, if any, to be released. Notice that Control modifier could well be
+  // pressed if this command was activated from the menu using accelerator
+  // and keeping it pressed would totally derail the test below, e.g. "A" key
+  // press would actually become "Ctrl+A" selecting the entire text and so on.
+
+  pPlugIn->m_pfinSAR_editDialog->SetFocus();
+  wxUIActionSimulator sim;
+  sim.KeyUp(82, wxMOD_CONTROL);
+
+  // 
+  std::vector<std::unique_ptr<PlugIn_Route_Ex>> routes;
+  auto uids = GetRouteGUIDArray();
+  for (size_t i = 0; i < uids.size(); i++) {
+    routes.push_back(std::move(GetRouteEx_Plugin(uids[i])));
+  }
+
+  GetRouteDialog RouteDialog(this, -1, _("Select the route to follow"),
+                             wxPoint(200, 200), wxSize(300, 200),
+                             wxCAPTION | wxRESIZE_BORDER);
+
+  RouteDialog.dialogText->InsertColumn(0, "", 0, wxLIST_AUTOSIZE);
+  RouteDialog.dialogText->SetColumnWidth(0, 290);
+  RouteDialog.dialogText->InsertColumn(1, "", 0, wxLIST_AUTOSIZE);
+  RouteDialog.dialogText->SetColumnWidth(1, 0);
+  RouteDialog.dialogText->DeleteAllItems();
+
+  int in = 0;
+  std::vector<std::string> names;
+  for (const auto& r : routes) names.push_back(r->m_NameString.ToStdString());
+
+  for (size_t n = 0; n < names.size(); n++) {
+    wxString routeName = names[in];
+    if (routeName == "") {
+      wxMessageBox(
+          "Please add name of route in \"Route->Properties\"\nand try again",
+          "Missing Name");
+      return;
+    }
+    RouteDialog.dialogText->InsertItem(in, "", -1);
+    RouteDialog.dialogText->SetItem(in, 0, routeName);
+    in++;
+  }
+
+  // ReadNavobj();
+  long si = -1;
+  long itemIndex = -1;
+  // int f = 0;
+
+  wxListItem row_info;
+  wxString cell_contents_string = wxEmptyString;
+  bool foundRoute = false;
+
+  if (RouteDialog.ShowModal() != wxID_OK) {
+    wxMessageBox("Cancelled");
+  } else {
+    for (;;) {
+      itemIndex = RouteDialog.dialogText->GetNextItem(
+          itemIndex, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+
+      if (itemIndex == -1) break;
+
+      // Got the selected item index
+      if (RouteDialog.dialogText->IsSelected(itemIndex)) {
+        si = itemIndex;
+        foundRoute = true;
+        break;
+      }
+    }
+
+    if (foundRoute) {
+      // Set what row it is (m_itemId is a member of the regular
+      // wxListCtrl class)
+      row_info.m_itemId = si;
+      // Set what column of that row we want to query for information.
+      row_info.m_col = 0;
+      // Set text mask
+      row_info.m_mask = wxLIST_MASK_TEXT;
+
+      // Get the info and store it in row_info variable.
+      RouteDialog.dialogText->GetItem(row_info);
+      // Extract the text out that cell
+      cell_contents_string = row_info.m_text;
+      rtept initPoint;
+      nextRoutePointIndex = 0;
+      bool foundRoute = false;
+
+      for (size_t i = 0; i < uids.size(); i++) {
+        thisRoute = GetRouteEx_Plugin(uids[i]);        
+        if (thisRoute->m_NameString == cell_contents_string) {
+          foundRoute = true;
+          break;
+        }
+      }
+
+      if (foundRoute) {
+        countRoutePoints = thisRoute->pWaypointList->size();
+        myList = thisRoute->pWaypointList;
+
+        PlugIn_Waypoint_Ex* myWaypoint;
+        theWaypoints.clear();
+
+        //Plugin_WaypointExList* temp_list;
+
+        wxPlugin_WaypointExListNode* pwpnode = myList->GetFirst();
+        while (pwpnode) {
+          myWaypoint = pwpnode->GetData();
+          theWaypoints.push_back(myWaypoint);
+          //temp_list->Append(myWaypoint);
+          pwpnode = pwpnode->GetNext();
+        }
+
+        WriteRTZ(thisRoute->m_NameString);
+       
+        /*
+        temp_list->DeleteContents(true);
+        temp_list->Clear();
+
+        thisRoute.release();  // no-longer-managed object
+        thisRoute.get_deleter()(????);
+
+        }*/
+
+      } else
+        wxMessageBox("Route not found");
+    }
+  }
+
+  // 
+}
+
+void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
+  // Select the route from the route table
+  //
+  // Create Main level XML container
+  xml_document xmlDoc;
+
+  auto declarationNode = xmlDoc.append_child(node_declaration);
+
+  declarationNode.append_attribute("version") = "1.0";
+
+  declarationNode.append_attribute("encoding") = "UTF-8";
+
+
+  const char* value = "http://www.cirm.org/RTZ/1/2";
+  
+
+  // Create XML root node called animals
+  xml_node pRoot = xmlDoc.append_child("route");
+
+  pRoot.append_attribute("xmlns").set_value(value);
+  pRoot.append_attribute("xmlns:xsi")
+      .set_value("http://www.w3.org/2001/XMLSchema-instance");
+
+  pRoot.append_attribute("version").set_value("1.2");
+  
+  // ************* Add routeInfo to root node *******
+
+  xml_node routeInfo = pRoot.append_child("routeInfo");
+  routeInfo.append_attribute("routeName").set_value(route_name.mb_str());
+
+  // Insert cat's name as first child of animal
+
+  // ************* Add waypoints *******
+  xml_node waypoints = pRoot.append_child("waypoints");
+
+  int idn = 0;
+
+  for (std::vector<PlugIn_Waypoint_Ex*>::iterator itOut = theWaypoints.begin();
+       itOut != theWaypoints.end(); itOut++) {
+    xml_node m_waypoint = waypoints.append_child("waypoint");
+    wxString myIdn = wxString::Format(wxT("%i"), idn);
+    m_waypoint.append_attribute("id").set_value(myIdn.mb_str());
+    m_waypoint.append_attribute("name").set_value((*itOut)->m_MarkName.mb_str());
+    m_waypoint.append_attribute("revision").set_value("0");
+
+    xml_node position = m_waypoint.append_child("position");
+    double dLat = (*itOut)->m_lat;
+    double dLon = (*itOut)->m_lon;
+    wxString sLat = wxString::Format("%f", dLat);
+    wxString sLon = wxString::Format("%f", dLon);
+
+    position.append_attribute("lat").set_value(sLat);
+    position.append_attribute("lon").set_value(sLon);
+
+    idn++;
+  }
+  // done adding waypoints
+  // Write xmlDoc into a file
+
+  wxFileDialog dlg(this, _("Save in RTZ format"), wxEmptyString, route_name,
+                   " RTZ files(*.rtz) | *.rtz;*RTZ",
+                   wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+  if (dlg.ShowModal() == wxID_OK) {
+    if (dlg.GetPath() != wxEmptyString) {
+      wxString file_name = dlg.GetFilename();
+      wxString file_path = dlg.GetPath();
+
+      // Route name must be the same as the file name, without file extension
+
+      int fl = file_name.length();
+      wxString rtz_name = file_name.SubString(0, (fl - 5));
+
+      if (route_name != rtz_name) {
+        wxMessageBox(_("RTZ file name must be the same as route name"),
+                     "Error");
+        return;
+      }
+
+      xmlDoc.save_file(file_path.mb_str());
+      return;
+    } else
+      return;
+  }
+}
+  void finSAR_editUIDialog::OnLoadRTZ(wxCommandEvent& event) {
   ReadRTZ();
   //ChartTheRoute(mySelectedRoute);
   i_vector.clear();
@@ -973,15 +1136,7 @@ void finSAR_editUIDialog::ReadRTZ() {
   pugi::xml_parse_result result =
       xmlDoc.load_file(filename.mb_str(), parse_default | parse_declaration);
 
-  string rtz_version = xmlDoc.child("route").attribute("version").value();
-
-  if (rtz_version == "1.0") {
-    m_choiceSchema->SetSelection(0);
-  } else if (rtz_version == "1.1") {
-    m_choiceSchema->SetSelection(1);
-  } else if (rtz_version == "1.2") {
-    m_choiceSchema->SetSelection(2);
-  }
+  string rtz_version = xmlDoc.child("route").attribute("version").value();  
 
   pugi::xml_node pRoot = xmlDoc.child("route").child("routeInfo");
   if (pRoot == nullptr) return;
@@ -1157,11 +1312,9 @@ ConfigurationDialog::~ConfigurationDialog() {
   m_bDelete->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
                         wxCommandEventHandler(ConfigurationDialog::OnDelete),
                         NULL, this);
-  m_bSelect->Disconnect(
-      wxEVT_COMMAND_BUTTON_CLICKED,
+  m_bSelect->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
       wxCommandEventHandler(ConfigurationDialog::OnInformation), NULL, this);
-  m_bGenerate->Disconnect(
-      wxEVT_COMMAND_BUTTON_CLICKED,
+  m_bGenerate->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
       wxCommandEventHandler(ConfigurationDialog::OnGenerate), NULL, this);
   m_bClose->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
                        wxCommandEventHandler(ConfigurationDialog::OnClose),

@@ -63,6 +63,10 @@
 #include <wx/app.h>
 #include <cmath>
 
+#if wxUSE_UIACTIONSIMULATOR
+#include "wx/uiaction.h"
+#endif
+
 /* XPM */
 static const char* eye[] = {"20 20 7 1",
                             ". c none",
@@ -312,11 +316,8 @@ public:
   wxString rte_start;
   wxString rte_end;
 
-  wxString thisRoute;
+  //wxString thisRoute;
   void AddTestItems(wxCommandEvent& event);
-  void OnBeginDrag(wxTreeEvent& event);
-  void OnEndDrag(wxTreeEvent& event);
-  wxTreeItemId m_draggedItem;
   ConfigurationDialog m_ConfigurationDialog;
 
   PlugIn_ViewPort *m_vp, m_current_vp;
@@ -397,13 +398,18 @@ private:
   wxString rtz_version;
   void SetBearingWaypoint();
   wxArrayString my_areas[10], my_files[10][10];
-  void AddAreas();
   int ca, cf;
   wxString id_wpt;
   void ReadRTZ();
   Position* FindActiveWaypoint(wxString wpt_name);
   Position* active_waypoint;
   Position* prev_waypoint;
+  void OnNewRoute(wxCommandEvent& event);
+  void OnEndRoute(wxCommandEvent& event);
+  unique_ptr<PlugIn_Route_Ex> thisRoute;
+  vector<PlugIn_Waypoint_Ex*> theWaypoints;
+  Plugin_WaypointExList* myList;
+  void WriteRTZ(wxString route_name);
   void OnLoadRTZ(wxCommandEvent& event);
   //void ChartTheRoute(wxString myRoute);
   void OnIndex(wxCommandEvent& event);
@@ -412,6 +418,8 @@ private:
   void FindRange(Position* A, Position* B);
   void OnDirection(wxCommandEvent& event);
   void FindDirection(Position* A, Position* B);
+
+
  
 };
 

@@ -23,49 +23,129 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 
 	m_notebook1 = new wxNotebook( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0 );
 	m_notebook1->SetFont( wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
+	m_notebook1->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOW ) );
 
 	m_panelRoutes = new wxPanel( m_notebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_panelRoutes->SetBackgroundColour( wxColour( 128, 255, 128 ) );
+	m_panelRoutes->SetBackgroundColour( wxColour( 128, 255, 255 ) );
 
-	wxBoxSizer* bSizer7;
-	bSizer7 = new wxBoxSizer( wxVERTICAL );
+	wxBoxSizer* bSizer9;
+	bSizer9 = new wxBoxSizer( wxVERTICAL );
 
-	m_treeCtrlRoutes = new wxTreeCtrl( m_panelRoutes, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTR_DEFAULT_STYLE|wxTR_LINES_AT_ROOT|wxTR_MULTIPLE );
-	bSizer7->Add( m_treeCtrlRoutes, 1, wxALL|wxEXPAND, 5 );
+	m_textCtrl9 = new wxTextCtrl( m_panelRoutes, wxID_ANY, _("Routes"), wxDefaultPosition, wxDefaultSize, wxTE_CENTER );
+	bSizer9->Add( m_textCtrl9, 0, wxALL|wxEXPAND, 5 );
 
-	wxFlexGridSizer* fgSizer4;
-	fgSizer4 = new wxFlexGridSizer( 1, 3, 0, 0 );
-	fgSizer4->SetFlexibleDirection( wxBOTH );
-	fgSizer4->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
+	m_button11 = new wxButton( m_panelRoutes, wxID_ANY, _("New Route"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_button11->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_ACTIVECAPTION ) );
 
-	m_buttonAddTestItems = new wxButton( m_panelRoutes, wxID_ANY, _("Add test items"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_buttonAddTestItems->SetFont( wxFont( 9, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
-	m_buttonAddTestItems->SetForegroundColour( wxColour( 255, 255, 255 ) );
-	m_buttonAddTestItems->SetBackgroundColour( wxColour( 255, 0, 0 ) );
+	bSizer9->Add( m_button11, 0, wxALL|wxEXPAND, 5 );
 
-	fgSizer4->Add( m_buttonAddTestItems, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+	wxBoxSizer* bSizer101;
+	bSizer101 = new wxBoxSizer( wxHORIZONTAL );
 
-	wxArrayString m_choiceSchemaChoices;
-	m_choiceSchema = new wxChoice( m_panelRoutes, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_choiceSchemaChoices, 0 );
-	m_choiceSchema->SetSelection( 0 );
-	fgSizer4->Add( m_choiceSchema, 0, wxALL, 5 );
+	m_staticText2 = new wxStaticText( m_panelRoutes, wxID_ANY, _("Ops Area    "), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText2->Wrap( -1 );
+	bSizer101->Add( m_staticText2, 0, wxALL, 5 );
+
+	wxString m_choice2Choices[] = { _("Area 1"), _("Area 2"), _("Area 3") };
+	int m_choice2NChoices = sizeof( m_choice2Choices ) / sizeof( wxString );
+	m_choice2 = new wxChoice( m_panelRoutes, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_choice2NChoices, m_choice2Choices, 0 );
+	m_choice2->SetSelection( 0 );
+	bSizer101->Add( m_choice2, 0, wxALL|wxEXPAND, 5 );
+
+
+	bSizer9->Add( bSizer101, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* bSizer1011;
+	bSizer1011 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_staticText21 = new wxStaticText( m_panelRoutes, wxID_ANY, _("VesselType"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText21->Wrap( -1 );
+	bSizer1011->Add( m_staticText21, 0, wxALL, 5 );
+
+	wxString m_choice21Choices[] = { _("Vessel 1"), _("Vessel 2"), _("Vessel 3") };
+	int m_choice21NChoices = sizeof( m_choice21Choices ) / sizeof( wxString );
+	m_choice21 = new wxChoice( m_panelRoutes, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_choice21NChoices, m_choice21Choices, 0 );
+	m_choice21->SetSelection( 0 );
+	bSizer1011->Add( m_choice21, 0, wxALL|wxEXPAND, 5 );
+
+
+	bSizer9->Add( bSizer1011, 0, wxEXPAND, 5 );
+
+	m_button112 = new wxButton( m_panelRoutes, wxID_ANY, _("End Route"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_button112->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_INACTIVECAPTION ) );
+
+	bSizer9->Add( m_button112, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticBoxSizer* sbSizer2;
+	sbSizer2 = new wxStaticBoxSizer( new wxStaticBox( m_panelRoutes, wxID_ANY, _("Route Selection") ), wxVERTICAL );
+
+
+	bSizer9->Add( sbSizer2, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* bSizer10;
+	bSizer10 = new wxBoxSizer( wxVERTICAL );
+
+	m_buttonAddTestItems = new wxButton( m_panelRoutes, wxID_ANY, _("Show existing Routes"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonAddTestItems->SetFont( wxFont( 12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
+	m_buttonAddTestItems->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNTEXT ) );
+	m_buttonAddTestItems->SetBackgroundColour( wxColour( 0, 255, 0 ) );
+
+	bSizer10->Add( m_buttonAddTestItems, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
+
+	m_listBox1 = new wxListBox( m_panelRoutes, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_HSCROLL|wxLB_NEEDED_SB );
+	bSizer10->Add( m_listBox1, 0, wxALL|wxEXPAND, 5 );
 
 	m_bLoadRTZ = new wxButton( m_panelRoutes, wxID_ANY, _("Load RTZ"), wxDefaultPosition, wxDefaultSize, 0 );
-	fgSizer4->Add( m_bLoadRTZ, 0, wxALL, 5 );
+	m_bLoadRTZ->SetBackgroundColour( wxColour( 255, 108, 108 ) );
+
+	bSizer10->Add( m_bLoadRTZ, 0, wxALL|wxEXPAND, 5 );
+
+	wxStaticBoxSizer* sbSizer3;
+	sbSizer3 = new wxStaticBoxSizer( new wxStaticBox( m_panelRoutes, wxID_ANY, _("Route in use") ), wxVERTICAL );
+
+	m_textCtrl5 = new wxTextCtrl( sbSizer3->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	sbSizer3->Add( m_textCtrl5, 0, wxALL|wxEXPAND, 5 );
+
+	m_staticText3 = new wxStaticText( sbSizer3->GetStaticBox(), wxID_ANY, _("Extensions File"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText3->Wrap( -1 );
+	sbSizer3->Add( m_staticText3, 0, wxALL, 5 );
+
+	m_textCtrl6 = new wxTextCtrl( sbSizer3->GetStaticBox(), wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	sbSizer3->Add( m_textCtrl6, 0, wxALL|wxEXPAND, 5 );
 
 
-	bSizer7->Add( fgSizer4, 1, wxEXPAND, 5 );
+	bSizer10->Add( sbSizer3, 1, wxEXPAND, 5 );
 
 
-	m_panelRoutes->SetSizer( bSizer7 );
+	bSizer9->Add( bSizer10, 1, wxEXPAND, 5 );
+
+	wxBoxSizer* bSizer11;
+	bSizer11 = new wxBoxSizer( wxVERTICAL );
+
+
+	bSizer9->Add( bSizer11, 1, wxEXPAND, 5 );
+
+
+	m_panelRoutes->SetSizer( bSizer9 );
 	m_panelRoutes->Layout();
-	bSizer7->Fit( m_panelRoutes );
+	bSizer9->Fit( m_panelRoutes );
 	m_notebook1->AddPage( m_panelRoutes, _("         Routes       "), true );
 	m_panelExtensions = new wxPanel( m_notebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	m_panelExtensions->SetBackgroundColour( wxColour( 255, 164, 119 ) );
+	m_panelExtensions->SetBackgroundColour( wxColour( 139, 197, 197 ) );
 
 	wxBoxSizer* bSizer71;
 	bSizer71 = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* bSizer25;
+	bSizer25 = new wxBoxSizer( wxVERTICAL );
+
+	m_textCtrl8 = new wxTextCtrl( m_panelExtensions, wxID_ANY, _("Extensions"), wxDefaultPosition, wxDefaultSize, wxTE_CENTER );
+	bSizer25->Add( m_textCtrl8, 0, wxALL|wxEXPAND, 5 );
+
+	m_button15 = new wxButton( m_panelExtensions, wxID_ANY, _("Load Extensions File"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_button15->SetBackgroundColour( wxColour( 0, 255, 0 ) );
+
+	bSizer25->Add( m_button15, 0, wxALL|wxEXPAND, 5 );
 
 	wxBoxSizer* bSizer8;
 	bSizer8 = new wxBoxSizer( wxVERTICAL );
@@ -78,7 +158,23 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	bSizer8->Add( m_textRTZFileName, 0, wxALL|wxEXPAND, 5 );
 
 
-	bSizer71->Add( bSizer8, 0, wxEXPAND, 5 );
+	bSizer25->Add( bSizer8, 0, wxEXPAND, 5 );
+
+	wxBoxSizer* bSizer81;
+	bSizer81 = new wxBoxSizer( wxVERTICAL );
+
+	m_staticText11 = new wxStaticText( m_panelExtensions, wxID_ANY, _("Extensions File"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText11->Wrap( -1 );
+	bSizer81->Add( m_staticText11, 0, wxALL, 5 );
+
+	m_textExtensionsFileName = new wxTextCtrl( m_panelExtensions, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer81->Add( m_textExtensionsFileName, 0, wxALL|wxEXPAND, 5 );
+
+
+	bSizer25->Add( bSizer81, 1, wxEXPAND, 5 );
+
+
+	bSizer71->Add( bSizer25, 0, wxEXPAND, 5 );
 
 	wxStaticBoxSizer* sbSizer4;
 	sbSizer4 = new wxStaticBoxSizer( new wxStaticBox( m_panelExtensions, wxID_ANY, _("Objects Editor") ), wxHORIZONTAL );
@@ -93,24 +189,6 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	fgSizer2 = new wxFlexGridSizer( 0, 3, 0, 0 );
 	fgSizer2->SetFlexibleDirection( wxBOTH );
 	fgSizer2->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
-
-	m_staticline3 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline3, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline4 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline4, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline5 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline5, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline6 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline6, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline7 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline7, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline8 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline8, 0, wxEXPAND | wxALL, 5 );
 
 	m_buttonAttach = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Index"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_buttonAttach->SetFont( wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
@@ -127,41 +205,11 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 
 	fgSizer2->Add( m_buttonAttach2, 0, wxALL, 5 );
 
-	m_staticline10 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline10, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline11 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline11, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline12 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline12, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline13 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline13, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline14 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline14, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline15 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline15, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline16 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline16, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline17 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline17, 0, wxEXPAND | wxALL, 5 );
-
-	m_staticline18 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	fgSizer2->Add( m_staticline18, 0, wxEXPAND | wxALL, 5 );
-
 	m_staticline20 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	fgSizer2->Add( m_staticline20, 0, wxEXPAND | wxALL, 5 );
 
 	m_staticline21 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	fgSizer2->Add( m_staticline21, 0, wxEXPAND | wxALL, 5 );
-
-	m_buttonSave = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Save"), wxDefaultPosition, wxDefaultSize, 0 );
-	fgSizer2->Add( m_buttonSave, 0, wxALL, 5 );
 
 	m_staticline22 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	fgSizer2->Add( m_staticline22, 0, wxEXPAND | wxALL, 5 );
@@ -214,6 +262,17 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 
 	bSizer5->Add( fgSizer2, 1, wxEXPAND, 5 );
 
+	wxBoxSizer* bSizer21;
+	bSizer21 = new wxBoxSizer( wxVERTICAL );
+
+	m_buttonSave = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Save"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonSave->SetBackgroundColour( wxColour( 255, 72, 72 ) );
+
+	bSizer21->Add( m_buttonSave, 0, wxALL|wxEXPAND, 5 );
+
+
+	bSizer5->Add( bSizer21, 0, wxEXPAND, 5 );
+
 
 	bSizer1->Add( bSizer5, 1, wxEXPAND, 5 );
 
@@ -251,15 +310,34 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	m_menubar3->Append( m_mHelp, _("Help") );
 
 	m_mRoutes = new wxMenu();
-	wxMenuItem* m_mLoadRTZ;
-	m_mLoadRTZ = new wxMenuItem( m_mRoutes, wxID_ANY, wxString( _("Load RTZ") ) , wxEmptyString, wxITEM_NORMAL );
-	m_mRoutes->Append( m_mLoadRTZ );
+	wxMenuItem* m_mNewRoute;
+	m_mNewRoute = new wxMenuItem( m_mRoutes, wxID_ANY, wxString( _("New Route") ) , wxEmptyString, wxITEM_NORMAL );
+	m_mRoutes->Append( m_mNewRoute );
 
-	wxMenuItem* m_mAbout1;
-	m_mAbout1 = new wxMenuItem( m_mRoutes, wxID_ANY, wxString( _("About") ) , wxEmptyString, wxITEM_NORMAL );
-	m_mRoutes->Append( m_mAbout1 );
+	wxMenuItem* m_mSaveRTZ;
+	m_mSaveRTZ = new wxMenuItem( m_mRoutes, wxID_ANY, wxString( _("Save as RTZ") ) , wxEmptyString, wxITEM_NORMAL );
+	m_mRoutes->Append( m_mSaveRTZ );
+
+	wxMenuItem* m_mLoadAllRTZ;
+	m_mLoadAllRTZ = new wxMenuItem( m_mRoutes, wxID_ANY, wxString( _("Load All RTZ") ) , wxEmptyString, wxITEM_NORMAL );
+	m_mRoutes->Append( m_mLoadAllRTZ );
+
+	wxMenuItem* m_mLoadSelectedRTZ;
+	m_mLoadSelectedRTZ = new wxMenuItem( m_mRoutes, wxID_ANY, wxString( _("Load Selected RTZ") ) , wxEmptyString, wxITEM_NORMAL );
+	m_mRoutes->Append( m_mLoadSelectedRTZ );
 
 	m_menubar3->Append( m_mRoutes, _("Routes") );
+
+	m_mExtensions = new wxMenu();
+	wxMenuItem* m_mLoadExtensionsFile;
+	m_mLoadExtensionsFile = new wxMenuItem( m_mExtensions, wxID_ANY, wxString( _("New Extensions File") ) , wxEmptyString, wxITEM_NORMAL );
+	m_mExtensions->Append( m_mLoadExtensionsFile );
+
+	wxMenuItem* m_mSaveExtensionsFile;
+	m_mSaveExtensionsFile = new wxMenuItem( m_mExtensions, wxID_ANY, wxString( _("Save Extensions File") ) , wxEmptyString, wxITEM_NORMAL );
+	m_mExtensions->Append( m_mSaveExtensionsFile );
+
+	m_menubar3->Append( m_mExtensions, _("Extensions") );
 
 	this->SetMenuBar( m_menubar3 );
 
@@ -270,24 +348,29 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( finSAR_editUIDialogBase::OnClose ) );
 	this->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ) );
 	this->Connect( wxEVT_SIZE, wxSizeEventHandler( finSAR_editUIDialogBase::OnSize ) );
-	m_treeCtrlRoutes->Connect( wxEVT_COMMAND_TREE_BEGIN_DRAG, wxTreeEventHandler( finSAR_editUIDialogBase::OnBeginDrag ), NULL, this );
-	m_treeCtrlRoutes->Connect( wxEVT_COMMAND_TREE_END_DRAG, wxTreeEventHandler( finSAR_editUIDialogBase::OnEndDrag ), NULL, this );
+	m_button11->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnNewRoute ), NULL, this );
+	m_button112->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnEndRoute ), NULL, this );
 	m_buttonAddTestItems->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::AddTestItems ), NULL, this );
 	m_bLoadRTZ->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadRTZ ), NULL, this );
 	m_panelExtensions->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ), NULL, this );
+	m_button15->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadExtensionsFile ), NULL, this );
 	m_buttonAttach->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnIndex ), NULL, this );
 	m_buttonAttach1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnRange ), NULL, this );
 	m_buttonAttach2->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnDirection ), NULL, this );
-	m_buttonSave->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveObjects ), NULL, this );
 	m_bButtonBearing1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnButtonEBL ), NULL, this );
 	m_Lat1->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ), NULL, this );
 	m_button8->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnButtonEBL_off ), NULL, this );
 	m_Lon1->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ), NULL, this );
+	m_buttonSave->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveObjects ), NULL, this );
 	this->Connect( m_timer1.GetId(), wxEVT_TIMER, wxTimerEventHandler( finSAR_editUIDialogBase::OnTimer ) );
 	m_mHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnInformation ), this, m_mInformation->GetId());
 	m_mHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnAbout ), this, m_mAbout->GetId());
-	m_mRoutes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnInformation ), this, m_mLoadRTZ->GetId());
-	m_mRoutes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnAbout ), this, m_mAbout1->GetId());
+	m_mRoutes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnNewRoute ), this, m_mNewRoute->GetId());
+	m_mRoutes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveRTZ ), this, m_mSaveRTZ->GetId());
+	m_mRoutes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadAllRTZ ), this, m_mLoadAllRTZ->GetId());
+	m_mRoutes->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadSelectedRTZ ), this, m_mLoadSelectedRTZ->GetId());
+	m_mExtensions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadExtensionsFile ), this, m_mLoadExtensionsFile->GetId());
+	m_mExtensions->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveExtensionsFile ), this, m_mSaveExtensionsFile->GetId());
 }
 
 finSAR_editUIDialogBase::~finSAR_editUIDialogBase()
@@ -296,19 +379,20 @@ finSAR_editUIDialogBase::~finSAR_editUIDialogBase()
 	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( finSAR_editUIDialogBase::OnClose ) );
 	this->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ) );
 	this->Disconnect( wxEVT_SIZE, wxSizeEventHandler( finSAR_editUIDialogBase::OnSize ) );
-	m_treeCtrlRoutes->Disconnect( wxEVT_COMMAND_TREE_BEGIN_DRAG, wxTreeEventHandler( finSAR_editUIDialogBase::OnBeginDrag ), NULL, this );
-	m_treeCtrlRoutes->Disconnect( wxEVT_COMMAND_TREE_END_DRAG, wxTreeEventHandler( finSAR_editUIDialogBase::OnEndDrag ), NULL, this );
+	m_button11->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnNewRoute ), NULL, this );
+	m_button112->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnEndRoute ), NULL, this );
 	m_buttonAddTestItems->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::AddTestItems ), NULL, this );
 	m_bLoadRTZ->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadRTZ ), NULL, this );
 	m_panelExtensions->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ), NULL, this );
+	m_button15->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadExtensionsFile ), NULL, this );
 	m_buttonAttach->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnIndex ), NULL, this );
 	m_buttonAttach1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnRange ), NULL, this );
 	m_buttonAttach2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnDirection ), NULL, this );
-	m_buttonSave->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveObjects ), NULL, this );
 	m_bButtonBearing1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnButtonEBL ), NULL, this );
 	m_Lat1->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ), NULL, this );
 	m_button8->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnButtonEBL_off ), NULL, this );
 	m_Lon1->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ), NULL, this );
+	m_buttonSave->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveObjects ), NULL, this );
 	this->Disconnect( m_timer1.GetId(), wxEVT_TIMER, wxTimerEventHandler( finSAR_editUIDialogBase::OnTimer ) );
 
 }
