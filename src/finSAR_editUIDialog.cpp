@@ -416,11 +416,7 @@ void finSAR_editUIDialog::AddTestItems(wxCommandEvent& event) {
   // wxMessageBox(my_areas[1].Item(0));
   // wxMessageBox(testca);
   // wxMessageBox(testcf);
-
-
 }
-
-
 
 /*
 void finSAR_editUIDialog::ChartTheRoute(wxString myRoute) {
@@ -440,32 +436,32 @@ void finSAR_editUIDialog::ChartTheRoute(wxString myRoute) {
     wayPoint->m_MarkName = (*itp).wpName;
 
     //if (!(*itp).lat.ToDouble(&value)) { /* error! */
-    //}
-    //lati = value;
-    //if (!(*itp).lon.ToDouble(&value1)) { /* error! */
-   // }
-   // loni = value1;
+//}
+// lati = value;
+// if (!(*itp).lon.ToDouble(&value1)) { /* error! */
+// }
+// loni = value1;
 
-    /*
-    m_bNameVisible = (*itp).is_visible;
-    m_bNameVisible = true;
+/*
+m_bNameVisible = (*itp).is_visible;
+m_bNameVisible = true;
 
-    wayPoint->m_lat = lati;
-    wayPoint->m_lon = loni;
-    wayPoint->IsVisible = true;
-    //wayPoint->IsNameVisible = m_bNameVisible;
+wayPoint->m_lat = lati;
+wayPoint->m_lon = loni;
+wayPoint->IsVisible = true;
+//wayPoint->IsNameVisible = m_bNameVisible;
 
-    wayPoint->IconName = "diamond";
+wayPoint->IconName = "diamond";
 
-    newRoute->pWaypointList->Append(wayPoint);
-  }
+newRoute->pWaypointList->Append(wayPoint);
+}
 
-  AddPlugInRouteEx(newRoute, true);
+AddPlugInRouteEx(newRoute, true);
 
-  wxMessageBox("Route & Mark Manager will show the imported route",
-               "Imported Route");
+wxMessageBox("Route & Mark Manager will show the imported route",
+           "Imported Route");
 
-  GetParent()->Refresh();
+GetParent()->Refresh();
 }
 */
 int finSAR_editUIDialog::GetScale(double myChartScale) {
@@ -718,23 +714,19 @@ void finSAR_editUIDialog::MakeEBLEvent() {
 }
 
 void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
-
   // This sleep is needed to give the time for the currently pressed modifier
   // keys, if any, to be released. Notice that Control modifier could well be
   // pressed if this command was activated from the menu using accelerator
   // and keeping it pressed would totally derail the test below, e.g. "A" key
   // press would actually become "Ctrl+A" selecting the entire text and so on.
- 
-  
+
   wxMessageBox("Press \"End Route\" on completion");
 
   pParent->SetFocus();
   wxUIActionSimulator sim;
   sim.KeyDown(82, wxMOD_CONTROL);
 
- 
- // sim.KeyUp(82, wxMOD_CONTROL);
-
+  // sim.KeyUp(82, wxMOD_CONTROL);
 }
 
 void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
@@ -748,7 +740,7 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
   wxUIActionSimulator sim;
   sim.KeyUp(82, wxMOD_CONTROL);
 
-  // 
+  //
   std::vector<std::unique_ptr<PlugIn_Route_Ex>> routes;
   auto uids = GetRouteGUIDArray();
   for (size_t i = 0; i < uids.size(); i++) {
@@ -826,7 +818,7 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
       bool foundRoute = false;
 
       for (size_t i = 0; i < uids.size(); i++) {
-        thisRoute = GetRouteEx_Plugin(uids[i]);        
+        thisRoute = GetRouteEx_Plugin(uids[i]);
         if (thisRoute->m_NameString == cell_contents_string) {
           foundRoute = true;
           break;
@@ -840,33 +832,32 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
         PlugIn_Waypoint_Ex* myWaypoint;
         theWaypoints.clear();
 
-        //Plugin_WaypointExList* temp_list;
+        // Plugin_WaypointExList* temp_list;
 
         wxPlugin_WaypointExListNode* pwpnode = myList->GetFirst();
         while (pwpnode) {
           myWaypoint = pwpnode->GetData();
           theWaypoints.push_back(myWaypoint);
-          //temp_list->Append(myWaypoint);
+          // temp_list->Append(myWaypoint);
           pwpnode = pwpnode->GetNext();
         }
 
         WriteRTZ(thisRoute->m_NameString);
-       
+
         /*
         temp_list->DeleteContents(true);
         temp_list->Clear();
 
-        thisRoute.release();  // no-longer-managed object
-        thisRoute.get_deleter()(????);
-
-        }*/
+        thisRoute->pWaypointList->Clear();  // no-longer-managed object
+        thisRoute->pWaypointList->delete()(thisRoute->pWaypointList);
+        */
 
       } else
         wxMessageBox("Route not found");
     }
   }
 
-  // 
+  //
 }
 
 void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
@@ -881,9 +872,7 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
 
   declarationNode.append_attribute("encoding") = "UTF-8";
 
-
   const char* value = "http://www.cirm.org/RTZ/1/2";
-  
 
   // Create XML root node called animals
   xml_node pRoot = xmlDoc.append_child("route");
@@ -893,7 +882,7 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
       .set_value("http://www.w3.org/2001/XMLSchema-instance");
 
   pRoot.append_attribute("version").set_value("1.2");
-  
+
   // ************* Add routeInfo to root node *******
 
   xml_node routeInfo = pRoot.append_child("routeInfo");
@@ -911,7 +900,8 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
     xml_node m_waypoint = waypoints.append_child("waypoint");
     wxString myIdn = wxString::Format(wxT("%i"), idn);
     m_waypoint.append_attribute("id").set_value(myIdn.mb_str());
-    m_waypoint.append_attribute("name").set_value((*itOut)->m_MarkName.mb_str());
+    m_waypoint.append_attribute("name").set_value(
+        (*itOut)->m_MarkName.mb_str());
     m_waypoint.append_attribute("revision").set_value("0");
 
     xml_node position = m_waypoint.append_child("position");
@@ -954,18 +944,17 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
       return;
   }
 }
-  void finSAR_editUIDialog::OnLoadRTZ(wxCommandEvent& event) {
+void finSAR_editUIDialog::OnLoadRTZ(wxCommandEvent& event) {
   ReadRTZ();
-  //ChartTheRoute(mySelectedRoute);
+  // ChartTheRoute(mySelectedRoute);
   i_vector.clear();
 }
 
 void finSAR_editUIDialog::OnIndex(wxCommandEvent& event) {
-  //ReadRTZ();
+  // ReadRTZ();
   std::string str = "finSAR_edit_pi_pi";
   SendPluginMessage(wxString("finSAR_edit_pi_pi"), str);
   return;
-
 
   active_waypoint = FindActiveWaypoint(id_wpt);
   if (active_waypoint->wpName == wxEmptyString) {
@@ -1136,7 +1125,7 @@ void finSAR_editUIDialog::ReadRTZ() {
   pugi::xml_parse_result result =
       xmlDoc.load_file(filename.mb_str(), parse_default | parse_declaration);
 
-  string rtz_version = xmlDoc.child("route").attribute("version").value();  
+  string rtz_version = xmlDoc.child("route").attribute("version").value();
 
   pugi::xml_node pRoot = xmlDoc.child("route").child("routeInfo");
   if (pRoot == nullptr) return;
@@ -1312,9 +1301,11 @@ ConfigurationDialog::~ConfigurationDialog() {
   m_bDelete->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
                         wxCommandEventHandler(ConfigurationDialog::OnDelete),
                         NULL, this);
-  m_bSelect->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
+  m_bSelect->Disconnect(
+      wxEVT_COMMAND_BUTTON_CLICKED,
       wxCommandEventHandler(ConfigurationDialog::OnInformation), NULL, this);
-  m_bGenerate->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
+  m_bGenerate->Disconnect(
+      wxEVT_COMMAND_BUTTON_CLICKED,
       wxCommandEventHandler(ConfigurationDialog::OnGenerate), NULL, this);
   m_bClose->Disconnect(wxEVT_COMMAND_BUTTON_CLICKED,
                        wxCommandEventHandler(ConfigurationDialog::OnClose),
