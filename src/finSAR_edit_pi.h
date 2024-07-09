@@ -142,6 +142,8 @@ public:
   void dbGetTable(wxString sql, char ***results, int &n_rows, int &n_columns);
   void dbFreeResults(char **results);
   int GetRoute_Id(wxString route_name);
+  void FillRouteNamesDropdown();
+  wxArrayString GetRouteList();
 
 private:
   double m_cursor_lat, m_cursor_lon;

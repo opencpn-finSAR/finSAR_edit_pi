@@ -125,7 +125,7 @@ int finSAR_edit_pi::Init(void) {
   bool newDB = !wxFileExists(dbpath);
   b_dbUsable = true;
 
-  void *cache;  // SOLUTION
+  //void *cache;  // SOLUTION
 
   ret = sqlite3_open_v2(dbpath.mb_str(), &m_database,
                         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
@@ -226,6 +226,8 @@ void finSAR_edit_pi::OnToolbarToolCallback(int id) {
         0,
         0);  // workaround for gtk autocentre dialog behavior
     m_pfinSAR_editDialog->Move(p);
+
+    FillRouteNamesDropdown();
 
     // Create the drawing factory
     m_pfinSAR_editOverlayFactory =
@@ -345,8 +347,7 @@ void finSAR_edit_pi::DeleteRTZ_Id(int id) {
 }
 
 void finSAR_edit_pi::DeleteRTZ_Name(wxString route_name) {
-  wxString sql;
-  bool deleted;
+  wxString sql; 
   sql = wxString::Format("DELETE FROM RTZ WHERE route_name = %s",
                          route_name.c_str());
   wxMessageBox(sql);
@@ -400,6 +401,43 @@ void finSAR_edit_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
 
 void finSAR_edit_pi::dbFreeResults(char **results) {
   sqlite3_free_table(results);
+}
+
+void finSAR_edit_pi::FillRouteNamesDropdown() {
+  m_pfinSAR_editDialog->m_choiceRoutes->Clear();
+  
+  m_pfinSAR_editDialog->m_choiceRoutes->Append(GetRouteList());
+  /*
+  for (int i = 0; i < GetSurveyList().Count(); i++) {
+    if (GetSurveyList()[i] == m_activesurveyname) {
+      m_pSurveyDialog->m_chSurvey->SetSelection(i);
+      int st = GetSurveyId(m_pSurveyDialog->m_chSurvey->GetString(0));
+      SetActiveSurveyId(st);
+    } else {
+      m_pSurveyDialog->m_chSurvey->SetSelection(0);
+      int s = GetSurveyId(m_pSurveyDialog->m_chSurvey->GetString(0));
+      SetActiveSurveyId(s);
+    }
+  }
+  */
+}
+
+wxArrayString finSAR_edit_pi::GetRouteList() {
+  char **result;
+  int n_rows;
+  int n_columns;
+
+  dbGetTable(_T("SELECT * FROM RTZ"), &result, n_rows, n_columns);
+  wxArrayString routes;
+  for (int i = 1; i <= n_rows; i++) {
+    char *id = result[(i * n_columns) + 0];
+    char *name = result[(i * n_columns) + 1];
+    int route_id = atoi(id);
+    wxString route_name(name, wxConvUTF8);
+    routes.Add(route_name);
+  }
+  dbFreeResults(result);
+  return routes;
 }
 
 wxString finSAR_edit_pi::StandardPath() {

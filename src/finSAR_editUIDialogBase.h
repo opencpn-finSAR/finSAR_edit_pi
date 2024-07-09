@@ -53,7 +53,6 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxChoice* m_choice21;
 		wxButton* m_button112;
 		wxButton* m_buttonAddTestItems;
-		wxListBox* m_listBox1;
 		wxButton* m_bLoadRTZ;
 		wxTextCtrl* m_textCtrl5;
 		wxStaticText* m_staticText3;
@@ -115,6 +114,8 @@ class finSAR_editUIDialogBase : public wxFrame
 
 
 	public:
+		wxListBox* m_listBoxRoutes;
+		wxChoice* m_choiceRoutes;
 		wxTextCtrl* m_Lat1;
 		wxTextCtrl* m_Lon1;
 		wxMenuBar* m_menubar3;

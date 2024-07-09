@@ -92,8 +92,13 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 
 	bSizer10->Add( m_buttonAddTestItems, 0, wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND, 5 );
 
-	m_listBox1 = new wxListBox( m_panelRoutes, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_HSCROLL|wxLB_NEEDED_SB );
-	bSizer10->Add( m_listBox1, 0, wxALL|wxEXPAND, 5 );
+	m_listBoxRoutes = new wxListBox( m_panelRoutes, wxID_ANY, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB|wxLB_HSCROLL|wxLB_MULTIPLE|wxLB_NEEDED_SB );
+	bSizer10->Add( m_listBoxRoutes, 0, wxALL|wxEXPAND, 5 );
+
+	wxArrayString m_choiceRoutesChoices;
+	m_choiceRoutes = new wxChoice( m_panelRoutes, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_choiceRoutesChoices, 0 );
+	m_choiceRoutes->SetSelection( 0 );
+	bSizer10->Add( m_choiceRoutes, 0, wxALL|wxEXPAND, 5 );
 
 	m_bLoadRTZ = new wxButton( m_panelRoutes, wxID_ANY, _("Load RTZ"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_bLoadRTZ->SetBackgroundColour( wxColour( 255, 108, 108 ) );
