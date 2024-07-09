@@ -817,10 +817,12 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
       rtept initPoint;
       nextRoutePointIndex = 0;
       bool foundRoute = false;
+      wxString myGuid;
 
       for (size_t i = 0; i < uids.size(); i++) {
         thisRoute = GetRouteEx_Plugin(uids[i]);
         if (thisRoute->m_NameString == cell_contents_string) {
+          myGuid = uids[i];
           foundRoute = true;
           break;
         }
@@ -862,7 +864,7 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
         thisRoute->pWaypointList->Clear();  // no-longer-managed object
         thisRoute->pWaypointList->delete()(thisRoute->pWaypointList);
         */
-
+        DeletePlugInRoute(myGuid);
       } else
         wxMessageBox("Route not found");
     }

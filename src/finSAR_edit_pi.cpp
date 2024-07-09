@@ -420,6 +420,7 @@ void finSAR_edit_pi::FillRouteNamesDropdown() {
     }
   }
   */
+  m_pfinSAR_editDialog->m_choiceRoutes->SetSelection(0); // So something shows
 }
 
 wxArrayString finSAR_edit_pi::GetRouteList() {
