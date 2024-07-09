@@ -865,6 +865,7 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
         thisRoute->pWaypointList->delete()(thisRoute->pWaypointList);
         */
         DeletePlugInRoute(myGuid);
+        //RequestRefresh(pParent);
       } else
         wxMessageBox("Route not found");
     }
