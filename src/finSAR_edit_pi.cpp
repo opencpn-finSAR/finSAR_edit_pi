@@ -115,6 +115,42 @@ int finSAR_edit_pi::Init(void) {
   //    And load the configuration items
   LoadConfig();
 
+  err_msg = NULL;
+  wxString sql;
+
+  // Establish the location of the database file
+  wxString dbpath;
+  dbpath = StandardPath() + _T(DATABASE_NAME);
+  // wxMessageBox(dbpath);
+  bool newDB = !wxFileExists(dbpath);
+  b_dbUsable = true;
+
+  void *cache;  // SOLUTION
+
+  ret = sqlite3_open_v2(dbpath.mb_str(), &m_database,
+                        SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
+  if (ret != SQLITE_OK) {
+    wxLogMessage(_T("FINSAR_PI: cannot open '%s': %s\n"), DATABASE_NAME,
+                 sqlite3_errmsg(m_database));
+    sqlite3_close(m_database);
+    b_dbUsable = false;
+  }
+  if (newDB && b_dbUsable) {
+    // create empty db
+    sql =
+        "CREATE TABLE RTZ ("
+        "route_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+        "route_name TEXT,"
+        "created INTEGER,"
+        "submitted INTEGER)";
+    dbQuery(sql);
+
+    Add_RTZ_db("dummy.rtz");
+  }
+  // Make the folder for the RTZ files
+  wxString rtzpath;
+  rtzpath = StandardPathRTZ();
+
   // Get a pointer to the opencpn display canvas, to use as a parent for the
   // finSAR_edit dialog
   m_parent_window = GetOCPNCanvasWindow();
@@ -128,20 +164,20 @@ int finSAR_edit_pi::Init(void) {
   //    locally
   if (m_bfinSAR_editShowIcon)
 #ifdef ocpnUSE_SVG
-    m_leftclick_tool_id =
-        InsertPlugInToolSVG(_T("finSAR_edit"), _svg_finSAR_edit, _svg_finSAR_edit,
-                            _svg_finSAR_edit_toggled, wxITEM_CHECK, _("finSAR_edit"),
-                            _T(""), NULL, finSAR_edit_TOOL_POSITION, 0, this);
+    m_leftclick_tool_id = InsertPlugInToolSVG(
+        _T("finSAR_edit"), _svg_finSAR_edit, _svg_finSAR_edit,
+        _svg_finSAR_edit_toggled, wxITEM_CHECK, _("finSAR_edit"), _T(""), NULL,
+        finSAR_edit_TOOL_POSITION, 0, this);
 #else
     m_leftclick_tool_id = InsertPlugInTool(
-        _T(""), _img_finSAR_edit, _img_finSAR_edit, wxITEM_CHECK, _("finSAR_edit"), _T(""),
-        NULL, finSAR_edit_TOOL_POSITION, 0, this);
+        _T(""), _img_finSAR_edit, _img_finSAR_edit, wxITEM_CHECK,
+        _("finSAR_edit"), _T(""), NULL, finSAR_edit_TOOL_POSITION, 0, this);
 #endif
 
   return (WANTS_OVERLAY_CALLBACK | WANTS_OPENGL_OVERLAY_CALLBACK |
-          WANTS_NMEA_SENTENCES |
-          WANTS_TOOLBAR_CALLBACK | WANTS_CURSOR_LATLON | INSTALLS_TOOLBAR_TOOL |
-          WANTS_CONFIG | WANTS_ONPAINT_VIEWPORT | WANTS_PLUGIN_MESSAGING);
+          WANTS_NMEA_SENTENCES | WANTS_TOOLBAR_CALLBACK | WANTS_CURSOR_LATLON |
+          INSTALLS_TOOLBAR_TOOL | WANTS_CONFIG | WANTS_ONPAINT_VIEWPORT |
+          WANTS_PLUGIN_MESSAGING);
 }
 
 bool finSAR_edit_pi::DeInit(void) {
@@ -186,13 +222,16 @@ void finSAR_edit_pi::OnToolbarToolCallback(int id) {
     m_pfinSAR_editDialog = new finSAR_editUIDialog(m_parent_window, this);
     wxPoint p = wxPoint(m_finSAR_edit_dialog_x, m_finSAR_edit_dialog_y);
     m_pfinSAR_editDialog->pPlugIn = this;
-    m_pfinSAR_editDialog->Move(0,
-                           0);  // workaround for gtk autocentre dialog behavior
+    m_pfinSAR_editDialog->Move(
+        0,
+        0);  // workaround for gtk autocentre dialog behavior
     m_pfinSAR_editDialog->Move(p);
 
     // Create the drawing factory
-    m_pfinSAR_editOverlayFactory = new finSAR_editOverlayFactory(*m_pfinSAR_editDialog);
-    m_pfinSAR_editOverlayFactory->SetParentSize(m_display_width, m_display_height);
+    m_pfinSAR_editOverlayFactory =
+        new finSAR_editOverlayFactory(*m_pfinSAR_editDialog);
+    m_pfinSAR_editOverlayFactory->SetParentSize(m_display_width,
+                                                m_display_height);
   }
 
   // Qualify the finSAR_edit dialog position
@@ -263,13 +302,124 @@ void finSAR_edit_pi::OnfinSAR_editDialogClose() {
   RequestRefresh(m_parent_window);  // refresh main window
 }
 
+int finSAR_edit_pi::Add_RTZ_db(wxString route_name) {
+  wxString sql = wxString::Format(
+      "INSERT INTO RTZ (route_name, created, submitted) "
+      "VALUES ('%s', current_timestamp, 0)",
+      route_name.c_str());
+  // wxMessageBox(sql);
+  dbQuery(sql);
+  return sqlite3_last_insert_rowid(m_database);
+}
+
+int finSAR_edit_pi::GetRoute_Id(wxString route_name) {
+  /*
+  return dbGetIntNotNullValue(
+      wxString::Format("SELECT route_id FROM RTZ WHERE route_name = '%s'",
+                       route_name.c_str()));
+
+    select col1 from table
+    where col1 = 'something'
+    union all
+    select 'Nothing'
+    where not exists (select 1 from table where col1 = 'something')
+*/
+  wxString rte = route_name;
+  wxString sql1 = wxString::Format(
+      "SELECT route_id FROM RTZ WHERE route_name = '%s'", route_name.c_str());
+
+  wxString sql2 = " union all select 'Nothing' where not exists ";
+
+  wxString sql3 = "(select route_id from RTZ where route_name = '" + rte + "')";
+
+  wxString sql = sql1 + sql2 + sql3;
+  // wxMessageBox(sql);
+  return dbGetIntNotNullValue(sql);
+}
+
+void finSAR_edit_pi::DeleteRTZ_Id(int id) {
+  wxString sql;
+  sql = wxString::Format("DELETE FROM RTZ WHERE route_id = %i", id);
+  // wxMessageBox(sql);
+  dbQuery(sql);
+}
+
+void finSAR_edit_pi::DeleteRTZ_Name(wxString route_name) {
+  wxString sql;
+  bool deleted;
+  sql = wxString::Format("DELETE FROM RTZ WHERE route_name = %s",
+                         route_name.c_str());
+  wxMessageBox(sql);
+  bool res = dbQuery(sql);
+  if (res) {
+    wxMessageBox("ok");
+  } else
+    wxMessageBox("not ok");
+}
+
+bool finSAR_edit_pi::dbQuery(wxString sql) {
+  if (!b_dbUsable) return false;
+  ret = sqlite3_exec(m_database, sql.mb_str(), NULL, NULL, &err_msg);
+  if (ret != SQLITE_OK) {
+    wxMessageBox(err_msg);
+    // some error occurred
+    wxLogMessage(_T("Database error: %s in query: %s\n"), *err_msg,
+                 sql.c_str());
+    sqlite3_free(err_msg);
+    b_dbUsable = false;
+  }
+  return b_dbUsable;
+}
+
+int finSAR_edit_pi::dbGetIntNotNullValue(wxString sql) {
+  char **result;
+  int n_rows;
+  int n_columns;
+  dbGetTable(sql, &result, n_rows, n_columns);
+  wxArrayString routes;
+  int ret = atoi(result[1]);
+  dbFreeResults(result);
+  if (n_rows == 1)
+    return ret;
+  else
+    return 0;
+}
+
+void finSAR_edit_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
+                                int &n_columns) {
+  ret = sqlite3_get_table(m_database, sql.mb_str(), results, &n_rows,
+                          &n_columns, &err_msg);
+  // wxMessageBox(err_msg);
+  if (ret != SQLITE_OK) {
+    wxLogMessage(_T("Database error: %s in query: %s\n"), *err_msg,
+                 sql.c_str());
+    sqlite3_free(err_msg);
+    b_dbUsable = false;
+  }
+}
+
+void finSAR_edit_pi::dbFreeResults(char **results) {
+  sqlite3_free_table(results);
+}
+
 wxString finSAR_edit_pi::StandardPath() {
   wxString stdPath(*GetpPrivateApplicationDataLocation());
   wxString s = wxFileName::GetPathSeparator();
 
-  stdPath += s + "SAR";
+  stdPath += s + "plugins" + s + "finSAR";
   if (!wxDirExists(stdPath)) wxMkdir(stdPath);
-  stdPath = stdPath + s + "files";
+  // stdPath = stdPath + s + "data";
+  // if (!wxDirExists(stdPath)) wxMkdir(stdPath);
+
+  stdPath += s;
+  return stdPath;
+}
+
+wxString finSAR_edit_pi::StandardPathRTZ() {
+  wxString stdPath(*GetpPrivateApplicationDataLocation());
+  wxString s = wxFileName::GetPathSeparator();
+
+  stdPath += s + "plugins" + s + "finSAR" + s + "RTZ";
   if (!wxDirExists(stdPath)) wxMkdir(stdPath);
 
   stdPath += s;
@@ -282,7 +432,7 @@ bool finSAR_edit_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) {
     return false;
 
   if (m_pfinSAR_editDialog) {
-    //m_pfinSAR_editDialog->OnCursor();
+    // m_pfinSAR_editDialog->OnCursor();
     m_pfinSAR_editDialog->SetViewPort(vp);
     m_pfinSAR_editDialog->MakeBoxPoints();
   }
@@ -293,13 +443,14 @@ bool finSAR_edit_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) {
   return true;
 }
 
-bool finSAR_edit_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp) {
+bool finSAR_edit_pi::RenderGLOverlay(wxGLContext *pcontext,
+                                     PlugIn_ViewPort *vp) {
   if (!m_pfinSAR_editDialog || !m_pfinSAR_editDialog->IsShown() ||
       !m_pfinSAR_editOverlayFactory)
     return false;
 
   if (m_pfinSAR_editDialog) {
-    //m_pfinSAR_editDialog->OnCursor();
+    // m_pfinSAR_editDialog->OnCursor();
     m_pfinSAR_editDialog->SetViewPort(vp);
     m_pfinSAR_editDialog->MakeBoxPoints();
   }
@@ -313,7 +464,7 @@ bool finSAR_edit_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
 }
 
 void finSAR_edit_pi::SetCursorLatLon(double lat, double lon) {
-  //if (m_pfinSAR_editDialog) m_pfinSAR_editDialog->SetCursorLatLon(lat, lon);
+  // if (m_pfinSAR_editDialog) m_pfinSAR_editDialog->SetCursorLatLon(lat, lon);
 
   m_cursor_lat = lat;
   m_cursor_lon = lon;
@@ -397,22 +548,22 @@ void finSAR_edit_pi::OnContextMenuItemCallback(int id) {
 }
 
 bool finSAR_edit_pi::MouseEventHook(wxMouseEvent &event) {
- // if (!m_pfinSAR_editDialog) return false;
-/*
-  if (event.LeftDown()) {
-    //wxMessageBox("here");
-    if (m_pfinSAR_editDialog) {
-      m_cursor_lat = GetCursorLat();
-      m_cursor_lon = GetCursorLon();
-      wxString lat = wxString::Format("%f", m_cursor_lat);
-      wxString lon = wxString::Format("%f", m_cursor_lon);
+  // if (!m_pfinSAR_editDialog) return false;
+  /*
+    if (event.LeftDown()) {
+      //wxMessageBox("here");
+      if (m_pfinSAR_editDialog) {
+        m_cursor_lat = GetCursorLat();
+        m_cursor_lon = GetCursorLon();
+        wxString lat = wxString::Format("%f", m_cursor_lat);
+        wxString lon = wxString::Format("%f", m_cursor_lon);
 
-      m_pfinSAR_editDialog->m_Lat1->SetValue(lat);
-      m_pfinSAR_editDialog->m_Lon1->SetValue(lon);
+        m_pfinSAR_editDialog->m_Lat1->SetValue(lat);
+        m_pfinSAR_editDialog->m_Lon1->SetValue(lon);
+      }
+
     }
-    
-  }
-  */
+    */
   return true;
 }
 
@@ -424,20 +575,18 @@ void finSAR_edit_pi::SetNMEASentence(wxString &sentence) {
 
 void finSAR_edit_pi::SetPluginMessage(wxString &message_id,
                                       wxString &message_body) {
-  
-    if (message_id == "OCPN_WPT_ACTIVATED") {
-      m_route_active = true;      
-      Plugin_Active_Leg_Info myleg_info;
-      SetActiveLegInfo(myleg_info);
-      wp_Btw = wxString::Format("%f", myleg_info.Btw);
-      wxMessageBox(wp_Btw);
-    }
-  
+  if (message_id == "OCPN_WPT_ACTIVATED") {
+    m_route_active = true;
+    Plugin_Active_Leg_Info myleg_info;
+    SetActiveLegInfo(myleg_info);
+    wp_Btw = wxString::Format("%f", myleg_info.Btw);
+    wxMessageBox(wp_Btw);
+  }
 }
 
 void finSAR_edit_pi::SetActiveLegInfo(Plugin_Active_Leg_Info &leg_info) {
   if (m_route_active) {
-    wp_Btw = wxString::Format("%f", myleg_info.Btw);    
-    //wxMessageBox(wp_Dtw);
+    wp_Btw = wxString::Format("%f", myleg_info.Btw);
+    // wxMessageBox(wp_Dtw);
   }
 }

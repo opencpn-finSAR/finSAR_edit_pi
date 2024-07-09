@@ -157,6 +157,7 @@ finSAR_editUIDialog::~finSAR_editUIDialog() {
   if (pConf) {
     pConf->SetPath(_T ( "/PlugIns/finSAR_edit" ));
   }
+
   // SaveXML(m_default_configuration_path);
 }
 
@@ -720,7 +721,7 @@ void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
   // and keeping it pressed would totally derail the test below, e.g. "A" key
   // press would actually become "Ctrl+A" selecting the entire text and so on.
 
-  wxMessageBox("Press \"End Route\" on completion");
+  wxMessageBox("Press CTRL+R to enter route name\nPress \"End Route\" on completion");
 
   pParent->SetFocus();
   wxUIActionSimulator sim;
@@ -739,7 +740,7 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
   pPlugIn->m_pfinSAR_editDialog->SetFocus();
   wxUIActionSimulator sim;
   sim.KeyUp(82, wxMOD_CONTROL);
-
+  //
   //
   std::vector<std::unique_ptr<PlugIn_Route_Ex>> routes;
   auto uids = GetRouteGUIDArray();
@@ -831,7 +832,7 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
 
         PlugIn_Waypoint_Ex* myWaypoint;
         theWaypoints.clear();
-
+        // Trying to remove the route by deleting the waypoints
         // Plugin_WaypointExList* temp_list;
 
         wxPlugin_WaypointExListNode* pwpnode = myList->GetFirst();
@@ -843,6 +844,16 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
         }
 
         WriteRTZ(thisRoute->m_NameString);
+
+        wxString rtz_file = thisRoute->m_NameString + ".rtz";
+        //wxMessageBox(rtz_file);
+
+        int id = pPlugIn->GetRoute_Id(rtz_file);
+        //wxString sid = wxString::Format("%i", id);
+        //wxMessageBox(sid);
+        if (id != 0) pPlugIn->DeleteRTZ_Id(id);
+        // Now add the modified route
+        pPlugIn->Add_RTZ_db(rtz_file);
 
         /*
         temp_list->DeleteContents(true);
@@ -856,8 +867,6 @@ void finSAR_editUIDialog::OnEndRoute(wxCommandEvent& event) {
         wxMessageBox("Route not found");
     }
   }
-
-  //
 }
 
 void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
@@ -918,32 +927,16 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
   // done adding waypoints
   // Write xmlDoc into a file
 
-  wxFileDialog dlg(this, _("Save in RTZ format"), wxEmptyString, route_name,
-                   " RTZ files(*.rtz) | *.rtz;*RTZ",
-                   wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+  wxString file_name = route_name + ".rtz";
+  wxString file_path = pPlugIn->StandardPathRTZ() + file_name;
 
-  if (dlg.ShowModal() == wxID_OK) {
-    if (dlg.GetPath() != wxEmptyString) {
-      wxString file_name = dlg.GetFilename();
-      wxString file_path = dlg.GetPath();
+  //wxMessageBox(file_path);
 
-      // Route name must be the same as the file name, without file extension
+  // Route name must be the same as the file name, without file extension
 
-      int fl = file_name.length();
-      wxString rtz_name = file_name.SubString(0, (fl - 5));
-
-      if (route_name != rtz_name) {
-        wxMessageBox(_("RTZ file name must be the same as route name"),
-                     "Error");
-        return;
-      }
-
-      xmlDoc.save_file(file_path.mb_str());
-      return;
-    } else
-      return;
-  }
+  xmlDoc.save_file(file_path.mb_str());
 }
+
 void finSAR_editUIDialog::OnLoadRTZ(wxCommandEvent& event) {
   ReadRTZ();
   // ChartTheRoute(mySelectedRoute);

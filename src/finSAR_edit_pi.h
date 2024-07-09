@@ -34,12 +34,15 @@
 #include <wx/glcanvas.h>
 #endif  // precompiled headers
 
+#include <sqlite3.h>
 #include "ocpn_plugin.h"
 #include "finSAR_editOverlayFactory.h"
 #include "finSAR_editUIDialog.h"
 #include <wx/datetime.h>
 #include "pidc.h"
 #include <wx/tokenzr.h>
+
+#define DATABASE_NAME "finSAR.db"
 
 class piDC;
 class finSAR_editUIDialog;
@@ -113,10 +116,32 @@ public:
   finSAR_editOverlayFactory *m_pfinSAR_editOverlayFactory;
 
   wxString StandardPath();
+  wxString StandardPathRTZ();
+
   finSAR_editUIDialog *m_pfinSAR_editDialog;
   void SetNMEASentence(wxString &sentence);
   wxString wp_Btw;
+
+  	// ******** Database stuff ******************************************
+
+  sqlite3 *m_database;
+  int ret;
+  char *err_msg;
+  bool b_dbUsable;
+
+  int Add_RTZ_db(wxString route_name);
+  int GetActiveFileDBId() { return m_activeFileDB; }
+  void SetActiveFileDBId(int id) { m_activeFileDB = id; }
   
+  int m_activeFileDB;
+
+  void DeleteRTZ_Id(int id);
+  void DeleteRTZ_Name(wxString route_name);
+  wxString m_activefiledbname;
+  int dbGetIntNotNullValue(wxString sql);
+  void dbGetTable(wxString sql, char ***results, int &n_rows, int &n_columns);
+  void dbFreeResults(char **results);
+  int GetRoute_Id(wxString route_name);
 
 private:
   double m_cursor_lat, m_cursor_lon;
@@ -159,6 +184,8 @@ private:
   bool m_route_active;
   void SetPluginMessage(wxString &message_id, wxString &message_body);
   Plugin_Active_Leg_Info myleg_info;
+
+  bool dbQuery(wxString sql);
 };
 
 #endif
