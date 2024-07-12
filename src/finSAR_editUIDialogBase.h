@@ -24,7 +24,6 @@
 #include <wx/choice.h>
 #include <wx/sizer.h>
 #include <wx/statbox.h>
-#include <wx/listbox.h>
 #include <wx/panel.h>
 #include <wx/statline.h>
 #include <wx/notebook.h>
@@ -52,9 +51,8 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxStaticText* m_staticText21;
 		wxChoice* m_choice21;
 		wxButton* m_button112;
-		wxButton* m_buttonAddTestItems;
-		wxButton* m_bLoadRTZ;
-		wxTextCtrl* m_textCtrl5;
+		wxButton* m_bLoadRoute;
+		wxTextCtrl* m_textCtrlRouteInUse;
 		wxStaticText* m_staticText3;
 		wxTextCtrl* m_textCtrl6;
 		wxPanel* m_panelExtensions;
@@ -94,9 +92,8 @@ class finSAR_editUIDialogBase : public wxFrame
 		virtual void key_shortcut( wxKeyEvent& event ) { event.Skip(); }
 		virtual void OnSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnNewRoute( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnEndRoute( wxCommandEvent& event ) { event.Skip(); }
-		virtual void AddTestItems( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnLoadRTZ( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSaveRoute( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnLoadRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLoadExtensionsFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnIndex( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRange( wxCommandEvent& event ) { event.Skip(); }
@@ -107,14 +104,10 @@ class finSAR_editUIDialogBase : public wxFrame
 		virtual void OnTimer( wxTimerEvent& event ) { event.Skip(); }
 		virtual void OnInformation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSaveRTZ( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnLoadAllRTZ( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnLoadSelectedRTZ( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSaveExtensionsFile( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
-		wxListBox* m_listBoxRoutes;
 		wxChoice* m_choiceRoutes;
 		wxTextCtrl* m_Lat1;
 		wxTextCtrl* m_Lon1;

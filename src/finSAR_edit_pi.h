@@ -79,7 +79,7 @@ public:
   //    The override PlugIn Methods
   bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
   bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
-  void SetCursorLatLon(double lat, double lon);
+  //void SetCursorLatLon(double lat, double lon);
   void SetPositionFix(PlugIn_Position_Fix &pfix);
   void SetDefaults(void);
   int GetToolbarToolCount(void);
@@ -98,8 +98,9 @@ public:
   double GetShipLat(void) { return m_ship_lat; }
 
   void OnContextMenuItemCallback(int id);
+  void SetCursorLatLon(double lat, double lon);
 
-  bool MouseEventHook(wxMouseEvent &event);
+ // bool MouseEventHook(wxMouseEvent &event);
   void OnfinSAR_editDialogClose();
 
   wxString GetFolderSelected() { return m_CopyFolderSelected; }
@@ -147,6 +148,8 @@ public:
 
 private:
   double m_cursor_lat, m_cursor_lon;
+  int m_position_menu_id;
+
   bool LoadConfig(void);
   bool SaveConfig(void);
 
@@ -173,8 +176,6 @@ private:
   int m_height;
 
   bool m_bShowfinSAR_edit;
-
-  int m_position_menu_id;
   int m_table_menu_id;
 
   wxBitmap m_panelBitmap;

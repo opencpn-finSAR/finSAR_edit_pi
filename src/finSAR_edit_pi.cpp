@@ -125,7 +125,7 @@ int finSAR_edit_pi::Init(void) {
   bool newDB = !wxFileExists(dbpath);
   b_dbUsable = true;
 
-  //void *cache;  // SOLUTION
+  // void *cache;  // SOLUTION
 
   ret = sqlite3_open_v2(dbpath.mb_str(), &m_database,
                         SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL);
@@ -154,11 +154,6 @@ int finSAR_edit_pi::Init(void) {
   // Get a pointer to the opencpn display canvas, to use as a parent for the
   // finSAR_edit dialog
   m_parent_window = GetOCPNCanvasWindow();
-
-  wxMenu dummy_menu;
-  m_position_menu_id = AddCanvasContextMenuItem(
-      new wxMenuItem(&dummy_menu, -1, _("Delete Tidal Current Station")), this);
-  SetCanvasContextMenuItemViz(m_position_menu_id, true);
 
   //    This PlugIn needs a toolbar icon, so request its insertion if enabled
   //    locally
@@ -234,6 +229,12 @@ void finSAR_edit_pi::OnToolbarToolCallback(int id) {
         new finSAR_editOverlayFactory(*m_pfinSAR_editDialog);
     m_pfinSAR_editOverlayFactory->SetParentSize(m_display_width,
                                                 m_display_height);
+
+    wxMenu dummy_menu;
+    m_position_menu_id = AddCanvasContextMenuItem(
+        new wxMenuItem(&dummy_menu, -1, _("Activate Waypoint/Leg")),
+        this);
+    SetCanvasContextMenuItemViz(m_position_menu_id, true);
   }
 
   // Qualify the finSAR_edit dialog position
@@ -287,7 +288,6 @@ void finSAR_edit_pi::OnToolbarToolCallback(int id) {
   // Toggle is handled by the toolbar but we must keep plugin manager b_toggle
   // updated to actual status to ensure correct status upon toolbar rebuild
   SetToolbarItemState(m_leftclick_tool_id, m_bShowfinSAR_edit);
-  // SetCanvasContextMenuItemViz(m_position_menu_id, true);
 
   RequestRefresh(m_parent_window);  // refresh main window
 }
@@ -295,7 +295,6 @@ void finSAR_edit_pi::OnToolbarToolCallback(int id) {
 void finSAR_edit_pi::OnfinSAR_editDialogClose() {
   m_bShowfinSAR_edit = false;
   SetToolbarItemState(m_leftclick_tool_id, m_bShowfinSAR_edit);
-  SetCanvasContextMenuItemViz(m_position_menu_id, m_bShowfinSAR_edit);
 
   m_pfinSAR_editDialog->Hide();
 
@@ -347,7 +346,7 @@ void finSAR_edit_pi::DeleteRTZ_Id(int id) {
 }
 
 void finSAR_edit_pi::DeleteRTZ_Name(wxString route_name) {
-  wxString sql; 
+  wxString sql;
   sql = wxString::Format("DELETE FROM RTZ WHERE route_name = %s",
                          route_name.c_str());
   wxMessageBox(sql);
@@ -405,7 +404,7 @@ void finSAR_edit_pi::dbFreeResults(char **results) {
 
 void finSAR_edit_pi::FillRouteNamesDropdown() {
   m_pfinSAR_editDialog->m_choiceRoutes->Clear();
-  
+
   m_pfinSAR_editDialog->m_choiceRoutes->Append(GetRouteList());
   /*
   for (int i = 0; i < GetSurveyList().Count(); i++) {
@@ -420,7 +419,7 @@ void finSAR_edit_pi::FillRouteNamesDropdown() {
     }
   }
   */
-  m_pfinSAR_editDialog->m_choiceRoutes->SetSelection(0); // So something shows
+  m_pfinSAR_editDialog->m_choiceRoutes->SetSelection(0);  // So something shows
 }
 
 wxArrayString finSAR_edit_pi::GetRouteList() {
@@ -434,7 +433,9 @@ wxArrayString finSAR_edit_pi::GetRouteList() {
     char *id = result[(i * n_columns) + 0];
     char *name = result[(i * n_columns) + 1];
     int route_id = atoi(id);
-    wxString route_name(name, wxConvUTF8);
+    wxString route_file_name(name, wxConvUTF8);
+    int fl = route_file_name.length();
+    wxString route_name = route_file_name.SubString(0, (fl - 5));
     routes.Add(route_name);
   }
   dbFreeResults(result);
@@ -501,13 +502,14 @@ bool finSAR_edit_pi::RenderGLOverlay(wxGLContext *pcontext,
   m_pfinSAR_editOverlayFactory->RenderOverlay(piDC, *vp);
   return true;
 }
-
+/*
 void finSAR_edit_pi::SetCursorLatLon(double lat, double lon) {
-  // if (m_pfinSAR_editDialog) m_pfinSAR_editDialog->SetCursorLatLon(lat, lon);
+  if (m_pfinSAR_editDialog) m_pfinSAR_editDialog->SetCursorLatLon(lat, lon);
 
   m_cursor_lat = lat;
   m_cursor_lon = lon;
 }
+*/
 
 void finSAR_edit_pi::SetPositionFix(PlugIn_Position_Fix &pfix) {
   m_ship_lon = pfix.Lon;
@@ -561,51 +563,43 @@ bool finSAR_edit_pi::SaveConfig(void) {
 void finSAR_edit_pi::SetColorScheme(PI_ColorScheme cs) {
   DimeWindow(m_pfinSAR_editDialog);
 }
-/*
-void finSAR_edit_pi::OnContextMenuItemCallback(int id)
-{
 
-        if (!m_pfinSAR_editDialog)
-                return;
-
-        if (id == m_position_menu_id) {
-
-                m_cursor_lat = GetCursorLat();
-                m_cursor_lon = GetCursorLon();
-
-                m_pfinSAR_editDialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
-        }
-}
-*/
 void finSAR_edit_pi::OnContextMenuItemCallback(int id) {
   if (!m_pfinSAR_editDialog) return;
 
   if (id == m_position_menu_id) {
     m_cursor_lat = GetCursorLat();
     m_cursor_lon = GetCursorLon();
+    m_pfinSAR_editDialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
   }
 }
 
-bool finSAR_edit_pi::MouseEventHook(wxMouseEvent &event) {
-  // if (!m_pfinSAR_editDialog) return false;
-  /*
-    if (event.LeftDown()) {
-      //wxMessageBox("here");
-      if (m_pfinSAR_editDialog) {
-        m_cursor_lat = GetCursorLat();
-        m_cursor_lon = GetCursorLon();
-        wxString lat = wxString::Format("%f", m_cursor_lat);
-        wxString lon = wxString::Format("%f", m_cursor_lon);
-
-        m_pfinSAR_editDialog->m_Lat1->SetValue(lat);
-        m_pfinSAR_editDialog->m_Lon1->SetValue(lon);
-      }
-
-    }
-    */
-  return true;
+void finSAR_edit_pi::SetCursorLatLon(double lat, double lon) {
+  m_cursor_lat = lat;
+  m_cursor_lon = lon;
 }
 
+/*
+bool finSAR_edit_pi::MouseEventHook(wxMouseEvent &event) {
+ // if (!m_pfinSAR_editDialog) return false;
+
+   if (event.LeftDown()) {
+     //wxMessageBox("here");
+     if (m_pfinSAR_editDialog) {
+       m_cursor_lat = GetCursorLat();
+       m_cursor_lon = GetCursorLon();
+       wxString lat = wxString::Format("%f", m_cursor_lat);
+       wxString lon = wxString::Format("%f", m_cursor_lon);
+
+       m_pfinSAR_editDialog->m_Lat1->SetValue(lat);
+       m_pfinSAR_editDialog->m_Lon1->SetValue(lon);
+     }
+
+   }
+
+ return true;
+}
+*/
 void finSAR_edit_pi::SetNMEASentence(wxString &sentence) {
   if (NULL != m_pfinSAR_editDialog) {
     m_pfinSAR_editDialog->SetNMEAMessage(sentence);
