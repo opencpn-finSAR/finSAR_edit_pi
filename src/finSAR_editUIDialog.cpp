@@ -178,6 +178,7 @@ void finSAR_editUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
 
 void finSAR_editUIDialog::OnClose(wxCloseEvent& event) {
   pPlugIn->OnfinSAR_editDialogClose();
+  DeleteChartedRoute();
 }
 
 void finSAR_editUIDialog::OnMove(wxMoveEvent& event) {
@@ -999,6 +1000,25 @@ void finSAR_editUIDialog::ChartTheRoute(wxString myRoute) {
   GetParent()->Refresh();
 }
 
+void finSAR_editUIDialog::OnDeleteRoute(wxCommandEvent& event) {
+
+  int c = m_choiceRoutes->GetSelection();
+  wxString rt = m_choiceRoutes->GetString(c);
+  if (rt == "dummy") {
+    wxMessageBox("No route selected", "No Selection");
+    return;
+  }
+  rt += ".rtz";
+
+  pPlugIn->DeleteRTZ_Name(rt);
+  m_choiceRoutes->SetSelection(0);
+  m_textCtrlRouteInUse->SetValue("");
+  DeleteChartedRoute();
+  RequestRefresh(pParent);
+
+}
+
+
 void finSAR_editUIDialog::OnIndex(wxCommandEvent& event) {
   // ReadRTZ();
   //std::string str = "finSAR_edit_pi_pi";
@@ -1248,6 +1268,8 @@ void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {
   c_lat = m_lat;
   c_lon = m_lon;
 
+  m_bDrawWptDisk = false;
+
   int leg_number = SetActiveWaypoint(c_lat, c_lon);
 
  // wxString comp = wxString::Format("%i", leg_number);
@@ -1327,7 +1349,17 @@ Position* finSAR_editUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
       active_waypoint->route_name = (*itp).route_name;
       // wxMessageBox(active_waypoint->route_name);
       active_waypoint->wpId = (*itp).wpId;
-      wxMessageBox(active_waypoint->wpId);
+      //wxMessageBox(active_waypoint->wpId);
+
+      double value = 0.0;
+      wxString slat = active_waypoint->lat;
+      slat.ToDouble(&value);
+      active_wp_lat = value;
+
+      double value2 = 0.0;
+      wxString slon = active_waypoint->lon;
+      slon.ToDouble(&value2);
+      active_wp_lon = value2;
 
       
       prev_waypoint->wpId = (*prev).wpId;
@@ -1336,14 +1368,34 @@ Position* finSAR_editUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
       prev_waypoint->lat = (*prev).lat;
       prev_waypoint->lon = (*prev).lon;
 
-      wxMessageBox(prev_waypoint->wpId);
+      //wxMessageBox(prev_waypoint->wpId);
+
+      m_bDrawWptDisk = true;
+      RequestRefresh(pParent);
 
       return active_waypoint;
     }
   }
+
+  m_bDrawWptDisk = false;
   active_waypoint->wpName = wxEmptyString;
   return active_waypoint;
 
+}
+
+int finSAR_editUIDialog::DeleteChartedRoute() {
+  std::vector<std::unique_ptr<PlugIn_Route_Ex>> routes;
+  auto uids = GetRouteGUIDArray();
+  if (uids.size() > 1) {
+    wxMessageBox("Clear the other routes!");
+    return 0;
+  }
+
+  
+
+  DeletePlugInRoute(uids[0]);
+  return 1;
+  
 }
 
 wxString finSAR_editUIDialog::FindWaypointGUID(wxString testName) {

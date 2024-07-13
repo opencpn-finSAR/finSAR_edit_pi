@@ -347,14 +347,15 @@ void finSAR_edit_pi::DeleteRTZ_Id(int id) {
 
 void finSAR_edit_pi::DeleteRTZ_Name(wxString route_name) {
   wxString sql;
-  sql = wxString::Format("DELETE FROM RTZ WHERE route_name = %s",
+  sql = wxString::Format("DELETE FROM RTZ WHERE route_name = \'%s\'",
                          route_name.c_str());
-  wxMessageBox(sql);
+ // wxMessageBox(sql);
   bool res = dbQuery(sql);
   if (res) {
-    wxMessageBox("ok");
+    wxString del = "\"" + route_name + "\" has been deleted";
+    wxMessageBox(del, "Route Deleted");
   } else
-    wxMessageBox("not ok");
+    wxMessageBox("Error");
 }
 
 bool finSAR_edit_pi::dbQuery(wxString sql) {

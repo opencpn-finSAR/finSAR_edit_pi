@@ -55,11 +55,12 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxTextCtrl* m_textCtrlRouteInUse;
 		wxStaticText* m_staticText3;
 		wxTextCtrl* m_textCtrl6;
+		wxButton* m_bDeleteRoute;
 		wxPanel* m_panelExtensions;
 		wxTextCtrl* m_textCtrl8;
 		wxButton* m_button15;
 		wxStaticText* m_staticText1;
-		wxTextCtrl* m_textRTZFileName;
+		wxTextCtrl* m_textRouteName;
 		wxStaticText* m_staticText11;
 		wxTextCtrl* m_textExtensionsFileName;
 		wxButton* m_buttonAttach;
@@ -94,6 +95,7 @@ class finSAR_editUIDialogBase : public wxFrame
 		virtual void OnNewRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSaveRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLoadRoute( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDeleteRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLoadExtensionsFile( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnIndex( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRange( wxCommandEvent& event ) { event.Skip(); }

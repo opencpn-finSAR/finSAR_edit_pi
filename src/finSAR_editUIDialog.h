@@ -301,9 +301,10 @@ public:
   double FindDistanceFromLeg(Position* A, Position* B,
                                                   Position* C);
   int SetActiveWaypoint(double t_lat, double t_lon);
-  bool m_bDrawDisk;
+  bool m_bDrawWptDisk;
   Position* FindPreviousWaypoint(wxString ActiveWpt);
 
+  int DeleteChartedRoute();
   wxString FindWaypointGUID(wxString testName);
 
   PlugIn_Waypoint_Ex* active_wpt, prev_wpt;
@@ -428,6 +429,7 @@ private:
   Plugin_WaypointExList* myList;
   void WriteRTZ(wxString route_name);
   void OnLoadRoute(wxCommandEvent& event);
+  void OnDeleteRoute(wxCommandEvent& event);
   //void ChartTheRoute(wxString myRoute);
   void OnIndex(wxCommandEvent& event);
   void FindIndex(Position* A, Position* B);

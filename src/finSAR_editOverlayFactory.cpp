@@ -147,7 +147,8 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
   DrawAllDirectionsInViewPort(&vp);
 
   DrawIndexTargets(&vp);
-  if (m_dlg.m_bDrawDisk) DrawWptDisk(&vp);
+
+  if (m_dlg.m_bDrawWptDisk) DrawWptDisk(&vp);
 
   if (m_dlg.m_bBearingLine) {
     DrawEBLLineInViewPort(&vp);
