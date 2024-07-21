@@ -79,7 +79,6 @@
 #include "wx/uiaction.h"
 #endif
 
-
 /* XPM */
 static const char* eye[] = {"20 20 7 1",
                             ". c none",

@@ -828,7 +828,7 @@ void finSAR_editUIDialog::OnSaveRoute(wxCommandEvent& event) {
         }
 
         WriteRTZ(thisRoute->m_NameString);
-        WriteXML(thisRoute->m_NameString);
+        
 
         wxString rtz_file = thisRoute->m_NameString + ".rtz";
         wxString extensions_file = thisRoute->m_NameString + ".xml";
@@ -840,6 +840,9 @@ void finSAR_editUIDialog::OnSaveRoute(wxCommandEvent& event) {
         if (id != 0) pPlugIn->DeleteRTZ_Id(id);
         // Now add the modified route
         pPlugIn->Add_RTZ_db(rtz_file);
+
+        WriteXML(thisRoute->m_NameString);
+        m_dateStamp = pPlugIn->GetRTZDateStamp(thisRoute->m_NameString);
         pPlugIn->Add_EXT_db(extensions_file, thisRoute->m_NameString, m_dateStamp);
 
         /*
@@ -941,14 +944,9 @@ void finSAR_editUIDialog::WriteXML(wxString route_name) {
 
   xml_node extensionsInfo = pRoot.append_child("route_date_stamp");
 
-  m_dtNow = wxDateTime::Now();
-  m_dtNow.MakeUTC(false);
-  wxString initStartDate = m_dtNow.Format(_T("%Y-%m-%d %H:%M:%S"));
-  m_dateStamp = initStartDate;
 
-  extensionsInfo.append_attribute("date_stamp").set_value(initStartDate.mb_str());
-
-
+  m_dateStamp = pPlugIn->GetRTZDateStamp(route_name);
+  extensionsInfo.append_attribute("date_stamp").set_value(m_dateStamp.mb_str());
 
   // done adding data
   // Write xmlDoc into an extensions file
