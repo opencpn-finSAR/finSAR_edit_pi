@@ -16,13 +16,13 @@
 #include <wx/font.h>
 #include <wx/colour.h>
 #include <wx/settings.h>
+#include <wx/stattext.h>
+#include <wx/choice.h>
+#include <wx/sizer.h>
 #include <wx/button.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
 #include <wx/icon.h>
-#include <wx/stattext.h>
-#include <wx/choice.h>
-#include <wx/sizer.h>
 #include <wx/statbox.h>
 #include <wx/panel.h>
 #include <wx/statline.h>
@@ -45,11 +45,11 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxNotebook* m_notebook1;
 		wxPanel* m_panelRoutes;
 		wxTextCtrl* m_textCtrl9;
-		wxButton* m_button11;
 		wxStaticText* m_staticText2;
 		wxChoice* m_choice2;
 		wxStaticText* m_staticText21;
 		wxChoice* m_choice21;
+		wxButton* m_button11;
 		wxButton* m_button112;
 		wxButton* m_bLoadRoute;
 		wxTextCtrl* m_textCtrlRouteInUse;
@@ -59,6 +59,7 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxPanel* m_panelExtensions;
 		wxTextCtrl* m_textCtrl8;
 		wxButton* m_button15;
+		wxButton* m_button151;
 		wxStaticText* m_staticText1;
 		wxTextCtrl* m_textRouteName;
 		wxStaticText* m_staticText11;
@@ -96,17 +97,18 @@ class finSAR_editUIDialogBase : public wxFrame
 		virtual void OnSaveRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLoadRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDeleteRoute( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnLoadExtensionsFile( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnLoadExtensions( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnNewExtensions( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnIndex( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRange( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDirection( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnButtonEBL( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnButtonEBL_off( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSaveObjects( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnSaveExtensions( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTimer( wxTimerEvent& event ) { event.Skip(); }
 		virtual void OnInformation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnSaveExtensionsFile( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnLoadExtensionsFile( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:

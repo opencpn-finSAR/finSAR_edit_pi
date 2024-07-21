@@ -148,9 +148,7 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
 
   DrawIndexTargets(&vp);
 
-  // DrawRotatedLabel(&vp);
-
-  // DrawRotatedText(&vp, 16.5, 230);
+  DrawRotatedLabel(&vp);
 
   if (m_dlg.m_bDrawWptDisk) DrawWptDisk(&vp);
 
@@ -162,35 +160,15 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
   return true;
 }
 
-void finSAR_editOverlayFactory::DrawRotatedLabel(PlugIn_ViewPort *BBox) {
+void finSAR_editOverlayFactory::DrawRotatedLabel(PlugIn_ViewPort *BBox){
   DrawGLLabels(this, m_dc, BBox, DrawGLText(123, 1), m_dlg.ebl_lat,
                m_dlg.ebl_lon, 0);
+ 
 }
 
-void finSAR_editOverlayFactory::DrawRotatedText(PlugIn_ViewPort *BBox,
-                                                double value, double angle) {
-  //
-
-  char sbuf[20];
-
-  if (m_dc) {
-    wxFont myFont(30, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL,
-                  wxFONTWEIGHT_BOLD);
-    if (angle < 90) {
-      angle += 360;
-    } else {
-      angle += 180;
-    }
-
-    m_dc->SetFont(myFont);
-
-    snprintf(sbuf, 19, "%3.1f", value);
-    m_dc->DrawRotatedText(wxString(sbuf, wxConvUTF8), 400, 400, angle);
-  }
-}
 
 void finSAR_editOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
-  wxColour colour = wxColour("YELLOW");
+  wxColour colour = wxColour("RED");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
   if (m_dc) {
@@ -205,16 +183,7 @@ void finSAR_editOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
   GetCanvasPixLL(BBox, &wpc, m_dlg.active_wp_lat, m_dlg.active_wp_lon);
 
   if (m_dc) {
-    m_dc->DrawDisk(wpc.x, wpc.y, 5, 10);
-
-    colour = wxColour("RED");
-    wxPen pen2(colour, 2);
-    wxBrush brush2(colour);
-
-    m_dc->SetPen(pen2);
-    brush2.SetStyle(wxBRUSHSTYLE_SOLID);
-    m_dc->SetBrush(brush2);
-    m_dc->DrawDisk(wpc.x, wpc.y, 10, 15);
+    m_dc->DrawDisk(wpc.x, wpc.y, 5, 15);
   }
 }
 
@@ -425,7 +394,9 @@ wxImage &finSAR_editOverlayFactory::DrawGLText(double value, int precision) {
 
   wxBitmap bm(w + label_offset * 2, h + 1);
 
-  mdc.SelectObject(bm);
+
+
+   mdc.SelectObject(bm);
 
   mdc.Clear();
 
@@ -448,17 +419,20 @@ wxImage &finSAR_editOverlayFactory::DrawGLText(double value, int precision) {
 
   m_labelCache[value] = bm.ConvertToImage();
 
+
+
   //
   // Setup the alpha channel.
   unsigned char *alphaData = new unsigned char[bm.GetWidth() * bm.GetHeight()];
   memset(alphaData, wxIMAGE_ALPHA_TRANSPARENT, bm.GetWidth() * bm.GetHeight());
 
   // Create an image with alpha.
-  // wxImage image(wxSize(bm.GetWidth(), bm.GetHeight()));
+  //wxImage image(wxSize(bm.GetWidth(), bm.GetHeight()));
+  
+ m_labelCache[value].SetAlpha(alphaData);
 
-  m_labelCache[value].SetAlpha(alphaData);
 
-  // m_labelCache[value].InitAlpha();
+  //m_labelCache[value].InitAlpha();
 
   wxImage &image = m_labelCache[value];
 
@@ -476,6 +450,8 @@ wxImage &finSAR_editOverlayFactory::DrawGLText(double value, int precision) {
 
       a[ioff] = 255 - (r + g + b) / 3;
     }
+
+   
 
   return image;
   // m_labelCache[value];
@@ -692,26 +668,12 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
   wxPoint cd;
   GetCanvasPixLL(vp, &cd, myLat, myLon);
   wxImage imageLabel2 = imageLabel;
-  //.Rotate(
-  //  2.0, wxPoint(imageLabel.GetWidth() / 2, imageLabel.GetHeight() / 2),
-  // false);
+  //.Rotate(2.0, wxPoint(imageLabel.GetWidth() / 2, imageLabel.GetHeight() / 2),
+    //                false);
+  
 
-  // Setup the alpha channel.
-  unsigned char *alphaData =
-      new unsigned char[imageLabel2.GetWidth() * imageLabel2.GetHeight()];
-  memset(alphaData, wxIMAGE_ALPHA_TRANSPARENT,
-         imageLabel2.GetWidth() * imageLabel2.GetHeight());
-
-  // Create an image with alpha.
-  // wxImage image(wxSize(imageLabel.GetWidth(), imageLabel.GetHeight()));
-  imageLabel2.SetAlpha(alphaData);
-
-  wxImage imageLabel3 = imageLabel2.Rotate(
-      2.0, wxPoint(imageLabel.GetWidth() / 2, imageLabel.GetHeight() / 2),
-      false);
-
-  int w = imageLabel3.GetWidth();
-  int h = imageLabel3.GetHeight();
+  int w = imageLabel2.GetWidth();
+  int h = imageLabel2.GetHeight();
 
   int label_offset = 0;
   int xd = (ab.x + cd.x - (w + label_offset * 2)) / 2;
@@ -720,21 +682,20 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
   if (dc) {
     /* don't use alpha for isobars, for some reason draw bitmap ignores
        the 4th argument (true or false has same result) */
-    wxImage img(w, h, imageLabel3.GetData(), true);
+    wxImage img(w, h, imageLabel2.GetData(), true);
 
-    unsigned char r, g, b;
-    if (!img.GetOrFindMaskColour(&r, &g, &b)) img.SetMaskColour(r, g, b);
+    
 
-    dc->DrawBitmap(img, xd, yd, true);
+    dc->DrawBitmap(img, xd, yd, false);
   } else { /* opengl */
 
-    int w = imageLabel3.GetWidth(), h = imageLabel3.GetHeight();
+    int w = imageLabel2.GetWidth(), h = imageLabel2.GetHeight();
 
-    unsigned char *d = imageLabel3.GetData();
-    unsigned char *a = imageLabel3.GetAlpha();
+    unsigned char *d = imageLabel2.GetData();
+    unsigned char *a = imageLabel2.GetAlpha();
 
     unsigned char mr, mg, mb;
-    if (!imageLabel3.GetOrFindMaskColour(&mr, &mg, &mb) && !a)
+    if (!imageLabel2.GetOrFindMaskColour(&mr, &mg, &mb) && !a)
       wxMessageBox(
           _T(
                     "trying to use mask to draw a bitmap without alpha or mask\n" ));
@@ -744,7 +705,7 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
       for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++) {
           unsigned char r, g, b;
-          int off = (y * imageLabel3.GetWidth() + x);
+          int off = (y * imageLabel2.GetWidth() + x);
           r = d[off * 3 + 0];
           g = d[off * 3 + 1];
           b = d[off * 3 + 2];
@@ -771,6 +732,7 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
     delete[] (e);
   }
 }
+
 
 wxImage &finSAR_editOverlayFactory::DrawGLPolygon() {
   wxString labels;
@@ -1158,3 +1120,5 @@ bool finSAR_editOverlayFactory::DrawDirectionArrow(int x, int y,
   }
   return true;
 }
+
+

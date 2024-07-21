@@ -104,9 +104,9 @@ public:
   wxImage &DrawGLTextString(wxString myText);
   wxImage &DrawGLPolygon();
 
-  void DrawGLLabels(finSAR_editOverlayFactory *pof, wxDC *dc, PlugIn_ViewPort *vp,
-                    wxImage &imageLabel, double myLat, double myLon,
-                    int offset);
+  void DrawGLLabels(finSAR_editOverlayFactory *pof, piDC *dc,
+                    PlugIn_ViewPort *vp, wxImage &imageLabel, double myLat,
+                    double myLon, int offset);
 
   void drawGLPolygons(finSAR_editOverlayFactory *pof, wxDC *dc,
                       PlugIn_ViewPort *vp, wxImage &imageLabel, double myLat,
@@ -131,6 +131,8 @@ private:
   double myLat1;
   double myLon1;
   void DrawAllLinesInViewPort(PlugIn_ViewPort *BBox);
+  void DrawRotatedLabel(PlugIn_ViewPort *BBox);
+  void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
   void DrawWptDisk(PlugIn_ViewPort *BBox);
   void DrawEBLLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);

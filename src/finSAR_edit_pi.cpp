@@ -146,10 +146,29 @@ int finSAR_edit_pi::Init(void) {
     dbQuery(sql);
 
     Add_RTZ_db("dummy.rtz");
+
+      sql =
+          "CREATE TABLE EXT ("
+          "ext_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+          "extensions_file TEXT,"
+          "route_name TEXT,"
+          "rtz_date_stamp TEXT,"
+          "created INTEGER,"
+          "submitted INTEGER)";
+      dbQuery(sql);
+      wxDateTime date_stamp = wxDateTime::Now();
+      date_stamp.MakeUTC(false);
+      wxString dateLabel = date_stamp.Format(_T("%Y-%m-%d %H:%M:%S"));      
+      Add_EXT_db("dummy.xml", "dummy", dateLabel);
+    
+
   }
   // Make the folder for the RTZ files
   wxString rtzpath;
   rtzpath = StandardPathRTZ();
+  wxString extpath;
+  extpath = StandardPathEXT();
+
 
   // Get a pointer to the opencpn display canvas, to use as a parent for the
   // finSAR_edit dialog
@@ -314,17 +333,7 @@ int finSAR_edit_pi::Add_RTZ_db(wxString route_name) {
 }
 
 int finSAR_edit_pi::GetRoute_Id(wxString route_name) {
-  /*
-  return dbGetIntNotNullValue(
-      wxString::Format("SELECT route_id FROM RTZ WHERE route_name = '%s'",
-                       route_name.c_str()));
-
-    select col1 from table
-    where col1 = 'something'
-    union all
-    select 'Nothing'
-    where not exists (select 1 from table where col1 = 'something')
-*/
+ 
   wxString rte = route_name;
   wxString sql1 = wxString::Format(
       "SELECT route_id FROM RTZ WHERE route_name = '%s'", route_name.c_str());
@@ -337,6 +346,37 @@ int finSAR_edit_pi::GetRoute_Id(wxString route_name) {
   // wxMessageBox(sql);
   return dbGetIntNotNullValue(sql);
 }
+
+
+
+wxString finSAR_edit_pi::GetRTZDateStamp(wxString route_name) {
+  char **result;
+  int n_rows;
+  int n_columns;
+  char *measured;
+  wxString rte = route_name + ".rtz";
+  wxString sql = wxString::Format(
+      "SELECT created FROM RTZ WHERE route_name = '%s'", rte.c_str());
+
+  ret = sqlite3_get_table(m_database, sql.mb_str(), &result, &n_rows,
+                          &n_columns, &err_msg);
+  if (ret != SQLITE_OK) {
+    /* some error occurred */
+    wxLogMessage(_T("Spatialite SQL error: %s\n"), err_msg);
+    sqlite3_free(err_msg);
+    return "error";
+  }
+  for (int i = 1; i <= n_rows; i++) {
+    measured = result[(i * n_columns) + 0];
+  }  
+
+  dbFreeResults(result);
+  wxString output = measured;
+  //wxMessageBox(measured);
+  return output;
+}
+
+
 
 void finSAR_edit_pi::DeleteRTZ_Id(int id) {
   wxString sql;
@@ -357,6 +397,18 @@ void finSAR_edit_pi::DeleteRTZ_Name(wxString route_name) {
   } else
     wxMessageBox("Error");
 }
+
+int finSAR_edit_pi::Add_EXT_db(wxString extensions_file, wxString route_name, wxString rtz_date_stamp) {
+  wxString sql = wxString::Format(
+      "INSERT INTO EXT (extensions_file, route_name, rtz_date_stamp, created, submitted) "
+      "VALUES ('%s', '%s', '%s',current_timestamp, 0)",
+      extensions_file.c_str(), route_name.c_str(),
+      rtz_date_stamp.c_str());
+  // wxMessageBox(sql);
+  dbQuery(sql);
+  return sqlite3_last_insert_rowid(m_database);
+}
+
 
 bool finSAR_edit_pi::dbQuery(wxString sql) {
   if (!b_dbUsable) return false;
@@ -461,6 +513,17 @@ wxString finSAR_edit_pi::StandardPathRTZ() {
   wxString s = wxFileName::GetPathSeparator();
 
   stdPath += s + "plugins" + s + "finSAR" + s + "RTZ";
+  if (!wxDirExists(stdPath)) wxMkdir(stdPath);
+
+  stdPath += s;
+  return stdPath;
+}
+
+wxString finSAR_edit_pi::StandardPathEXT() {
+  wxString stdPath(*GetpPrivateApplicationDataLocation());
+  wxString s = wxFileName::GetPathSeparator();
+
+  stdPath += s + "plugins" + s + "finSAR" + s + "EXT";
   if (!wxDirExists(stdPath)) wxMkdir(stdPath);
 
   stdPath += s;

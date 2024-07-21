@@ -64,10 +64,21 @@
 #include <cmath>
 #include <wx/menu.h>
 #include <wx/string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <ctime>
+#ifndef WIN32
+#include <unistd.h>
+#endif
+
+#ifdef WIN32
+#define stat _stat
+#endif
 
 #if wxUSE_UIACTIONSIMULATOR
 #include "wx/uiaction.h"
 #endif
+
 
 /* XPM */
 static const char* eye[] = {"20 20 7 1",
@@ -294,7 +305,7 @@ public:
   virtual void Unlock() { routemutex.Unlock(); }
 
   bool OpenXML(wxString filename, bool reportfailure);
-  void SaveXML();
+
 
   void OnContextMenu(double m_lat, double m_lon);
 
@@ -365,7 +376,7 @@ public:
   vector<DirectionTarget> d_vector;
   vector<RangeTarget> r_vector;
 
-  void OnSaveObjects(wxCommandEvent& event);
+  wxString m_dateStamp;
 
 protected:
 private:
@@ -428,10 +439,15 @@ private:
   vector<PlugIn_Waypoint_Ex*> theWaypoints;
   Plugin_WaypointExList* myList;
   void WriteRTZ(wxString route_name);
+  void WriteXML(wxString route_name);
   void OnLoadRoute(wxCommandEvent& event);
   void OnDeleteRoute(wxCommandEvent& event);
   //void ChartTheRoute(wxString myRoute);
+  void OnNewExtensions(wxCommandEvent& event);
+  void OnLoadExtensions(wxCommandEvent& event);
+  void OnSaveExtensions(wxCommandEvent& event);
   void OnIndex(wxCommandEvent& event);
+  void SaveIndex(wxString date_stamp);
   void FindIndex(Position* A, Position* B);
   void OnRange(wxCommandEvent& event);
   void FindRange(Position* A, Position* B);

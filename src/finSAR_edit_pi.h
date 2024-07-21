@@ -41,6 +41,7 @@
 #include <wx/datetime.h>
 #include "pidc.h"
 #include <wx/tokenzr.h>
+#include <wx/datetime.h>
 
 #define DATABASE_NAME "finSAR.db"
 
@@ -118,6 +119,7 @@ public:
 
   wxString StandardPath();
   wxString StandardPathRTZ();
+  wxString StandardPathEXT();
 
   finSAR_editUIDialog *m_pfinSAR_editDialog;
   void SetNMEASentence(wxString &sentence);
@@ -130,7 +132,9 @@ public:
   char *err_msg;
   bool b_dbUsable;
 
-  int Add_RTZ_db(wxString route_name);
+  int Add_RTZ_db(wxString route_name);  
+  int Add_EXT_db(wxString extensions_file, wxString route_name, wxString rtz_date_stamp); 
+
   int GetActiveFileDBId() { return m_activeFileDB; }
   void SetActiveFileDBId(int id) { m_activeFileDB = id; }
   
@@ -143,6 +147,7 @@ public:
   void dbGetTable(wxString sql, char ***results, int &n_rows, int &n_columns);
   void dbFreeResults(char **results);
   int GetRoute_Id(wxString route_name);
+  wxString GetRTZDateStamp(wxString route_name); 
   void FillRouteNamesDropdown();
   wxArrayString GetRouteList();
 
