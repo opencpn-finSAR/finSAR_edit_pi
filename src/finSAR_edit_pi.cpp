@@ -145,7 +145,7 @@ int finSAR_edit_pi::Init(void) {
         "submitted INTEGER)";
     dbQuery(sql);
 
-    Add_RTZ_db("dummy.rtz");
+    Add_RTZ_db("dummy");
 
       sql =
           "CREATE TABLE EXT ("
@@ -354,7 +354,7 @@ wxString finSAR_edit_pi::GetRTZDateStamp(wxString route_name) {
   int n_rows;
   int n_columns;
   char *measured;
-  wxString rte = route_name + ".rtz";
+  wxString rte = route_name;
   wxString sql = wxString::Format(
       "SELECT created FROM RTZ WHERE route_name = '%s'", rte.c_str());
 
@@ -393,7 +393,20 @@ void finSAR_edit_pi::DeleteRTZ_Name(wxString route_name) {
   bool res = dbQuery(sql);
   if (res) {
     wxString del = "\"" + route_name + "\" has been deleted";
-    wxMessageBox(del, "Route Deleted");
+    //wxMessageBox(del, "Route Deleted");
+  } else
+    wxMessageBox("Error");
+}
+
+void finSAR_edit_pi::DeleteEXT_Name(wxString route_name) {
+  wxString sql;
+  sql = wxString::Format("DELETE FROM EXT WHERE route_name = \'%s\'",
+                         route_name.c_str());
+  // wxMessageBox(sql);
+  bool res = dbQuery(sql);
+  if (res) {
+    wxString del = "\"" + route_name + "\" has been deleted";
+    //wxMessageBox(del, "Route Deleted");
   } else
     wxMessageBox("Error");
 }
@@ -486,9 +499,7 @@ wxArrayString finSAR_edit_pi::GetRouteList() {
     char *id = result[(i * n_columns) + 0];
     char *name = result[(i * n_columns) + 1];
     int route_id = atoi(id);
-    wxString route_file_name(name, wxConvUTF8);
-    int fl = route_file_name.length();
-    wxString route_name = route_file_name.SubString(0, (fl - 5));
+    wxString route_name(name, wxConvUTF8);
     routes.Add(route_name);
   }
   dbFreeResults(result);

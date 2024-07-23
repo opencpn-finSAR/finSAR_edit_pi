@@ -289,8 +289,6 @@ void finSAR_editUIDialog::SaveIndex(wxString date_stamp) {
   // Route name must be the same as the file name, without file extension
 
   xmlDoc.save_file(file_path.mb_str());
-
-
 }
 
 void finSAR_editUIDialog::SelectRoutePoints(wxString routeName) {}
@@ -702,7 +700,8 @@ void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
   // press would actually become "Ctrl+A" selecting the entire text and so on.
 
   wxMessageBox(
-      "Right-Click \"End Route\" after drawing the route.\nPress CTRL+R and enter route name in route properties");
+      "Right-Click \"End Route\" after drawing the route.\nPress CTRL+R and "
+      "enter route name in route properties");
 
   pParent->SetFocus();
   wxUIActionSimulator sim;
@@ -828,22 +827,22 @@ void finSAR_editUIDialog::OnSaveRoute(wxCommandEvent& event) {
         }
 
         WriteRTZ(thisRoute->m_NameString);
-        
 
-        wxString rtz_file = thisRoute->m_NameString + ".rtz";
+        // wxString rtz_file = thisRoute->m_NameString;
         wxString extensions_file = thisRoute->m_NameString + ".xml";
         // wxMessageBox(rtz_file);
 
-        int id = pPlugIn->GetRoute_Id(rtz_file);
+        int id = pPlugIn->GetRoute_Id(thisRoute->m_NameString);
         // wxString sid = wxString::Format("%i", id);
         // wxMessageBox(sid);
         if (id != 0) pPlugIn->DeleteRTZ_Id(id);
         // Now add the modified route
-        pPlugIn->Add_RTZ_db(rtz_file);
+        pPlugIn->Add_RTZ_db(thisRoute->m_NameString);
 
         WriteXML(thisRoute->m_NameString);
         m_dateStamp = pPlugIn->GetRTZDateStamp(thisRoute->m_NameString);
-        pPlugIn->Add_EXT_db(extensions_file, thisRoute->m_NameString, m_dateStamp);
+        pPlugIn->Add_EXT_db(extensions_file, thisRoute->m_NameString,
+                            m_dateStamp);
 
         /*
         temp_list->DeleteContents(true);
@@ -861,7 +860,6 @@ void finSAR_editUIDialog::OnSaveRoute(wxCommandEvent& event) {
   }
   RequestRefresh(pParent);
 }
-
 
 void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
   // Select the route from the route table
@@ -925,7 +923,6 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
   // Route name must be the same as the file name, without file extension
 
   xmlDoc.save_file(file_path.mb_str());
-
 }
 
 void finSAR_editUIDialog::WriteXML(wxString route_name) {
@@ -934,16 +931,12 @@ void finSAR_editUIDialog::WriteXML(wxString route_name) {
   // Create Main level XML container
   xml_document xmlDoc;
 
-  
   // Create XML root node called animals
   xml_node pRoot = xmlDoc.append_child("extensions");
-
- 
 
   // ************* Add extensionsInfo to root node *******
 
   xml_node extensionsInfo = pRoot.append_child("route_date_stamp");
-
 
   m_dateStamp = pPlugIn->GetRTZDateStamp(route_name);
   extensionsInfo.append_attribute("date_stamp").set_value(m_dateStamp.mb_str());
@@ -961,7 +954,6 @@ void finSAR_editUIDialog::WriteXML(wxString route_name) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-
 void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
   int c = pPlugIn->m_pfinSAR_editDialog->m_choiceRoutes->GetSelection();
   wxString rt = pPlugIn->m_pfinSAR_editDialog->m_choiceRoutes->GetString(c);
@@ -976,7 +968,7 @@ void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
   m_textRouteName->SetValue(rt);
   // wxMessageBox(file_name);
   ReadRTZ(file_name);
-  ChartTheRoute(rt);
+  ChartTheRoute(file_name);
   i_vector.clear();
 }
 
@@ -1031,13 +1023,48 @@ void finSAR_editUIDialog::OnDeleteRoute(wxCommandEvent& event) {
     wxMessageBox("No route selected", "No Selection");
     return;
   }
-  rt += ".rtz";
 
   pPlugIn->DeleteRTZ_Name(rt);
+  pPlugIn->DeleteEXT_Name(rt);
+
+  DeleteRTZFile(rt);
+  DeleteEXTFile(rt);
+
+  m_choiceRoutes->Delete(c);
   m_choiceRoutes->SetSelection(0);
   m_textCtrlRouteInUse->SetValue("");
+  m_textRouteName->SetValue("");
   DeleteChartedRoute();
+
   RequestRefresh(pParent);
+}
+
+void finSAR_editUIDialog::DeleteRTZFile(wxString route_name) {
+  wxString rt = route_name;
+  wxString file_folder = pPlugIn->StandardPathRTZ();
+  wxString file_name = file_folder + rt + ".rtz";
+  wxFileName fn;
+  fn.SetFullName(file_name);
+  // wxMessageBox(file_name);
+  if (!wxFileExists(fn.GetFullName())) {
+    bool success = wxRemove(file_name);
+  } else {
+    wxMessageBox("File not found");
+  }
+}
+
+void finSAR_editUIDialog::DeleteEXTFile(wxString route_name) {
+  wxString rt = route_name;
+  wxString file_folder = pPlugIn->StandardPathEXT();
+  wxString file_name = file_folder + rt + ".xml";
+  wxFileName fn;
+  fn.SetFullName(file_name);
+  // wxMessageBox(file_name);
+  if (!wxFileExists(fn.GetFullName())) {
+    bool success = wxRemove(file_name);
+  } else {
+    wxMessageBox("File not found");
+  }
 }
 
 void finSAR_editUIDialog::OnNewExtensions(wxCommandEvent& event) {
@@ -1061,6 +1088,7 @@ void finSAR_editUIDialog::OnLoadExtensions(wxCommandEvent& event) {
   wxString file_name = file_folder + rt + ".xml";
   wxFile file;
   bool success = file.Open(file_name, wxFile::read);
+  ReadEXT(file_name);
 }
 
 void finSAR_editUIDialog::OnIndex(wxCommandEvent& event) {
@@ -1193,10 +1221,10 @@ void finSAR_editUIDialog::FindDirection(Position* A, Position* B) {
 }
 
 void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
-  
   wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
   wxString extensions_file = mySelectedRoute + ".xml";
   SaveIndex(date_stamp);
+  pPlugIn->DeleteEXT_Name(mySelectedRoute);
   pPlugIn->Add_EXT_db(extensions_file, mySelectedRoute, date_stamp);
 }
 
@@ -1307,6 +1335,75 @@ void finSAR_editUIDialog::ReadRTZ(wxString file_name) {
   wxString mycount = wxString::Format("%i", count);
   // wxMessageBox(mycount);
   // SetRTZversion(rtz_version);
+}
+
+void finSAR_editUIDialog::ReadEXT(wxString file_name) {
+  i_vector.clear();  // Set up a new vector
+  i_target = new IndexTarget;
+
+  wxString file = file_name;
+  pugi::xml_document xmlDoc;
+  pugi::xml_parse_result result =
+      xmlDoc.load_file(file.mb_str(), parse_default | parse_declaration);
+
+  pugi::xml_node pRoot = xmlDoc.child("targets");
+  if (pRoot == nullptr) return;
+
+  wxString error;
+  wxProgressDialog* progressdialog = NULL;
+
+  xml_node pDateElement = pRoot.child("parent_date_stamp");
+
+  if (pDateElement == nullptr) return;
+
+  string date_stamp = pDateElement.attribute("date_stamp").value();
+  i_target->date_stamp = date_stamp;
+
+  bool exists = false;
+  wxMessageBox(date_stamp);
+
+  xml_node pTargetsElement = pRoot.child("index_target");
+  if (pTargetsElement == nullptr) return;
+
+  while (pTargetsElement != nullptr) {
+    xml_node pListTargetsElement = pTargetsElement.child("route_name");
+    if (pListTargetsElement == nullptr) return;
+
+    string value = "nullptr";
+
+    value = pListTargetsElement.attribute("route_name").value();
+    if (value != "nullptr") {
+      i_target->route_name = value;
+    }
+
+    value = pListTargetsElement.attribute("id").value();
+    if (value == "nullptr") return;  // must have id
+    i_target->wpId = value;
+    // wxMessageBox(value);
+
+    xml_node pBeginElement = pTargetsElement.child("begin");
+    if (pBeginElement == nullptr) return;
+
+    double dvalue = 0.0;
+
+    wxString stp = pBeginElement.attribute("lat").value();
+    stp.ToDouble(&dvalue);
+    i_target->beginLat = dvalue;
+    wxMessageBox(stp);
+
+    wxString stpl = pBeginElement.attribute("lon").value();
+    stpl.ToDouble(&dvalue);
+    i_target->beginLon = dvalue;
+    wxMessageBox(stpl);
+  }
+
+  // pListWaypointsElement = pListWaypointsElement.next_sibling(
+  //    "waypoint");  // stop the loop when waypoints empty
+
+  // i_vector.push_back(i_target);
+
+  // wxString mycount = wxString::Format("%i", count);
+  //  wxMessageBox(mycount);
 }
 
 void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {

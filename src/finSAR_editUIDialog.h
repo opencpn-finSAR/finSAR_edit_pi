@@ -67,6 +67,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <ctime>
+#include <wx/filefn.h>
+
 #ifndef WIN32
 #include <unistd.h>
 #endif
@@ -179,6 +181,7 @@ public:
 class IndexTarget {
 public:
   wxString route_name;
+  wxString date_stamp;
   wxString wpId;
   double beginLat, beginLon;
   double endLat, endLon;
@@ -186,6 +189,8 @@ public:
 
 class DirectionTarget {
 public:
+  wxString route_name;
+  wxString date_stamp;
   wxString dId;
   double m_lat, m_lon;
   double m_dir;
@@ -193,6 +198,8 @@ public:
 
 class RangeTarget {
 public:
+  wxString route_name;
+  wxString date_stamp;
   wxString rId;
   double beginLat, beginLon;
   double endLat, endLon;
@@ -428,6 +435,7 @@ private:
   int ca, cf;
   wxString id_wpt;
   void ReadRTZ(wxString file_name);
+  void ReadEXT(wxString file_name);
   void ChartTheRoute(wxString myRoute);
 
   Position* active_waypoint;
@@ -441,6 +449,8 @@ private:
   void WriteXML(wxString route_name);
   void OnLoadRoute(wxCommandEvent& event);
   void OnDeleteRoute(wxCommandEvent& event);
+  void DeleteRTZFile(wxString route_name);
+  void DeleteEXTFile(wxString route_name);
   //void ChartTheRoute(wxString myRoute);
   void OnNewExtensions(wxCommandEvent& event);
   void OnLoadExtensions(wxCommandEvent& event);

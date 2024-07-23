@@ -148,9 +148,9 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
 
   DrawIndexTargets(&vp);
 
-  // DrawRotatedLabel(&vp);
+  DrawRotatedLabel(&vp);
 
-  // DrawRotatedText(&vp, 16.5, 230);
+  //DrawRotatedText(&vp, 16.5, 230);
 
   if (m_dlg.m_bDrawWptDisk) DrawWptDisk(&vp);
 
@@ -707,7 +707,7 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
   imageLabel2.SetAlpha(alphaData);
 
   wxImage imageLabel3 = imageLabel2.Rotate(
-      2.0, wxPoint(imageLabel.GetWidth() / 2, imageLabel.GetHeight() / 2),
+      2.0, wxPoint(imageLabel2.GetWidth() / 2, imageLabel2.GetHeight() / 2),
       false);
 
   int w = imageLabel3.GetWidth();
@@ -718,14 +718,20 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
   int yd = (ab.y + cd.y - h) / 2 + offset;
 
   if (dc) {
+
+    //
     /* don't use alpha for isobars, for some reason draw bitmap ignores
        the 4th argument (true or false has same result) */
+    //imageLabel3.SetAlpha(alphaData);
     wxImage img(w, h, imageLabel3.GetData(), true);
-
+    bool al = img.HasAlpha();
+    //if (!al) wxMessageBox("dc");
     unsigned char r, g, b;
-    if (!img.GetOrFindMaskColour(&r, &g, &b)) img.SetMaskColour(r, g, b);
-
-    dc->DrawBitmap(img, xd, yd, true);
+    //if (!img.GetOrFindMaskColour(&r, &g, &b)) img.SetMaskColour(r, g, b);
+    
+    imageLabel3.SetMaskColour(255, 255, 255);
+    dc->DrawBitmap(imageLabel3, xd, yd, true);
+    return;
   } else { /* opengl */
 
     int w = imageLabel3.GetWidth(), h = imageLabel3.GetHeight();
@@ -748,25 +754,29 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
           r = d[off * 3 + 0];
           g = d[off * 3 + 1];
           b = d[off * 3 + 2];
-
+           
           e[off * 4 + 0] = r;
           e[off * 4 + 1] = g;
           e[off * 4 + 2] = b;
 
           e[off * 4 + 3] =
               a ? a[off] : ((r == mr) && (g == mg) && (b == mb) ? 0 : 255);
+
+          wxString myA = a;
+          wxMessageBox(myA);
         }
     }
 
     glColor4f(1, 1, 1, 1);
-
-    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glAlphaFunc(GL_GREATER, 0.5);
     glRasterPos2i(xd, yd);
     glPixelZoom(1, -1);
     glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, e);
     glPixelZoom(1, 1);
     glDisable(GL_BLEND);
+    
 
     delete[] (e);
   }

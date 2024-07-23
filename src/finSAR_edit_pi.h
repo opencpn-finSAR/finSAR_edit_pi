@@ -142,6 +142,7 @@ public:
 
   void DeleteRTZ_Id(int id);
   void DeleteRTZ_Name(wxString route_name);
+  void DeleteEXT_Name(wxString route_name);
   wxString m_activefiledbname;
   int dbGetIntNotNullValue(wxString sql);
   void dbGetTable(wxString sql, char ***results, int &n_rows, int &n_columns);
