@@ -547,7 +547,6 @@ bool finSAR_edit_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) {
     return false;
 
   if (m_pfinSAR_editDialog) {
-    // m_pfinSAR_editDialog->OnCursor();
     m_pfinSAR_editDialog->SetViewPort(vp);
     m_pfinSAR_editDialog->MakeBoxPoints();
   }
@@ -565,7 +564,6 @@ bool finSAR_edit_pi::RenderGLOverlay(wxGLContext *pcontext,
     return false;
 
   if (m_pfinSAR_editDialog) {
-    // m_pfinSAR_editDialog->OnCursor();
     m_pfinSAR_editDialog->SetViewPort(vp);
     m_pfinSAR_editDialog->MakeBoxPoints();
   }

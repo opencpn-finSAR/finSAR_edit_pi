@@ -185,6 +185,7 @@ public:
   wxString wpId;
   double beginLat, beginLon;
   double endLat, endLon;
+  double distance;
 };
 
 class DirectionTarget {
@@ -310,9 +311,6 @@ public:
   virtual void Lock() { routemutex.Lock(); }
   virtual void Unlock() { routemutex.Unlock(); }
 
-  bool OpenXML(wxString filename, bool reportfailure);
-
-
   void OnContextMenu(double m_lat, double m_lon);
 
   double FindDistanceFromLeg(Position* A, Position* B,
@@ -371,7 +369,6 @@ public:
   double ebl_lat, ebl_lon;
   void MakeEBLEvent();
   void key_shortcut(wxKeyEvent& event);
-  void OnCursor(void);
   void OnTimer(wxTimerEvent& event);
   void SetNMEAMessage(wxString sentence);
   IndexTarget* i_target;
@@ -406,10 +403,6 @@ private:
   vector<rte> my_routes;
   vector<rtept> routePoints;
   vector<routeLeg> routeLegs;
-
-
-  void OnReadRTZ(wxCommandEvent& event);
-
   wxString mySelectedRoute;
 
   int GetRandomNumber(int range_min, int range_max);
@@ -430,7 +423,7 @@ private:
   int GetScale(double myChartScale);
 
   wxString rtz_version;
-  void SetBearingWaypoint();
+  //void SetBearingWaypoint();
   wxArrayString my_areas[10], my_files[10][10];
   int ca, cf;
   wxString id_wpt;
@@ -452,11 +445,10 @@ private:
   void DeleteRTZFile(wxString route_name);
   void DeleteEXTFile(wxString route_name);
   //void ChartTheRoute(wxString myRoute);
-  void OnNewExtensions(wxCommandEvent& event);
   void OnLoadExtensions(wxCommandEvent& event);
   void OnSaveExtensions(wxCommandEvent& event);
   void OnIndex(wxCommandEvent& event);
-  void SaveIndex(wxString date_stamp);
+  void SaveIndex(wxString route_name, wxString date_stamp);
   void FindIndex(Position* A, Position* B);
   void OnRange(wxCommandEvent& event);
   void FindRange(Position* A, Position* B);

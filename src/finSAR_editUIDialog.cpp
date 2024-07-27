@@ -222,11 +222,7 @@ int finSAR_editUIDialog::GetRandomNumber(int range_min, int range_max) {
   return (int)u;
 }
 
-bool finSAR_editUIDialog::OpenXML(wxString filename, bool reportfailure) {
-  return false;
-}
-
-void finSAR_editUIDialog::SaveIndex(wxString date_stamp) {
+void finSAR_editUIDialog::SaveIndex(wxString route_name, wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
 
@@ -236,8 +232,8 @@ void finSAR_editUIDialog::SaveIndex(wxString date_stamp) {
 
   declarationNode.append_attribute("encoding") = "UTF-8";
 
-  // Create XML root node called animals
-  xml_node pRoot = xmlDoc.append_child("targets");
+  // Create XML root node called extensions
+  xml_node pRoot = xmlDoc.append_child("extensions");
 
   // ************* Add routeInfo to root node *******
 
@@ -252,16 +248,16 @@ void finSAR_editUIDialog::SaveIndex(wxString date_stamp) {
   int idn = 0;
   wxString route;
 
-  xml_node m_dateStampNode = pRoot.append_child("parent_date_stamp");
-  m_dateStampNode.append_attribute("date_stamp").set_value(date_stamp.mb_str());
+  xml_node m_rootNode = pRoot.append_child("route");
+  m_rootNode.append_attribute("route_name").set_value(route_name.mb_str());
+  m_rootNode.append_attribute("date_stamp").set_value(date_stamp.mb_str());
 
   for (std::vector<IndexTarget>::iterator itOut = i_vector.begin();
        itOut != i_vector.end(); itOut++) {
-    xml_node m_targetpoint = pRoot.append_child("index_target");
+    xml_node m_targetpoint = m_rootNode.append_child("index_target");
     route = (*itOut).route_name;
 
     // wxString myIdn = wxString::Format("%i", idn);
-    m_targetpoint.append_attribute("route_name").set_value(route.mb_str());
     m_targetpoint.append_attribute("wp_id").set_value((*itOut).wpId.mb_str());
 
     xml_node b_position = m_targetpoint.append_child("begin");
@@ -875,7 +871,7 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
 
   const char* value = "http://www.cirm.org/RTZ/1/2";
 
-  // Create XML root node called animals
+  // Create XML root node called route
   xml_node pRoot = xmlDoc.append_child("route");
 
   pRoot.append_attribute("xmlns").set_value(value);
@@ -931,7 +927,7 @@ void finSAR_editUIDialog::WriteEXT(wxString route_name) {
   // Create Main level XML container
   xml_document xmlDoc;
 
-  // Create XML root node called animals
+  // Create XML root node called extensions
 
   xml_node pRoot = xmlDoc.append_child("extensions");
 
@@ -1023,8 +1019,8 @@ void finSAR_editUIDialog::OnDeleteRoute(wxCommandEvent& event) {
     return;
   }
 
-  pPlugIn->DeleteRTZ_Name(rt);
-  pPlugIn->DeleteEXT_Name(rt);
+  pPlugIn->DeleteRTZ_Name(rt); // remove from db
+  pPlugIn->DeleteEXT_Name(rt); // remove from db
 
   DeleteRTZFile(rt);
   DeleteEXTFile(rt);
@@ -1066,20 +1062,6 @@ void finSAR_editUIDialog::DeleteEXTFile(wxString route_name) {
   }
 }
 
-void finSAR_editUIDialog::OnNewExtensions(wxCommandEvent& event) {
-  wxString rt = m_textRouteName->GetValue();
-
-  wxString file_folder = pPlugIn->StandardPathEXT();
-  wxString file_name = file_folder + rt + ".xml";
-  if (!wxFileExists(file_name)) {
-    wxFile file;
-    bool success = file.Create(file_name, true);
-  } else {
-    wxMessageBox("File already exists\n Use Load Extensions for editing",
-                 "File Exists");
-  }
-}
-
 void finSAR_editUIDialog::OnLoadExtensions(wxCommandEvent& event) {
   wxString rt = m_textRouteName->GetValue();
 
@@ -1090,14 +1072,9 @@ void finSAR_editUIDialog::OnLoadExtensions(wxCommandEvent& event) {
 }
 
 void finSAR_editUIDialog::OnIndex(wxCommandEvent& event) {
-  // ReadRTZ();
-  // std::string str = "finSAR_edit_pi_pi";
-  // SendPluginMessage(wxString("finSAR_edit_pi_pi"), str);
-  // return;
 
-  // active_waypoint = FindActiveWaypoint(id_wpt);
   if (active_waypoint->wpName == wxEmptyString) {
-    wxMessageBox("Activate the waypoint/leg");
+    wxMessageBox("Please activate the waypoint for the leg");
     return;
   }
   // wxMessageBox(active_waypoint->wpName);
@@ -1161,6 +1138,9 @@ void finSAR_editUIDialog::FindIndex(Position* A, Position* B) {
   i_target->endLat = lat3;
   i_target->endLon = lon3;
 
+  DistanceBearingMercator_Plugin(lat3, lon3, dlat, dlon, &brg2, &dist2);
+  i_target->distance = dist2;
+
   i_vector.push_back(*i_target);
 }
 
@@ -1221,7 +1201,7 @@ void finSAR_editUIDialog::FindDirection(Position* A, Position* B) {
 void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
   wxString extensions_file = mySelectedRoute + ".xml";
-  SaveIndex(date_stamp);
+  SaveIndex(mySelectedRoute, date_stamp);
   pPlugIn->DeleteEXT_Name(mySelectedRoute);
   pPlugIn->Add_EXT_db(extensions_file, mySelectedRoute, date_stamp);
 }
