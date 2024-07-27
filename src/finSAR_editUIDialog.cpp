@@ -700,8 +700,8 @@ void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
   // press would actually become "Ctrl+A" selecting the entire text and so on.
 
   wxMessageBox(
-      "Right-Click \"End Route\" after drawing the route.\nPress CTRL+R and "
-      "enter route name in route properties");
+      "Right-Click \"End Route\" after drawing the route.\nRight-Click on the "
+      "route\nPress CTRL+R and enter route name in route properties");
 
   pParent->SetFocus();
   wxUIActionSimulator sim;
@@ -839,7 +839,7 @@ void finSAR_editUIDialog::OnSaveRoute(wxCommandEvent& event) {
         // Now add the modified route
         pPlugIn->Add_RTZ_db(thisRoute->m_NameString);
 
-        WriteXML(thisRoute->m_NameString);
+        WriteEXT(thisRoute->m_NameString);
         m_dateStamp = pPlugIn->GetRTZDateStamp(thisRoute->m_NameString);
         pPlugIn->Add_EXT_db(extensions_file, thisRoute->m_NameString,
                             m_dateStamp);
@@ -925,20 +925,22 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void finSAR_editUIDialog::WriteXML(wxString route_name) {
+void finSAR_editUIDialog::WriteEXT(wxString route_name) {
   // Select the route from the route table
   //
   // Create Main level XML container
   xml_document xmlDoc;
 
   // Create XML root node called animals
+
   xml_node pRoot = xmlDoc.append_child("extensions");
 
   // ************* Add extensionsInfo to root node *******
 
-  xml_node extensionsInfo = pRoot.append_child("route_date_stamp");
+  xml_node extensionsInfo = pRoot.append_child("route");
 
   m_dateStamp = pPlugIn->GetRTZDateStamp(route_name);
+  extensionsInfo.append_attribute("route_name").set_value(route_name.mb_str());
   extensionsInfo.append_attribute("date_stamp").set_value(m_dateStamp.mb_str());
 
   // done adding data
@@ -1009,9 +1011,6 @@ void finSAR_editUIDialog::ChartTheRoute(wxString myRoute) {
   }
 
   AddPlugInRouteEx(newRoute, true);
-
-  wxMessageBox("Route & Mark Manager will show the imported route",
-               "Imported Route");
 
   GetParent()->Refresh();
 }
@@ -1086,8 +1085,7 @@ void finSAR_editUIDialog::OnLoadExtensions(wxCommandEvent& event) {
 
   wxString file_folder = pPlugIn->StandardPathEXT();
   wxString file_name = file_folder + rt + ".xml";
-  wxFile file;
-  bool success = file.Open(file_name, wxFile::read);
+
   ReadEXT(file_name);
 }
 
@@ -1341,11 +1339,10 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   i_vector.clear();  // Set up a new vector
   i_target = new IndexTarget;
 
-  wxString file = file_name;
   pugi::xml_document xmlDoc;
   pugi::xml_parse_result result =
-      xmlDoc.load_file(file.mb_str(), parse_default | parse_declaration);
-
+      xmlDoc.load_file(file_name.mb_str(), parse_default | parse_declaration);
+  /*
   pugi::xml_node pRoot = xmlDoc.child("targets");
   if (pRoot == nullptr) return;
 
@@ -1358,52 +1355,76 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
 
   string date_stamp = pDateElement.attribute("date_stamp").value();
   i_target->date_stamp = date_stamp;
-
+*/
   bool exists = false;
-  wxMessageBox(date_stamp);
+  // wxMessageBox(date_stamp);
 
-  xml_node pTargetsElement = pRoot.child("index_target");
-  if (pTargetsElement == nullptr) return;
+  pugi::xml_node root = xmlDoc.child("extensions");
+  pugi::xml_node route = root.child("route");
+  wxMessageBox(route.attribute("route_name").value());
 
-  while (pTargetsElement != nullptr) {
-    xml_node pListTargetsElement = pTargetsElement.child("route_name");
-    if (pListTargetsElement == nullptr) return;
+  //[code_traverse_iter
+  pugi::xml_node lineNode = route.first_child();
+  //
+  //
+  /* while (lineNode) {
+    wxMessageBox(lineNode.attribute("route_name").value());
 
-    string value = "nullptr";
+    lineNode = lineNode.next_sibling();
+  }*/
+  /*
+  xml_node pTargetElement = xmlDoc.child("targets");
 
-    value = pListTargetsElement.attribute("route_name").value();
-    if (value != "nullptr") {
-      i_target->route_name = value;
+    for (pugi::xml_node pTargetsElement :
+  pTargetElement.children("index_target")) { string value = "nullptr";
+
+    value = pTargetsElement.attribute("route_name").value();
+
+    i_target->route_name = value;
+
+    }
+      value = pTargetsElement.attribute("id").value();
+      if (value == "nullptr") return;  // must have id
+      i_target->wpId = value;
+      // wxMessageBox(value);
+
+      xml_node pBeginElement = pTargetsElement.child("begin");
+
+      double dvalue = 0.0;
+
+      wxString stp = pBeginElement.attribute("lat").value();
+      stp.ToDouble(&dvalue);
+      i_target->beginLat = dvalue;
+      wxMessageBox(stp);
+
+      wxString stpl = pBeginElement.attribute("lon").value();
+      stpl.ToDouble(&dvalue);
+      i_target->beginLon = dvalue;
+      wxMessageBox(stpl);
+
+      xml_node pEndElement = pTargetsElement.child("end");
+
+      stp = pEndElement.attribute("lat").value();
+      stp.ToDouble(&dvalue);
+      i_target->endLat = dvalue;
+      wxMessageBox(stp);
+
+      stpl = pEndElement.attribute("lon").value();
+      stpl.ToDouble(&dvalue);
+      i_target->endLon = dvalue;
+      wxMessageBox(stpl);
+
+      i_vector.push_back(*i_target);
+
     }
 
-    value = pListTargetsElement.attribute("id").value();
-    if (value == "nullptr") return;  // must have id
-    i_target->wpId = value;
-    // wxMessageBox(value);
+    // pListWaypointsElement = pListWaypointsElement.next_sibling(
+    //    "waypoint");  // stop the loop when waypoints empty
 
-    xml_node pBeginElement = pTargetsElement.child("begin");
-    if (pBeginElement == nullptr) return;
+    // i_vector.push_back(i_target);
 
-    double dvalue = 0.0;
-
-    wxString stp = pBeginElement.attribute("lat").value();
-    stp.ToDouble(&dvalue);
-    i_target->beginLat = dvalue;
-    wxMessageBox(stp);
-
-    wxString stpl = pBeginElement.attribute("lon").value();
-    stpl.ToDouble(&dvalue);
-    i_target->beginLon = dvalue;
-    wxMessageBox(stpl);
-  }
-
-  // pListWaypointsElement = pListWaypointsElement.next_sibling(
-  //    "waypoint");  // stop the loop when waypoints empty
-
-  // i_vector.push_back(i_target);
-
-  // wxString mycount = wxString::Format("%i", count);
-  //  wxMessageBox(mycount);
+    // wxString mycount = wxString::Format("%i", count);
+    //  wxMessageBox(mycount);*/
 }
 
 void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {

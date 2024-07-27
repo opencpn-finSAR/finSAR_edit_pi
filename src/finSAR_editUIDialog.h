@@ -446,7 +446,7 @@ private:
   vector<PlugIn_Waypoint_Ex*> theWaypoints;
   Plugin_WaypointExList* myList;
   void WriteRTZ(wxString route_name);
-  void WriteXML(wxString route_name);
+  void WriteEXT(wxString route_name);
   void OnLoadRoute(wxCommandEvent& event);
   void OnDeleteRoute(wxCommandEvent& event);
   void DeleteRTZFile(wxString route_name);
