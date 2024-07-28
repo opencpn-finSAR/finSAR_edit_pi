@@ -1223,7 +1223,7 @@ void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   pPlugIn->DeleteEXT_Name(mySelectedRoute);
   pPlugIn->Add_EXT_db(extensions_file, mySelectedRoute, date_stamp);
   m_bDrawWptDisk = false;
-  ReadRTZ(mySelectedRoute);
+  ReadRTZ(mySelectedRoute + ".rtz");
 }
 
 void finSAR_editUIDialog::SetNMEAMessage(wxString sentence) {
