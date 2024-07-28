@@ -241,6 +241,12 @@ void finSAR_edit_pi::OnToolbarToolCallback(int id) {
         0);  // workaround for gtk autocentre dialog behavior
     m_pfinSAR_editDialog->Move(p);
 
+    // Clear route & mark manager
+    auto uids = GetRouteGUIDArray();
+    for (size_t i = 0; i < uids.size(); i++) {
+      DeletePlugInRoute(uids[i]);
+    }
+
     FillRouteNamesDropdown();
 
     // Create the drawing factory

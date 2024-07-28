@@ -404,6 +404,7 @@ private:
   vector<rtept> routePoints;
   vector<routeLeg> routeLegs;
   wxString mySelectedRoute;
+  int mySelectedLeg;
 
   int GetRandomNumber(int range_min, int range_max);
 
@@ -449,11 +450,11 @@ private:
   void OnSaveExtensions(wxCommandEvent& event);
   void OnIndex(wxCommandEvent& event);
   void SaveIndex(wxString route_name, wxString date_stamp);
-  void FindIndex(Position* A, Position* B);
+  void GetIndex(Position* A, Position* B);
   void OnRange(wxCommandEvent& event);
-  void FindRange(Position* A, Position* B);
+  void GetRange(Position* A, Position* B);
   void OnDirection(wxCommandEvent& event);
-  void FindDirection(Position* A, Position* B);
+  void GetDirection(Position* A, Position* B);
 
  
 };
