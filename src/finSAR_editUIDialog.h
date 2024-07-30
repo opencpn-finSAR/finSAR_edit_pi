@@ -186,6 +186,8 @@ public:
   double beginLat, beginLon;
   double endLat, endLon;
   double distance;
+  double labelDirection;
+  double labelDistance;
 };
 
 class DirectionTarget {
@@ -363,6 +365,7 @@ public:
   void OnButtonEBL_off(wxCommandEvent& event);
   void MakeBoxPoints();
   bool m_bBearingLine;
+  bool m_bIndexLabel;
   bool m_bMoveUpDownLeftRight;
   double m_ShipLat1, m_ShipLon1;
   double m_ShipLat2, m_ShipLon2;
@@ -380,6 +383,7 @@ public:
   vector<RangeTarget> r_vector;
 
   wxString m_dateStamp;
+  wxWindow* pParent;
 
 protected:
 private:
@@ -409,7 +413,7 @@ private:
   int GetRandomNumber(int range_min, int range_max);
 
   //    Data
-  wxWindow* pParent;
+  
 
   double m_cursor_lat, m_cursor_lon;
   wxString g_SData_Locn;
@@ -455,6 +459,10 @@ private:
   void GetRange(Position* A, Position* B);
   void OnDirection(wxCommandEvent& event);
   void GetDirection(Position* A, Position* B);
+  void MakeIndexEvent();
+  void OnIndexTimer(wxTimerEvent& event);
+  void OnIndexLabel(wxCommandEvent& event);
+  void OnIndexLabelSet(wxCommandEvent& event);
 
  
 };

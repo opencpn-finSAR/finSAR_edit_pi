@@ -150,7 +150,7 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
 
   DrawRotatedLabel(&vp);
 
-  //DrawRotatedText(&vp, 16.5, 230);
+  // DrawRotatedText(&vp, 16.5, 230);
 
   if (m_dlg.m_bDrawWptDisk) DrawWptDisk(&vp);
 
@@ -241,13 +241,19 @@ void finSAR_editOverlayFactory::DrawEBLLineInViewPort(PlugIn_ViewPort *BBox) {
 }
 
 void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
-  wxColour colour = wxColour("RED");
-  wxBrush brush(colour);
-  wxPen pen2(colour, 2);
+  double dlat, dlon;
 
-  c_GLcolour = colour;  // for filling GL arrows
+  wxColour colour1 = wxColour("RED");
+  wxColour colour2 = wxColour("WHITE");
+
+  wxBrush brush(colour2);
+  wxPen pen1(colour1, 2);
+wxPen pen2(colour2, 2);
+
+ // c_GLcolour = colour;  // for filling GL arrows
   if (m_dc) {
-    m_dc->SetPen(pen2);
+    m_dc->SetPen(pen1);
+    
     // brush.SetStyle(wxBRUSHSTYLE_SOLID);
     // m_dc->SetBrush(brush);
   }
@@ -258,7 +264,14 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
     GetCanvasPixLL(BBox, &ib, (*it).beginLat, (*it).beginLon);
     wxPoint ie;
     GetCanvasPixLL(BBox, &ie, (*it).endLat, (*it).endLon);
-    DrawGLLine(ib.x, ib.y, ie.x, ie.y, 2, colour);
+    DrawGLLine(ib.x, ib.y, ie.x, ie.y, 2, colour1);
+    PositionBearingDistanceMercator_Plugin((*it).beginLat, (*it).beginLon,
+                                           (*it).labelDirection,
+                                           (*it).labelDistance, &dlat, &dlon);
+    wxPoint il;
+    GetCanvasPixLL(BBox, &il, dlat, dlon);    
+    double dist = (*it).distance;
+    
   }
 }
 
@@ -677,11 +690,11 @@ void finSAR_editOverlayFactory::DrawOLBitmap(const wxBitmap &bitmap, wxCoord x,
     }
   }
 }
-
 void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
-                                             piDC *dc, PlugIn_ViewPort *vp,
-                                             wxImage &imageLabel, double myLat,
-                                             double myLon, int offset) {
+                                                piDC *dc, PlugIn_ViewPort *vp,
+                                                wxImage &imageLabel,
+                                                double myLat, double myLon,
+                                                int offset) {
   //---------------------------------------------------------
   // Ecrit les labels
   //---------------------------------------------------------
@@ -691,56 +704,28 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
 
   wxPoint cd;
   GetCanvasPixLL(vp, &cd, myLat, myLon);
-  wxImage imageLabel2 = imageLabel;
-  //.Rotate(
-  //  2.0, wxPoint(imageLabel.GetWidth() / 2, imageLabel.GetHeight() / 2),
-  // false);
 
-  // Setup the alpha channel.
-  unsigned char *alphaData =
-      new unsigned char[imageLabel2.GetWidth() * imageLabel2.GetHeight()];
-  memset(alphaData, wxIMAGE_ALPHA_TRANSPARENT,
-         imageLabel2.GetWidth() * imageLabel2.GetHeight());
-
-  // Create an image with alpha.
-  // wxImage image(wxSize(imageLabel.GetWidth(), imageLabel.GetHeight()));
-  imageLabel2.SetAlpha(alphaData);
-
-  wxImage imageLabel3 = imageLabel2.Rotate(
-      2.0, wxPoint(imageLabel2.GetWidth() / 2, imageLabel2.GetHeight() / 2),
-      false);
-
-  int w = imageLabel3.GetWidth();
-  int h = imageLabel3.GetHeight();
+  int w = imageLabel.GetWidth();
+  int h = imageLabel.GetHeight();
 
   int label_offset = 0;
   int xd = (ab.x + cd.x - (w + label_offset * 2)) / 2;
   int yd = (ab.y + cd.y - h) / 2 + offset;
 
   if (dc) {
-
-    //
     /* don't use alpha for isobars, for some reason draw bitmap ignores
        the 4th argument (true or false has same result) */
-    //imageLabel3.SetAlpha(alphaData);
-    wxImage img(w, h, imageLabel3.GetData(), true);
-    bool al = img.HasAlpha();
-    //if (!al) wxMessageBox("dc");
-    unsigned char r, g, b;
-    //if (!img.GetOrFindMaskColour(&r, &g, &b)) img.SetMaskColour(r, g, b);
-    
-    imageLabel3.SetMaskColour(255, 255, 255);
-    dc->DrawBitmap(imageLabel3, xd, yd, true);
-    return;
+    wxImage img(w, h, imageLabel.GetData(), true);
+    dc->DrawBitmap(img, xd, yd, false);
   } else { /* opengl */
 
-    int w = imageLabel3.GetWidth(), h = imageLabel3.GetHeight();
+    int w = imageLabel.GetWidth(), h = imageLabel.GetHeight();
 
-    unsigned char *d = imageLabel3.GetData();
-    unsigned char *a = imageLabel3.GetAlpha();
+    unsigned char *d = imageLabel.GetData();
+    unsigned char *a = imageLabel.GetAlpha();
 
     unsigned char mr, mg, mb;
-    if (!imageLabel3.GetOrFindMaskColour(&mr, &mg, &mb) && !a)
+    if (!imageLabel.GetOrFindMaskColour(&mr, &mg, &mb) && !a)
       wxMessageBox(
           _T(
                     "trying to use mask to draw a bitmap without alpha or mask\n" ));
@@ -750,37 +735,34 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
       for (int y = 0; y < h; y++)
         for (int x = 0; x < w; x++) {
           unsigned char r, g, b;
-          int off = (y * imageLabel3.GetWidth() + x);
+          int off = (y * imageLabel.GetWidth() + x);
           r = d[off * 3 + 0];
           g = d[off * 3 + 1];
           b = d[off * 3 + 2];
-           
+
           e[off * 4 + 0] = r;
           e[off * 4 + 1] = g;
           e[off * 4 + 2] = b;
 
           e[off * 4 + 3] =
               a ? a[off] : ((r == mr) && (g == mg) && (b == mb) ? 0 : 255);
-
-          wxString myA = a;
-          wxMessageBox(myA);
         }
     }
 
     glColor4f(1, 1, 1, 1);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glEnable(GL_BLEND);
-    glAlphaFunc(GL_GREATER, 0.5);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glRasterPos2i(xd, yd);
     glPixelZoom(1, -1);
     glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, e);
     glPixelZoom(1, 1);
     glDisable(GL_BLEND);
-    
 
     delete[] (e);
   }
 }
+
 
 wxImage &finSAR_editOverlayFactory::DrawGLPolygon() {
   wxString labels;

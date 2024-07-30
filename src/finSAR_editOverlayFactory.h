@@ -32,6 +32,7 @@
 #include "ocpn_plugin.h"
 #include <wx/object.h>
 #include <wx/font.h>
+#include <wx/dcbuffer.h>
 
 class piDC;
 
@@ -104,9 +105,11 @@ public:
   wxImage &DrawGLTextString(wxString myText);
   wxImage &DrawGLPolygon();
 
-  void DrawGLLabels(finSAR_editOverlayFactory *pof, piDC *dc,
-                    PlugIn_ViewPort *vp, wxImage &imageLabel, double myLat,
-                    double myLon, int offset);
+  void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
+                                               piDC *dc, PlugIn_ViewPort *vp,
+                                               wxImage &imageLabel,
+                                               double myLat, double myLon,
+                                               int offset);
 
   void drawGLPolygons(finSAR_editOverlayFactory *pof, wxDC *dc,
                       PlugIn_ViewPort *vp, wxImage &imageLabel, double myLat,

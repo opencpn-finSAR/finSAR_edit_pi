@@ -572,6 +572,20 @@ void finSAR_editUIDialog::OnButtonEBL_off(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
+void finSAR_editUIDialog::OnIndexLabel(wxCommandEvent& event) {
+  m_bIndexLabel = true;
+
+  this->m_timerIndex.Start(200);
+}
+
+void finSAR_editUIDialog::OnIndexLabelSet(wxCommandEvent& event) {
+  m_bIndexLabel = false;
+
+  this->m_timerIndex.Stop();
+
+  RequestRefresh(pParent);
+}
+
 void finSAR_editUIDialog::key_shortcut(wxKeyEvent& event) {
   // wxMessageBox("here");
   //  of course, it doesn't have to be the control key. You can use others:
@@ -690,6 +704,30 @@ void finSAR_editUIDialog::MakeEBLEvent() {
 
   RequestRefresh(pParent);
 }
+
+void finSAR_editUIDialog::OnIndexTimer(wxTimerEvent& event) { MakeIndexEvent(); }
+
+void finSAR_editUIDialog::MakeIndexEvent() {
+  if (m_bIndexLabel) {
+    this->m_Lat1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLat()));
+    this->m_Lon1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLon()));
+
+    ebl_lat = pPlugIn->GetCursorLat();
+    ebl_lon = pPlugIn->GetCursorLon();
+    m_ShipLat2 = pPlugIn->GetShipLat();
+    m_ShipLon2 = pPlugIn->GetShipLon();
+  } else {
+    ebl_lat = 0;
+    ebl_lon = 0;
+
+    m_ShipLat2 = 0;
+    m_ShipLat2 = 0;
+  }
+
+  RequestRefresh(pParent);
+}
+
+
 
 void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
   // This sleep is needed to give the time for the currently pressed modifier
@@ -1158,6 +1196,8 @@ void finSAR_editUIDialog::GetIndex(Position* A, Position* B) {
 
   DistanceBearingMercator_Plugin(lat3, lon3, dlat, dlon, &brg2, &dist2);
   i_target->distance = dist2;
+  i_target->labelDistance = dist2/2;
+  i_target->labelDirection = brg2;
 
   i_vector.push_back(*i_target);
 }
@@ -1487,6 +1527,7 @@ int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
     active_waypoint->lon = slon;
     active_waypoint->route_name = mySelectedRoute;
     m_bDrawWptDisk = true;
+
   }
 
   return it_num;

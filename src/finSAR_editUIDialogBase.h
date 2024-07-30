@@ -61,6 +61,12 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxButton* m_buttonAttach;
 		wxButton* m_buttonAttach1;
 		wxButton* m_buttonAttach2;
+		wxStaticLine* m_staticline231;
+		wxStaticLine* m_staticline232;
+		wxButton* m_bButtonBearing11;
+		wxStaticLine* m_staticline191;
+		wxStaticLine* m_staticline192;
+		wxButton* m_button81;
 		wxStaticLine* m_staticline20;
 		wxStaticLine* m_staticline21;
 		wxStaticLine* m_staticline22;
@@ -79,6 +85,7 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxStaticLine* m_staticline32;
 		wxButton* m_buttonSave;
 		wxTimer m_timer1;
+		wxTimer m_timerIndex;
 		wxMenu* m_mHelp;
 		wxMenu* m_mRoutes;
 		wxMenu* m_mExtensions;
@@ -94,10 +101,13 @@ class finSAR_editUIDialogBase : public wxFrame
 		virtual void OnIndex( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRange( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDirection( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnIndexLabel( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnIndexLabelSet( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnButtonEBL( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnButtonEBL_off( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSaveExtensions( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTimer( wxTimerEvent& event ) { event.Skip(); }
+		virtual void OnIndexTimer( wxTimerEvent& event ) { event.Skip(); }
 		virtual void OnInformation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
 
