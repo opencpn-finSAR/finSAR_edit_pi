@@ -33,6 +33,7 @@
 #include <wx/object.h>
 #include <wx/font.h>
 #include <wx/dcbuffer.h>
+#include <wx/dc.h>
 
 class piDC;
 
@@ -107,7 +108,7 @@ public:
 
   void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
                                                piDC *dc, PlugIn_ViewPort *vp,
-                                               wxImage &imageLabel,
+                                               wxBitmap &imageLabel,
                                                double myLat, double myLon,
                                                int offset);
 
@@ -134,8 +135,12 @@ private:
   double myLat1;
   double myLon1;
   void DrawAllLinesInViewPort(PlugIn_ViewPort *BBox);
+  wxBitmap m_bmp;
+  wxImage &DrawGLDisk(double value, int precision);
+  void DrawIndexLabel(PlugIn_ViewPort *BBox, double lat, double lon);
+  wxBitmap RenderLabel(double scale);
   void DrawRotatedLabel(PlugIn_ViewPort *BBox);
-  void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
+  //void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
   void DrawWptDisk(PlugIn_ViewPort *BBox);
   void DrawEBLLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);
