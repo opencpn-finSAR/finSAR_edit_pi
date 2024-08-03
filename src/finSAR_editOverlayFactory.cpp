@@ -285,7 +285,8 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
     //wxBitmap label_bitmap = RenderLabel(1);
     wxImage image = DrawGLDisk(1234, 1);
     image.InitAlpha();
-    int w = image.GetWidth(), h = image.GetHeight();
+    wxCoord w = image.GetWidth();
+    wxCoord h = image.GetHeight();
     unsigned char *d = image.GetData();
     unsigned char *a = image.GetAlpha();
 
@@ -316,7 +317,7 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glRasterPos2i(il.x - w/2, il.y - h/2);
+    glRasterPos2i(il.x- w/4, il.y-h/4);
     glPixelZoom(1, -1);
     glDrawPixels(w, h, GL_RGBA, GL_UNSIGNED_BYTE, e);
     glPixelZoom(1, 1);
@@ -571,10 +572,10 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
                                       wxString(_T ( "Eurostile Extended" )));
   mdc.SetFont(*pTCFont);
 
-  int w, h;
+  wxCoord w, h;
   mdc.GetTextExtent(labels, &w, &h);
 
-  wxBitmap bm(w,w);
+  wxBitmap bm(w*2,w*2);
 
   mdc.SelectObject(bm);
 
@@ -591,17 +592,18 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
   mdc.Clear();
   mdc.SetBrush(disk_color);
   mdc.SetPen(disk_color);
-  mdc.DrawCircle(w / 2, h / 2, w / 2);
+  wxCoord r = w / 2 - w / 200 - 1;
+  mdc.DrawCircle(w / 2, w / 2, r);
 
   mdc.SetBrush(*wxTRANSPARENT_BRUSH);
   mdc.SetTextForeground(text_color);
   mdc.SetTextBackground(wxTRANSPARENT);
 
-  int xd = 0;
-  int yd = h/2;
+  int xd = 0 ;
+  int yd = w/2;
 
   int label_offset = 10;
-  mdc.DrawText(labels, label_offset + xd, yd + 1);
+  mdc.DrawText(labels, xd, yd - 12);
 
   mdc.SelectObject(wxNullBitmap);
 
