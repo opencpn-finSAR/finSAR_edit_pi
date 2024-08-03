@@ -282,8 +282,7 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
     GetCanvasPixLL(BBox, &il, dlat, dlon);
     double dist = (*it).distance;
 
-    //wxBitmap label_bitmap = RenderLabel(1);
-    wxImage image = DrawGLDisk(1234, 1);
+    wxImage image = DrawGLDisk(dist, 1);
     image.InitAlpha();
     wxCoord w = image.GetWidth();
     wxCoord h = image.GetHeight();
@@ -562,7 +561,11 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
 
   int p = precision;
 
-  labels.Printf("%.*f", p, value);
+  value *= 100;
+
+  labels = wxString::Format("%3.0f", value);
+
+  //labels.Printf("%.*f", p, value);
 
   wxMemoryDC mdc(wxNullBitmap);
 
@@ -578,13 +581,11 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
   wxBitmap bm(w*2,w*2);
 
   mdc.SelectObject(bm);
-
   mdc.Clear();
 
   wxColour disk_color = wxColour("BLACK");
   wxColour text_color = wxColour("WHITE");
 
-  //GetGlobalColor(_T ("UINFD" ), &text_color);
   wxPen penText(disk_color);
   mdc.SetPen(penText);
 
@@ -604,22 +605,16 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
 
   int label_offset = 10;
   mdc.DrawText(labels, xd, yd - 12);
-
   mdc.SelectObject(wxNullBitmap);
 
   m_labelCache[value] = bm.ConvertToImage();
 
-  //
   // Setup the alpha channel.
   unsigned char *alphaData = new unsigned char[bm.GetWidth() * bm.GetHeight()];
   memset(alphaData, wxIMAGE_ALPHA_TRANSPARENT, bm.GetWidth() * bm.GetHeight());
 
   // Create an image with alpha.
-  // wxImage image(wxSize(bm.GetWidth(), bm.GetHeight()));
-
   m_labelCache[value].SetAlpha(alphaData);
-
-  // m_labelCache[value].InitAlpha();
 
   wxImage &image = m_labelCache[value];
 
@@ -639,7 +634,6 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
     }
 
   return image;
-  // m_labelCache[value];
 }
 
 
