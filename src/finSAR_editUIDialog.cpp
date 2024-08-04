@@ -570,33 +570,6 @@ int finSAR_editUIDialog::GetScale(double myChartScale) {
     return 6;
 }
 
-void finSAR_editUIDialog::OnButtonEBL(wxCommandEvent& event) {
-  m_bBearingLine = true;
-
-  this->m_timer1.Start(200);
-}
-
-void finSAR_editUIDialog::OnButtonEBL_off(wxCommandEvent& event) {
-  m_bBearingLine = false;
-
-  this->m_timer1.Stop();
-
-  RequestRefresh(pParent);
-}
-
-void finSAR_editUIDialog::OnIndexLabel(wxCommandEvent& event) {
-  m_bIndexLabel = true;
-
-  this->m_timerIndex.Start(200);
-}
-
-void finSAR_editUIDialog::OnIndexLabelSet(wxCommandEvent& event) {
-  m_bIndexLabel = false;
-
-  this->m_timerIndex.Stop();
-
-  RequestRefresh(pParent);
-}
 
 void finSAR_editUIDialog::key_shortcut(wxKeyEvent& event) {
   // wxMessageBox("here");
@@ -695,51 +668,6 @@ void finSAR_editUIDialog::MakeBoxPoints() {
   myPixHeight = pixheight * 2;
 }
 
-void finSAR_editUIDialog::OnTimer(wxTimerEvent& event) { MakeEBLEvent(); }
-
-void finSAR_editUIDialog::MakeEBLEvent() {
-  if (m_bBearingLine) {
-    this->m_Lat1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLat()));
-    this->m_Lon1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLon()));
-
-    ebl_lat = pPlugIn->GetCursorLat();
-    ebl_lon = pPlugIn->GetCursorLon();
-    m_ShipLat2 = pPlugIn->GetShipLat();
-    m_ShipLon2 = pPlugIn->GetShipLon();
-  } else {
-    ebl_lat = 0;
-    ebl_lon = 0;
-
-    m_ShipLat2 = 0;
-    m_ShipLat2 = 0;
-  }
-
-  RequestRefresh(pParent);
-}
-
-void finSAR_editUIDialog::OnIndexTimer(wxTimerEvent& event) {
-  MakeIndexEvent();
-}
-
-void finSAR_editUIDialog::MakeIndexEvent() {
-  if (m_bIndexLabel) {
-    this->m_Lat1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLat()));
-    this->m_Lon1->SetValue(wxString::Format("%.6f", pPlugIn->GetCursorLon()));
-
-    ebl_lat = pPlugIn->GetCursorLat();
-    ebl_lon = pPlugIn->GetCursorLon();
-    m_ShipLat2 = pPlugIn->GetShipLat();
-    m_ShipLon2 = pPlugIn->GetShipLon();
-  } else {
-    ebl_lat = 0;
-    ebl_lon = 0;
-
-    m_ShipLat2 = 0;
-    m_ShipLat2 = 0;
-  }
-
-  RequestRefresh(pParent);
-}
 
 void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
   // This sleep is needed to give the time for the currently pressed modifier

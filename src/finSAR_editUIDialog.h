@@ -361,8 +361,6 @@ public:
   double chartScale;
   double centreLat;
   double centreLon;
-  void OnButtonEBL(wxCommandEvent& event);
-  void OnButtonEBL_off(wxCommandEvent& event);
   void MakeBoxPoints();
   bool m_bBearingLine;
   bool m_bIndexLabel;
@@ -370,9 +368,7 @@ public:
   double m_ShipLat1, m_ShipLon1;
   double m_ShipLat2, m_ShipLon2;
   double ebl_lat, ebl_lon;
-  void MakeEBLEvent();
   void key_shortcut(wxKeyEvent& event);
-  void OnTimer(wxTimerEvent& event);
   void SetNMEAMessage(wxString sentence);
   IndexTarget* i_target;
   DirectionTarget* d_target;
@@ -459,8 +455,6 @@ private:
   void GetRange(Position* A, Position* B);
   void OnDirection(wxCommandEvent& event);
   void GetDirection(Position* A, Position* B);
-  void MakeIndexEvent();
-  void OnIndexTimer(wxTimerEvent& event);
   void OnIndexLabel(wxCommandEvent& event);
   void OnIndexLabelSet(wxCommandEvent& event);
 

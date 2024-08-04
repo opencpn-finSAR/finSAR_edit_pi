@@ -144,15 +144,7 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
 
   DrawAllLinesInViewPort(&vp);
 
-  //DrawAllDirectionsInViewPort(&vp);
-
   DrawIndexTargets(&vp);
-
-  //DrawIndexLabel(&vp);
-
-  //DrawRotatedLabel(&vp);
-
-  // DrawRotatedText(&vp, 16.5, 230);
 
   if (m_dlg.m_bDrawWptDisk) DrawWptDisk(&vp);
 
@@ -169,10 +161,7 @@ void finSAR_editOverlayFactory::DrawRotatedLabel(PlugIn_ViewPort *BBox) {
               // m_dlg.ebl_lon, 0);
 }
 
-void finSAR_editOverlayFactory::DrawIndexLabel(PlugIn_ViewPort *BBox, double lat, double lon) {
-  DrawGLLabels(this, m_dc, BBox, RenderLabel(1), lat,
-               lon, 0);
-}
+
 /*
 void finSAR_editOverlayFactory::DrawRotatedText(PlugIn_ViewPort *BBox,
                                                 double value, double angle) {
@@ -596,9 +585,9 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
   wxCoord r = w / 2 - w / 200 - 1;
   mdc.DrawCircle(w / 2, w / 2, r);
 
-  mdc.SetBrush(*wxTRANSPARENT_BRUSH);
+  mdc.SetBrush(*wxWHITE);
   mdc.SetTextForeground(text_color);
-  mdc.SetTextBackground(wxTRANSPARENT);
+  mdc.SetTextBackground(*wxWHITE);
 
   int xd = 0 ;
   int yd = w/2;
@@ -832,49 +821,6 @@ void finSAR_editOverlayFactory::DrawOLBitmap(const wxBitmap &bitmap, wxCoord x,
       glPixelZoom(1, 1);
     }
   }
-}
-
-wxBitmap finSAR_editOverlayFactory::RenderLabel(double scale) {
-  wxString value = "----, ----";
-  value = "12345";
-
-  wxColor mtb = wxColour("BLACK");
-  wxColor mtf = wxColour("YELLOW");
-  wxCoord title_x, title_y;
-  wxCoord body_x, body_y;
-  wxCoord size_x, size_y;
-
-  wxMemoryDC mdc;
-  
-  wxFont tf = wxFont(12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,
-                         wxFONTWEIGHT_NORMAL);
-  
-  mdc.SetFont(tf);
-  //mdc.GetTextExtent(value, &body_x, &body_y);
-  
-  wxCoord xc = size_x / 2;
-  wxCoord yc = size_y / 2;
-  wxCoord r = size_y / 2 - size_x / 200 - 1;
-
-#if defined(__WXGTK__) || defined(__WXQT__)
-  m_bmp = wxBitmap(size_x, size_y, 32);
-#else
-  m_bmp = wxBitmap(size_x, size_x);  
-  m_bmp.UseAlpha();
-#endif
-  mdc.SelectObject(m_bmp);
-  wxMemoryDC &dc(mdc);
-  dc.SetBackground(*wxTRANSPARENT_BRUSH);
-  dc.Clear();
-  // Gauge background
-  //dc.SetBrush(wxBrush(mtb));
-  dc.SetBrush(*wxTRANSPARENT_BRUSH);
-  dc.SetPen(wxPen(mtf,2));
-  dc.DrawText("here", xc, yc);
- 
-  mdc.SelectObject(wxNullBitmap);
-  
-  return m_bmp;
 }
 
 void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,

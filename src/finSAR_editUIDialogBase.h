@@ -27,7 +27,6 @@
 #include <wx/panel.h>
 #include <wx/statline.h>
 #include <wx/notebook.h>
-#include <wx/timer.h>
 #include <wx/menu.h>
 #include <wx/frame.h>
 
@@ -51,6 +50,7 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxChoice* m_choice21;
 		wxButton* m_button11;
 		wxButton* m_button112;
+		wxButton* m_button1121;
 		wxButton* m_bLoadRoute;
 		wxTextCtrl* m_textCtrlRouteInUse;
 		wxButton* m_bDeleteRoute;
@@ -63,29 +63,14 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxButton* m_buttonAttach2;
 		wxStaticLine* m_staticline231;
 		wxStaticLine* m_staticline232;
-		wxButton* m_bButtonBearing11;
+		wxStaticLine* m_staticline2321;
 		wxStaticLine* m_staticline191;
 		wxStaticLine* m_staticline192;
-		wxButton* m_button81;
-		wxStaticLine* m_staticline20;
-		wxStaticLine* m_staticline21;
-		wxStaticLine* m_staticline22;
-		wxStaticLine* m_staticline23;
+		wxStaticLine* m_staticline2322;
 		wxStaticLine* m_staticline19;
 		wxStaticLine* m_staticline24;
-		wxButton* m_bButtonBearing1;
-		wxStaticLine* m_staticline25;
-		wxButton* m_button8;
 		wxStaticLine* m_staticline26;
-		wxStaticLine* m_staticline27;
-		wxStaticLine* m_staticline28;
-		wxStaticLine* m_staticline29;
-		wxStaticLine* m_staticline30;
-		wxStaticLine* m_staticline31;
-		wxStaticLine* m_staticline32;
 		wxButton* m_buttonSave;
-		wxTimer m_timer1;
-		wxTimer m_timerIndex;
 		wxMenu* m_mHelp;
 		wxMenu* m_mRoutes;
 		wxMenu* m_mExtensions;
@@ -96,26 +81,19 @@ class finSAR_editUIDialogBase : public wxFrame
 		virtual void OnSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnNewRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSaveRoute( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnImportRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnLoadRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDeleteRoute( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnIndex( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRange( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDirection( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnIndexLabel( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnIndexLabelSet( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnButtonEBL( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnButtonEBL_off( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSaveExtensions( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnTimer( wxTimerEvent& event ) { event.Skip(); }
-		virtual void OnIndexTimer( wxTimerEvent& event ) { event.Skip(); }
 		virtual void OnInformation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
 		wxChoice* m_choiceRoutes;
-		wxTextCtrl* m_Lat1;
-		wxTextCtrl* m_Lon1;
 		wxMenuBar* m_menubar3;
 
 		finSAR_editUIDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("finSAR_edit"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 377,839 ), long style = wxCAPTION|wxCLOSE_BOX|wxFRAME_FLOAT_ON_PARENT|wxRESIZE_BORDER|wxSYSTEM_MENU|wxTAB_TRAVERSAL );

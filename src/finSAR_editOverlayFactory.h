@@ -137,8 +137,6 @@ private:
   void DrawAllLinesInViewPort(PlugIn_ViewPort *BBox);
   wxBitmap m_bmp;
   wxImage &DrawGLDisk(double value, int precision);
-  void DrawIndexLabel(PlugIn_ViewPort *BBox, double lat, double lon);
-  wxBitmap RenderLabel(double scale);
   void DrawRotatedLabel(PlugIn_ViewPort *BBox);
   //void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
   void DrawWptDisk(PlugIn_ViewPort *BBox);
