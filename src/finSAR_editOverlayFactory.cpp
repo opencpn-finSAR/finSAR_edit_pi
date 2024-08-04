@@ -250,7 +250,7 @@ void finSAR_editOverlayFactory::DrawEBLLineInViewPort(PlugIn_ViewPort *BBox) {
 void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
   double dlat, dlon;
 
-  wxColour colour1 = wxColour("RED");
+  wxColour colour1 = wxColour("BLACK");
   wxColour colour2 = wxColour("BLACK");
   wxColour colour3 = wxColour("WHITE");
 
@@ -276,8 +276,8 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
     GetCanvasPixLL(BBox, &ie, (*it).endLat, (*it).endLon);
     DrawGLLine(ib.x, ib.y, ie.x, ie.y, 2, colour1);
     PositionBearingDistanceMercator_Plugin((*it).beginLat, (*it).beginLon,
-                                           (*it).labelDirection,
-                                           (*it).labelDistance, &dlat, &dlon);
+                                           (*it).label_direction,
+                                           (*it).label_distance, &dlat, &dlon);
     wxPoint il;
     GetCanvasPixLL(BBox, &il, dlat, dlon);
     double dist = (*it).distance;
@@ -324,7 +324,7 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
 
     delete[] (e);
     /*
-    wxString label_dist = wxString::Format("%3.1f", (*it).labelDistance);
+    wxString label_dist = wxString::Format("%3.1f", (*it).label_distance);
     int label_w, label_h;
     m_dc->GetTextExtent(label_dist, &label_w, &label_h);
 

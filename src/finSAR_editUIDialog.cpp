@@ -261,7 +261,7 @@ void finSAR_editUIDialog::SaveIndex(wxString route_name, wxString date_stamp) {
     // wxString myIdn = wxString::Format("%i", idn);
     m_targetpoint.append_attribute("wp_id").set_value((*itOut).wpId.mb_str());
     wxString wpid = (*itOut).wpId.mb_str();
-    //wxMessageBox(wpid);
+    // wxMessageBox(wpid);
 
     xml_node b_position = m_targetpoint.append_child("begin");
 
@@ -279,9 +279,21 @@ void finSAR_editUIDialog::SaveIndex(wxString route_name, wxString date_stamp) {
     e_position.append_attribute("lat").set_value(eLat);
     e_position.append_attribute("lon").set_value(eLon);
 
+    xml_node idistance = m_targetpoint.append_child("index_distance");
+    wxString dist = wxString::Format("%f", (*itOut).distance);
+    idistance.append_attribute("distance").set_value(dist);
+
+    xml_node label = m_targetpoint.append_child("label");
+
+    wxString ldist = wxString::Format("%f", (*itOut).label_distance);
+    wxString ldir = wxString::Format("%f", (*itOut).label_direction);
+
+    label.append_attribute("label_distance").set_value(ldist);
+    label.append_attribute("label_direction").set_value(ldir);
+
     idn++;
   }
-  // done adding waypoints
+  // done adding index targets
   // Write xmlDoc into a file
   wxString file_name = route_name + ".xml";
   wxString file_path = pPlugIn->StandardPathEXT() + file_name;
@@ -705,7 +717,9 @@ void finSAR_editUIDialog::MakeEBLEvent() {
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::OnIndexTimer(wxTimerEvent& event) { MakeIndexEvent(); }
+void finSAR_editUIDialog::OnIndexTimer(wxTimerEvent& event) {
+  MakeIndexEvent();
+}
 
 void finSAR_editUIDialog::MakeIndexEvent() {
   if (m_bIndexLabel) {
@@ -727,14 +741,15 @@ void finSAR_editUIDialog::MakeIndexEvent() {
   RequestRefresh(pParent);
 }
 
-
-
 void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
   // This sleep is needed to give the time for the currently pressed modifier
   // keys, if any, to be released. Notice that Control modifier could well be
   // pressed if this command was activated from the menu using accelerator
   // and keeping it pressed would totally derail the test below, e.g. "A" key
   // press would actually become "Ctrl+A" selecting the entire text and so on.
+
+  // Remove any indexes from previous route
+  i_vector.clear();
 
   auto uids = GetRouteGUIDArray();
   for (size_t i = 0; i < uids.size(); i++) {
@@ -1029,7 +1044,6 @@ void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
 
   ReadEXT(file_name_ext);
   mySelectedLeg = 999;
-
 }
 
 void finSAR_editUIDialog::ChartTheRoute(wxString myRoute) {
@@ -1124,9 +1138,7 @@ void finSAR_editUIDialog::DeleteEXTFile(wxString route_name) {
   }
 }
 
-void finSAR_editUIDialog::OnLoadExtensions(wxCommandEvent& event) {
- 
-}
+void finSAR_editUIDialog::OnLoadExtensions(wxCommandEvent& event) {}
 
 void finSAR_editUIDialog::OnIndex(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
@@ -1196,8 +1208,8 @@ void finSAR_editUIDialog::GetIndex(Position* A, Position* B) {
 
   DistanceBearingMercator_Plugin(lat3, lon3, dlat, dlon, &brg2, &dist2);
   i_target->distance = dist2;
-  i_target->labelDistance = dist2/2;
-  i_target->labelDirection = brg2;
+  i_target->label_distance = dist2 / 2;
+  i_target->label_direction = brg2;
 
   i_vector.push_back(*i_target);
 }
@@ -1414,10 +1426,10 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   //
   while (targetNode) {
     while (indexNode) {
-      //wxMessageBox(indexNode.attribute("wp_id").value());
+      // wxMessageBox(indexNode.attribute("wp_id").value());
       i_target->wpId = indexNode.attribute("wp_id").value();
       xml_node pBeginElement = indexNode.child("begin");
-      
+
       double dvalue = 0.0;
       wxString stp = pBeginElement.attribute("lat").value();
       stp.ToDouble(&dvalue);
@@ -1436,13 +1448,27 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
       stpl.ToDouble(&dvalue);
       i_target->endLon = dvalue;
 
+      xml_node pDistance = indexNode.child("index_distance");
+      stp = pDistance.attribute("distance").value();
+      stp.ToDouble(&dvalue);
+      i_target->distance = dvalue;
+
+      xml_node pLabel = indexNode.child("label");
+      stp = pLabel.attribute("label_distance").value();
+      stp.ToDouble(&dvalue);
+      i_target->label_distance = dvalue;
+
+      stp = pLabel.attribute("label_direction").value();
+      stp.ToDouble(&dvalue);
+      i_target->label_direction = dvalue;
+
       i_vector.push_back(*i_target);
       indexNode = indexNode.next_sibling();
     }
     targetNode = targetNode.next_sibling();
   }
 
-   RequestRefresh(pParent);
+  RequestRefresh(pParent);
 }
 
 void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {
@@ -1512,13 +1538,13 @@ int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
   // wxMessageBox(it_name);
   // FindWaypointGUID(it_name);
   //
-  
+
   if (it_num != 0)
     FindPreviousWaypoint(it_name);
-  else {   
+  else {
     active_waypoint = new Position;
     active_waypoint->wpName = it_name;
-    
+
     wxString slat = wxString::Format("%f", it_lat);
     active_wp_lat = it_lat;
     active_waypoint->lat = slat;
@@ -1527,7 +1553,6 @@ int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
     active_waypoint->lon = slon;
     active_waypoint->route_name = mySelectedRoute;
     m_bDrawWptDisk = true;
-
   }
 
   return it_num;
