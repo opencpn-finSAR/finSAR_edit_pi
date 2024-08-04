@@ -144,13 +144,13 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
 
   DrawAllLinesInViewPort(&vp);
 
-  DrawAllDirectionsInViewPort(&vp);
+  //DrawAllDirectionsInViewPort(&vp);
 
   DrawIndexTargets(&vp);
 
   //DrawIndexLabel(&vp);
 
-  DrawRotatedLabel(&vp);
+  //DrawRotatedLabel(&vp);
 
   // DrawRotatedText(&vp, 16.5, 230);
 
@@ -564,14 +564,14 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
   value *= 100;
 
   labels = wxString::Format("%3.0f", value);
-
+  labels = "  " + labels + "  ";
   //labels.Printf("%.*f", p, value);
 
   wxMemoryDC mdc(wxNullBitmap);
 
   wxFont *pTCFont;
   pTCFont =
-      wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
+      wxTheFontList->FindOrCreateFont(14, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
                                       wxString(_T ( "Eurostile Extended" )));
   mdc.SetFont(*pTCFont);
 
@@ -603,7 +603,7 @@ wxImage &finSAR_editOverlayFactory::DrawGLDisk(double value, int precision) {
   int xd = 0 ;
   int yd = w/2;
 
-  int label_offset = 10;
+  //int label_offset = 3;
   mdc.DrawText(labels, xd, yd - 12);
   mdc.SelectObject(wxNullBitmap);
 
