@@ -1143,10 +1143,9 @@ void finSAR_editUIDialog::GetIndex(Position* A, Position* B) {
 }
 
 void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
-  ReadRTZ("dummy.rtz");
-  // active_waypoint = FindActiveWaypoint(id_wpt);
-  if (active_waypoint->wpName == wxEmptyString) {
-    wxMessageBox("Check NMEA");
+ 
+  if (mySelectedLeg == 999) {
+    wxMessageBox("Please activate the waypoint for the leg");
     return;
   }
   // wxMessageBox(active_waypoint->wpName);
@@ -1157,10 +1156,9 @@ void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
 void finSAR_editUIDialog::GetRange(Position* A, Position* B) {}
 
 void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
-  ReadRTZ("dummy.rtz");
-  //  active_waypoint = FindActiveWaypoint(id_wpt);
-  if (active_waypoint->wpName == wxEmptyString) {
-    wxMessageBox("Check NMEA");
+  
+  if (mySelectedLeg == 999) {
+    wxMessageBox("Please activate the waypoint for the leg");
     return;
   }
   // wxMessageBox(active_waypoint->wpName);

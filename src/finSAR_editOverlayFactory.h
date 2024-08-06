@@ -137,13 +137,15 @@ private:
   void DrawAllLinesInViewPort(PlugIn_ViewPort *BBox);
   wxBitmap m_bmp;
   wxImage &DrawGLDisk(double value, int precision);
+  wxImage &DrawGLRotateDisk(double value, int precision);
   void DrawRotatedLabel(PlugIn_ViewPort *BBox);
   //void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
   void DrawWptDisk(PlugIn_ViewPort *BBox);
   void DrawEBLLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawIndexTargets(PlugIn_ViewPort *BBox);
-
+  void DrawRangeTargets(PlugIn_ViewPort *BBox);
+  void DrawDirectionTargets(PlugIn_ViewPort *BBox);
   void DrawAllDirectionsInViewPort(PlugIn_ViewPort *BBox);
 
   bool DrawDirectionArrow(int x, int y, double rot_angle, double scale,
