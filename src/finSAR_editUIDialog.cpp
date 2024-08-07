@@ -158,6 +158,8 @@ finSAR_editUIDialog::~finSAR_editUIDialog() {
     pConf->SetPath(_T ( "/PlugIns/finSAR_edit" ));
   }
 
+  i_vector.clear();
+  r_vector.clear();
   // SaveXML(m_default_configuration_path);
 }
 /*
@@ -222,7 +224,7 @@ int finSAR_editUIDialog::GetRandomNumber(int range_min, int range_max) {
   return (int)u;
 }
 
-void finSAR_editUIDialog::SaveIndex(wxString route_name, wxString date_stamp) {
+void finSAR_editUIDialog::SaveIndexRange(wxString route_name, wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
 
@@ -287,6 +289,45 @@ void finSAR_editUIDialog::SaveIndex(wxString route_name, wxString date_stamp) {
 
     wxString ldist = wxString::Format("%f", (*itOut).label_distance);
     wxString ldir = wxString::Format("%f", (*itOut).label_direction);
+
+    label.append_attribute("label_distance").set_value(ldist);
+    label.append_attribute("label_direction").set_value(ldir);
+
+    idn++;
+  }
+  for (std::vector<RangeTarget>::iterator itOutRange = r_vector.begin();
+       itOutRange != r_vector.end(); itOutRange++) {
+    xml_node r_targetpoint = m_targetNode.append_child("range_target");
+
+    // wxString myIdn = wxString::Format("%i", idn);
+    r_targetpoint.append_attribute("wp_id").set_value((*itOutRange).wpId.mb_str());
+    wxString wpid = (*itOutRange).wpId.mb_str();
+    // wxMessageBox(wpid);
+
+    xml_node b_position = r_targetpoint.append_child("begin");
+
+    wxString bLat = wxString::Format("%f", (*itOutRange).beginLat);
+    wxString bLon = wxString::Format("%f", (*itOutRange).beginLon);
+
+    b_position.append_attribute("lat").set_value(bLat);
+    b_position.append_attribute("lon").set_value(bLon);
+
+    xml_node e_position = r_targetpoint.append_child("end");
+
+    wxString eLat = wxString::Format("%f", (*itOutRange).endLat);
+    wxString eLon = wxString::Format("%f", (*itOutRange).endLon);
+
+    e_position.append_attribute("lat").set_value(eLat);
+    e_position.append_attribute("lon").set_value(eLon);
+
+    xml_node idistance = r_targetpoint.append_child("range_distance");
+    wxString dist = wxString::Format("%f", (*itOutRange).distance);
+    idistance.append_attribute("distance").set_value(dist);
+
+    xml_node label = r_targetpoint.append_child("label");
+
+    wxString ldist = wxString::Format("%f", (*itOutRange).label_distance);
+    wxString ldir = wxString::Format("%f", (*itOutRange).label_direction);
 
     label.append_attribute("label_distance").set_value(ldist);
     label.append_attribute("label_direction").set_value(ldir);
@@ -678,6 +719,7 @@ void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
 
   // Remove any indexes from previous route
   i_vector.clear();
+  r_vector.clear();
 
   auto uids = GetRouteGUIDArray();
   for (size_t i = 0; i < uids.size(); i++) {
@@ -966,6 +1008,9 @@ void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
   ReadRTZ(file_name);
   ChartTheRoute(file_name);
   i_vector.clear();
+  r_vector.clear();
+
+  RequestRefresh(pParent);
 
   wxString file_folder_ext = pPlugIn->StandardPathEXT();
   wxString file_name_ext = file_folder_ext + rt + ".xml";
@@ -1028,6 +1073,9 @@ void finSAR_editUIDialog::OnDeleteRoute(wxCommandEvent& event) {
 
   DeleteRTZFile(rt);
   DeleteEXTFile(rt);
+
+  i_vector.clear();
+  r_vector.clear();
 
   m_choiceRoutes->Delete(c);
   m_choiceRoutes->SetSelection(0);
@@ -1150,10 +1198,46 @@ void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
   }
   // wxMessageBox(active_waypoint->wpName);
   // wxMessageBox(prev_waypoint->wpName);
-  GetRange(active_waypoint, prev_waypoint);
+  Position* range_object = new Position;
+  range_object->lat = wxString::Format("%f", centreLat);
+  range_object->lon = wxString::Format("%f", centreLon);
+  GetRange(active_waypoint, range_object);
+
 }
 
-void finSAR_editUIDialog::GetRange(Position* A, Position* B) {}
+void finSAR_editUIDialog::GetRange(Position* A, Position* B) {
+
+double value = 0.0;
+  A->lat.ToDouble(&value);
+  double lat1 = value;
+  A->lon.ToDouble(&value);
+  double lon1 = value;
+  B->lat.ToDouble(&value);
+  double lat2 = value;
+  B->lon.ToDouble(&value);
+  double lon2 = value;
+
+  double dist, brg;
+  // Bearing A -> B
+  DistanceBearingMercator_Plugin(lat2, lon2, lat1, lon1, &brg, &dist);
+
+  r_target = new RangeTarget;
+  r_target->route_name = A->route_name;
+  // wxMessageBox(r_target->route_name);
+  r_target->wpId = A->wpId;
+  // wxMessageBox(r_target->wpId);
+  r_target->beginLat = lat1;
+  r_target->beginLon = lon1;
+  r_target->endLat = lat2;
+  r_target->endLon = lon2;
+
+  r_target->distance = dist;
+  r_target->label_distance = dist / 2;
+  r_target->label_direction = brg;
+
+  r_vector.push_back(*r_target);
+
+}
 
 void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
   
@@ -1197,7 +1281,7 @@ void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
 void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
   wxString extensions_file = mySelectedRoute + ".xml";
-  SaveIndex(mySelectedRoute, date_stamp);
+  SaveIndexRange(mySelectedRoute, date_stamp);
   pPlugIn->DeleteEXT_Name(mySelectedRoute);
   pPlugIn->Add_EXT_db(extensions_file, mySelectedRoute, date_stamp);
   m_bDrawWptDisk = false;
@@ -1316,6 +1400,8 @@ void finSAR_editUIDialog::ReadRTZ(wxString file_name) {
 void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   i_vector.clear();  // Set up a new vector
   i_target = new IndexTarget;
+  r_vector.clear();  // Set up a new vector
+  r_target = new RangeTarget;
 
   pugi::xml_document xmlDoc;
   pugi::xml_parse_result result =
@@ -1345,13 +1431,9 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   //
   pugi::xml_node targetNode = route.child("targets");
   if (targetNode == NULL) return;
-  pugi::xml_node indexNode = targetNode.child("index_target");
-  if (indexNode == NULL) return;
-
-  //
-  //
-  while (targetNode) {
-    while (indexNode) {
+  
+  for (pugi::xml_node indexNode = targetNode.child("index_target"); indexNode;
+       indexNode = indexNode.next_sibling("index_target")) {
       // wxMessageBox(indexNode.attribute("wp_id").value());
       i_target->wpId = indexNode.attribute("wp_id").value();
       xml_node pBeginElement = indexNode.child("begin");
@@ -1388,10 +1470,50 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
       stp.ToDouble(&dvalue);
       i_target->label_direction = dvalue;
 
-      i_vector.push_back(*i_target);
-      indexNode = indexNode.next_sibling();
+      i_vector.push_back(*i_target);      
     }
-    targetNode = targetNode.next_sibling();
+
+  for (pugi::xml_node rangeNode = targetNode.child("range_target"); rangeNode;
+       rangeNode = rangeNode.next_sibling("range_target")) {
+      
+      // wxMessageBox(indexNode.attribute("wp_id").value());
+      r_target->wpId = rangeNode.attribute("wp_id").value();
+      xml_node pBeginElement = rangeNode.child("begin");
+
+      double dvalue = 0.0;
+      wxString stp = pBeginElement.attribute("lat").value();
+      stp.ToDouble(&dvalue);
+      r_target->beginLat = dvalue;
+
+      wxString stpl = pBeginElement.attribute("lon").value();
+      stpl.ToDouble(&dvalue);
+      r_target->beginLon = dvalue;
+
+      xml_node pEndElement = rangeNode.child("end");
+      stp = pEndElement.attribute("lat").value();
+      stp.ToDouble(&dvalue);
+      r_target->endLat = dvalue;
+
+      stpl = pEndElement.attribute("lon").value();
+      stpl.ToDouble(&dvalue);
+      r_target->endLon = dvalue;
+
+      xml_node pDistance = rangeNode.child("range_distance");
+      stp = pDistance.attribute("distance").value();
+      //wxMessageBox(stp);
+      stp.ToDouble(&dvalue);
+      r_target->distance = dvalue;
+
+      xml_node pLabel = rangeNode.child("label");
+      stp = pLabel.attribute("label_distance").value();
+      stp.ToDouble(&dvalue);
+      r_target->label_distance = dvalue;
+
+      stp = pLabel.attribute("label_direction").value();
+      stp.ToDouble(&dvalue);
+      r_target->label_direction = dvalue;
+
+      r_vector.push_back(*r_target);     
   }
 
   RequestRefresh(pParent);

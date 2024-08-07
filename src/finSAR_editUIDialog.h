@@ -203,9 +203,12 @@ class RangeTarget {
 public:
   wxString route_name;
   wxString date_stamp;
-  wxString rId;
+  wxString wpId;
   double beginLat, beginLon;
   double endLat, endLon;
+  double distance;
+  double label_direction;
+  double label_distance;
 };
 
 class rtept {
@@ -449,7 +452,7 @@ private:
   void OnLoadExtensions(wxCommandEvent& event);
   void OnSaveExtensions(wxCommandEvent& event);
   void OnIndex(wxCommandEvent& event);
-  void SaveIndex(wxString route_name, wxString date_stamp);
+  void SaveIndexRange(wxString route_name, wxString date_stamp);
   void GetIndex(Position* A, Position* B);
   void OnRange(wxCommandEvent& event);
   void GetRange(Position* A, Position* B);

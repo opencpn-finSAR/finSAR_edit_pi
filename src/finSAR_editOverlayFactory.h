@@ -136,12 +136,11 @@ private:
   double myLon1;
   void DrawAllLinesInViewPort(PlugIn_ViewPort *BBox);
   wxBitmap m_bmp;
-  wxImage &DrawGLDisk(double value, int precision);
+  wxImage &DrawLabel(double value, int precision);
   wxImage &DrawGLRotateDisk(double value, int precision);
   void DrawRotatedLabel(PlugIn_ViewPort *BBox);
   //void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
   void DrawWptDisk(PlugIn_ViewPort *BBox);
-  void DrawEBLLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawIndexTargets(PlugIn_ViewPort *BBox);
   void DrawRangeTargets(PlugIn_ViewPort *BBox);
