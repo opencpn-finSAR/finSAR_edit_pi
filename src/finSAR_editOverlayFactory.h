@@ -39,11 +39,18 @@ class piDC;
 
 using namespace std;
 
-#define NUM_COURSE_ARROW_POINTS 9
-static wxPoint DirectionArrowArray[NUM_COURSE_ARROW_POINTS] = {
+#define NUM_DIRECTION_ARROW_POINTS 9
+static wxPoint DirectionArrowArray[NUM_DIRECTION_ARROW_POINTS] = {
     wxPoint(0, 0),    wxPoint(0, -10), wxPoint(55, -10),
     wxPoint(55, -25), wxPoint(100, 0), wxPoint(55, 25),
     wxPoint(55, 10),  wxPoint(0, 10),  wxPoint(0, 0)};
+
+#define NUM_REVERSE_ARROW_POINTS 9
+static wxPoint ReverseArrowArray[NUM_REVERSE_ARROW_POINTS] = {
+    wxPoint(100, -100), wxPoint(100, -90),  wxPoint(45, -90),
+    wxPoint(45, -75),  wxPoint(0, -100),    wxPoint(45, -125),
+    wxPoint(45, -110), wxPoint(100, -110), wxPoint(100, -100)};
+
 
 //----------------------------------------------------------------------------------------------------------
 //    finSAR_edit Overlay Specification
@@ -95,11 +102,6 @@ public:
   }
   void setData(double lat1, double lon1);
   bool RenderOverlay(piDC &dc, PlugIn_ViewPort &vp);
-  /*
-  void DrawCurrentIndicators(PlugIn_ViewPort *BBox, bool bRebuildSelList,
-                             bool bforce_redraw_currents,
-                             bool bdraw_mono_for_mask, wxDateTime myTime);
- */
   void Reset();
   wxImage &DrawGLText(double value, int precision);
   wxImage &DrawGLTextDir(double value, int precision);
@@ -124,14 +126,15 @@ public:
   wxDateTime m_dtUseNew;
 
   piDC *m_dc;
-  /*
-  bool drawCourseArrows(int x, int y, double rot_angle, double scale,
-                        double rate);
-  */
+
+private:
+
   wxPoint polyPoints[7];
   wxPoint rectPoints[7];
 
-private:
+  wxPoint polyReversePoints[7];
+  wxPoint rectReversePoints[7];
+
   double myLat1;
   double myLon1;
   void DrawAllLinesInViewPort(PlugIn_ViewPort *BBox);
@@ -139,7 +142,7 @@ private:
   wxImage &DrawLabel(double value, int precision);
   wxImage &DrawGLRotateDisk(double value, int precision);
   void DrawRotatedLabel(PlugIn_ViewPort *BBox);
-  //void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
+  // void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
   void DrawWptDisk(PlugIn_ViewPort *BBox);
   void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawIndexTargets(PlugIn_ViewPort *BBox);
@@ -149,7 +152,10 @@ private:
 
   bool DrawDirectionArrow(int x, int y, double rot_angle, double scale,
                           double direction, wxColour arrow_color);
+  wxImage DrawDirectionArrows(int x, int y, double scale);
+
   wxPoint p[12];
+  wxPoint r[12];
 
   // bool DoRenderfinSAR_editOverlay(PlugIn_ViewPort *vp);
   void DrawGLLine(double x1, double y1, double x2, double y2, double width,

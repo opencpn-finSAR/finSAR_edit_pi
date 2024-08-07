@@ -60,11 +60,8 @@ class PlugIn_ViewPort;
 class piDC;
 class IndexTarget;
 
-#define NUM_DIRECTION_ARROW_POINTS 9
-static wxPoint CurrrentArrowArray[NUM_DIRECTION_ARROW_POINTS] = {
-    wxPoint(0, 0),    wxPoint(0, -10), wxPoint(55, -10),
-    wxPoint(55, -25), wxPoint(100, 0), wxPoint(55, 25),
-    wxPoint(55, 10),  wxPoint(0, 10),  wxPoint(0, 0)};
+
+
 static bool glQueried = false;
 
 static GLboolean QueryExtension(const char *extName) {
@@ -148,16 +145,16 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
 
   DrawRangeTargets(&vp);
 
-  //DrawDirectionTargets(&vp);
+  DrawDirectionTargets(&vp);
 
-  if (m_dlg.m_bDrawWptDisk) DrawWptDisk(&vp);  
+  if (m_dlg.m_bDrawWptDisk) DrawWptDisk(&vp);
 
   return true;
 }
 
 void finSAR_editOverlayFactory::DrawRotatedLabel(PlugIn_ViewPort *BBox) {
-  //DrawGLLabels(this, m_dc, BBox, DrawGLText(123, 1), m_dlg.ebl_lat,
-              // m_dlg.ebl_lon, 0);
+  // DrawGLLabels(this, m_dc, BBox, DrawGLText(123, 1), m_dlg.ebl_lat,
+  //  m_dlg.ebl_lon, 0);
 }
 
 void finSAR_editOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
@@ -226,7 +223,6 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
 
     wxBitmap bm(image);
     m_dc->DrawBitmap(bm, il.x - w / 4, il.y - h / 4, true);
-
   }
 }
 
@@ -267,11 +263,24 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
 
     wxBitmap bm(image);
     m_dc->DrawBitmap(bm, il.x - w / 4, il.y - h / 4, true);
-
   }
 }
 
 void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
+  
+  
+  
+  
+  wxImage image = DrawDirectionArrows(200, 200, 1);
+  wxCoord w = image.GetWidth();
+  wxCoord h = image.GetHeight();
+
+  wxBitmap bm(image);
+  m_dc->DrawBitmap(bm, 200, 200, true);
+  return;
+  
+  
+  
   double dlat, dlon;
 
   wxColour colour1 = wxColour("BLACK");
@@ -292,7 +301,7 @@ void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
     // m_dc->SetBrush(brush);
   }
 
- for (std::vector<IndexTarget>::iterator it = m_dlg.i_vector.begin();
+  for (std::vector<IndexTarget>::iterator it = m_dlg.i_vector.begin();
        it != m_dlg.i_vector.end(); it++) {
     m_dc->SetPen(pen1);
 
@@ -311,13 +320,11 @@ void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
     wxImage image = DrawLabel(dist, 1);
     wxCoord w = image.GetWidth();
     wxCoord h = image.GetHeight();
-     
-    //wxImage rot_image = image.Rotate90(true);
+
+    // wxImage rot_image = image.Rotate90(true);
 
     wxBitmap bm(image);
-    m_dc->DrawBitmap(bm, il.x-w/4, il.y-h/4, true);
-
-  
+    m_dc->DrawBitmap(bm, il.x - w / 4, il.y - h / 4, true);
   }
 }
 
@@ -549,7 +556,7 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
 
   labels = wxString::Format("%3.0f", value);
   labels = " " + labels + " ";
-  //labels.Printf("%.*f", p, value);
+  // labels.Printf("%.*f", p, value);
 
   wxMemoryDC mdc(wxNullBitmap);
 
@@ -562,7 +569,7 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
   wxCoord w, h;
   mdc.GetTextExtent(labels, &w, &h);
 
-  wxBitmap bm(w*2,w*2);
+  wxBitmap bm(w * 2, w * 2);
 
   mdc.SelectObject(bm);
   mdc.Clear();
@@ -584,10 +591,10 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
   mdc.SetTextForeground(text_color);
   mdc.SetTextBackground(*wxWHITE);
 
-  int xd = 0 ;
-  int yd = w/2;
+  int xd = 0;
+  int yd = w / 2;
 
-  //int label_offset = 3;
+  // int label_offset = 3;
   mdc.DrawText(labels, xd, yd - 12);
   mdc.SelectObject(wxNullBitmap);
 
@@ -620,8 +627,8 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
   return image;
 }
 
-
-wxImage &finSAR_editOverlayFactory::DrawGLRotateDisk(double value, int precision) {
+wxImage &finSAR_editOverlayFactory::DrawGLRotateDisk(double value,
+                                                     int precision) {
   wxString labels;
 
   int p = precision;
@@ -659,7 +666,7 @@ wxImage &finSAR_editOverlayFactory::DrawGLRotateDisk(double value, int precision
   mdc.SetBrush(disk_color);
   mdc.SetPen(disk_color);
   wxCoord r = w / 2 - w / 200 - 1;
-  //mdc.DrawCircle(w / 2, w / 2, r);
+  // mdc.DrawCircle(w / 2, w / 2, r);
 
   mdc.SetBrush(*wxWHITE);
   mdc.SetTextForeground(disk_color);
@@ -671,10 +678,9 @@ wxImage &finSAR_editOverlayFactory::DrawGLRotateDisk(double value, int precision
   // int label_offset = 3;
   mdc.DrawText(labels, xd, yd - 12);
 
-  
-  //mdc.DrawRotatedText(labels, w/2, w/2, m_dlg.deg2rad(45));
+  // mdc.DrawRotatedText(labels, w/2, w/2, m_dlg.deg2rad(45));
   mdc.SelectObject(wxNullBitmap);
-  
+
   m_labelCache[value] = bm.ConvertToImage();
 
   // Setup the alpha channel.
@@ -699,7 +705,6 @@ wxImage &finSAR_editOverlayFactory::DrawGLRotateDisk(double value, int precision
 
       a[ioff] = 255 - (r + g + b) / 3;
     }
-  
 
   return image;
 }
@@ -926,7 +931,6 @@ void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
     /* don't use alpha for isobars, for some reason draw bitmap ignores
        the 4th argument (true or false has same result) */
 
-    
     dc->DrawBitmap(imageLabel, xd, yd, false);
   } else { /* opengl */
 
@@ -1361,4 +1365,187 @@ bool finSAR_editOverlayFactory::DrawDirectionArrow(int x, int y,
     m_dc->DrawPolygonTessellated(4, rectPoints);
   }
   return true;
+}
+
+wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
+                                                       double scale)
+{
+
+  wxMemoryDC mdc(wxNullBitmap);
+
+  wxFont *pTCFont;
+  pTCFont =
+      wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
+                                      wxString(_T ( "Eurostile Extended" )));
+  mdc.SetFont(*pTCFont);
+
+  wxCoord w, h;
+  w = 400, h = 400;
+
+  wxBitmap bm(w * 2, h * 2);
+
+  mdc.SelectObject(bm);
+  mdc.Clear();
+
+  wxColour green_color = wxColour("GREEN");
+  wxColour text_color = wxColour("BLACK");
+
+  wxPen penGreen(green_color);
+  mdc.SetPen(penGreen);
+
+  mdc.SetBackground(*wxTRANSPARENT_BRUSH);
+  mdc.Clear();
+  mdc.SetBrush(green_color);
+
+  // Move to the first point
+
+  float xt = DirectionArrowArray[0].x;
+  float yt = DirectionArrowArray[0].y;
+
+  int x1 = (int)(xt * scale);
+  int y1 = (int)(yt * scale);
+
+  p[0].x = x1 + 0;
+  p[0].y = y1 + 300;
+
+  // Walk thru the point list
+  for (int ip = 1; ip < NUM_DIRECTION_ARROW_POINTS; ip++) {
+    xt = DirectionArrowArray[ip].x;
+    yt = DirectionArrowArray[ip].y;
+
+    int x2 = (int)(xt * scale);
+    int y2 = (int)(yt * scale);
+
+    p[ip].x = x2 + x;
+    p[ip].y = y2 + y;
+
+    x1 = x2;
+    y1 = y2;
+  }
+
+  /*
+   *           4
+   *          /\
+   *         /  \
+   *        /    \
+   *     3 /      \ 5
+   *      /_ 2   6_\
+   *        |    |
+   *        |    |
+   *        |    |
+   *        |____|
+   *       1   0  7
+   */
+
+  polyPoints[0] = p[3];
+  polyPoints[1] = p[4];
+  polyPoints[2] = p[5];
+
+  rectPoints[0] = p[1];
+  rectPoints[1] = p[2];
+  rectPoints[2] = p[6];
+  rectPoints[3] = p[7];
+
+  // polyPoints[4] = p[8];
+
+  mdc.DrawPolygon(3, polyPoints);
+  mdc.DrawPolygon(4, rectPoints);
+
+
+
+  // End of green arrow
+  // Start of red arrow
+  wxColour red_color = wxColour("RED");
+
+  wxPen penRed(red_color);
+  mdc.SetPen(penRed);
+
+  mdc.SetBackground(*wxTRANSPARENT_BRUSH);
+  mdc.SetBrush(red_color);
+   // Move to the first point
+
+  float xtr = ReverseArrowArray[0].x;
+  float ytr = ReverseArrowArray[0].y;
+
+  x1 = (int)(xtr * scale);
+  y1 = (int)(ytr * scale);
+
+  r[0].x = x1 + 200;
+  r[0].y = y1 + 0;
+
+  // Walk thru the point list
+  for (int ip = 1; ip < NUM_REVERSE_ARROW_POINTS; ip++) {
+    xt = ReverseArrowArray[ip].x;
+    yt = ReverseArrowArray[ip].y;
+
+    int x2 = (int)(xt * scale);
+    int y2 = (int)(yt * scale);
+
+    x = 150;
+    y = 280;
+
+    r[ip].x = x2 + x;
+    r[ip].y = y2 + y;
+
+    x1 = x2;
+    y1 = y2;
+  }
+
+  /*
+   *           4
+   *          /\
+   *         /  \
+   *        /    \
+   *     3 /      \ 5
+   *      /_ 2   6_\
+   *        |    |
+   *        |    |
+   *        |    |
+   *        |____|
+   *       1   0  7
+   */
+
+  polyReversePoints[0] = r[3];
+  polyReversePoints[1] = r[4];
+  polyReversePoints[2] = r[5];
+
+  rectReversePoints[0] = r[1];
+  rectReversePoints[1] = r[2];
+  rectReversePoints[2] = r[6];
+  rectReversePoints[3] = r[7];
+
+  // polyPoints[4] = p[8];
+
+  mdc.DrawPolygon(3, polyReversePoints);
+  mdc.DrawPolygon(4, rectReversePoints);
+
+
+
+  wxImage arrow = bm.ConvertToImage();
+
+  // Setup the alpha channel.
+  unsigned char *alphaData = new unsigned char[bm.GetWidth() * bm.GetHeight()];
+  memset(alphaData, wxIMAGE_ALPHA_TRANSPARENT, bm.GetWidth() * bm.GetHeight());
+
+  // Create an image with alpha.
+  arrow.SetAlpha(alphaData);
+
+  wxImage &image = arrow;
+
+  unsigned char *d = image.GetData();
+  unsigned char *a = image.GetAlpha();
+
+  w = image.GetWidth(), h = image.GetHeight();
+  for (int y = 0; y < h; y++)
+    for (int x = 0; x < w; x++) {
+      int r, g, b;
+      int ioff = (y * w + x);
+      r = d[ioff * 3 + 0];
+      g = d[ioff * 3 + 1];
+      b = d[ioff * 3 + 2];
+
+      a[ioff] = 255 - (r + g + b) / 3;
+    }
+
+  return image;
 }
