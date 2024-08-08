@@ -1009,6 +1009,8 @@ void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
   ChartTheRoute(file_name);
   i_vector.clear();
   r_vector.clear();
+  d_vector.clear();
+  m_bDrawWptDisk = false;
 
   RequestRefresh(pParent);
 
@@ -1247,6 +1249,7 @@ void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
   }
   // wxMessageBox(active_waypoint->wpName);
   // wxMessageBox(prev_waypoint->wpName);
+  
   GetDirection(active_waypoint, prev_waypoint);
 }
 
@@ -1261,18 +1264,17 @@ void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
   B->lon.ToDouble(&value);
   double lon2 = value;
 
-  double lat3 = centreLat;
-  double lon3 = centreLon;
   double brg, dist;
 
   // Bearing A -> B
   DistanceBearingMercator_Plugin(lat1, lon1, lat2, lon2, &brg, &dist);
 
-  d_vector.clear();
+   //wxString sbrg = wxString::Format("%f", brg);
+   //wxMessageBox(sbrg);
 
-  d_target = new DirectionTarget;
-  d_target->m_lat = lat3;
-  d_target->m_lon = lon3;
+  d_target = new DirectionTarget;  
+  d_target->m_lat = centreLat;
+  d_target->m_lon = centreLon;
   d_target->m_dir = brg;
 
   d_vector.push_back(*d_target);

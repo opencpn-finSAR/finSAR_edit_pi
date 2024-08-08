@@ -142,22 +142,19 @@ private:
   wxImage &DrawLabel(double value, int precision);
   wxImage &DrawGLRotateDisk(double value, int precision);
   void DrawRotatedLabel(PlugIn_ViewPort *BBox);
-  // void DrawRotatedText(PlugIn_ViewPort *BBox, double value, double angle);
   void DrawWptDisk(PlugIn_ViewPort *BBox);
   void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawIndexTargets(PlugIn_ViewPort *BBox);
   void DrawRangeTargets(PlugIn_ViewPort *BBox);
   void DrawDirectionTargets(PlugIn_ViewPort *BBox);
-  void DrawAllDirectionsInViewPort(PlugIn_ViewPort *BBox);
+ // void DrawAllDirectionsInViewPort(PlugIn_ViewPort *BBox);
 
-  bool DrawDirectionArrow(int x, int y, double rot_angle, double scale,
-                          double direction, wxColour arrow_color);
   wxImage DrawDirectionArrows(int x, int y, double scale);
+  wxImage DrawDirectionLabels(double value, int x, int y, double scale, bool reverse);
 
   wxPoint p[12];
   wxPoint r[12];
 
-  // bool DoRenderfinSAR_editOverlay(PlugIn_ViewPort *vp);
   void DrawGLLine(double x1, double y1, double x2, double y2, double width,
                   wxColour myColour);
   void DrawMessageWindow(wxString msg, int x, int y, wxFont *mfont);
