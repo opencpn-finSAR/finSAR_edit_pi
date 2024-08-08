@@ -186,8 +186,8 @@ public:
   double beginLat, beginLon;
   double endLat, endLon;
   double distance;
-  double label_direction;
-  double label_distance;
+  double label_lat;
+  double label_lon;
 };
 
 class DirectionTarget {

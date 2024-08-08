@@ -288,11 +288,11 @@ void finSAR_editUIDialog::SaveIndexRangeDirection(wxString route_name,
 
     xml_node label = m_targetpoint.append_child("label");
 
-    wxString ldist = wxString::Format("%f", (*itOut).label_distance);
-    wxString ldir = wxString::Format("%f", (*itOut).label_direction);
+    wxString llat = wxString::Format("%f", (*itOut).label_lat);
+    wxString llon = wxString::Format("%f", (*itOut).label_lon);
 
-    label.append_attribute("label_distance").set_value(ldist);
-    label.append_attribute("label_direction").set_value(ldir);
+    label.append_attribute("label_lat").set_value(llat);
+    label.append_attribute("label_lon").set_value(llon);
 
     idn++;
   }
@@ -340,11 +340,11 @@ void finSAR_editUIDialog::SaveIndexRangeDirection(wxString route_name,
 
   for (std::vector<DirectionTarget>::iterator itOutDirection = d_vector.begin();
        itOutDirection != d_vector.end(); itOutDirection++) {
-
     xml_node d_directionpoint = m_targetNode.append_child("direction_target");
-   
+
     wxString dLat = wxString::Format("%f", (*itOutDirection).m_lat);
-    d_directionpoint.append_attribute("direction_lat").set_value(dLat);;
+    d_directionpoint.append_attribute("direction_lat").set_value(dLat);
+    ;
 
     wxString dlon = wxString::Format("%f", (*itOutDirection).m_lon);
     d_directionpoint.append_attribute("direction_lon").set_value(dlon);
@@ -364,7 +364,6 @@ void finSAR_editUIDialog::SaveIndexRangeDirection(wxString route_name,
   xmlDoc.save_file(file_path.mb_str());
 
   wxMessageBox(mySelectedRoute);
-
 }
 
 void finSAR_editUIDialog::SelectRoutePoints(wxString routeName) {}
@@ -1208,8 +1207,13 @@ void finSAR_editUIDialog::GetIndex(Position* A, Position* B) {
 
   DistanceBearingMercator_Plugin(lat3, lon3, dlat, dlon, &brg2, &dist2);
   i_target->distance = dist2;
-  i_target->label_distance = dist2 / 2;
-  i_target->label_direction = brg2;
+  double label_distance = dist2 / 2;
+
+  double llat, llon;
+  PositionBearingDistanceMercator_Plugin(dlat, dlon, brg2, label_distance,
+                                         &llat, &llon);
+  i_target->label_lat = llat;
+  i_target->label_lon = llon;
 
   i_vector.push_back(*i_target);
 }
@@ -1254,10 +1258,10 @@ void finSAR_editUIDialog::GetRange(Position* A, Position* B) {
 
   r_target->distance = dist;
 
-  double label_distance = dist / 2; 
+  double label_distance = dist / 2;
   double dlat, dlon;
-  PositionBearingDistanceMercator_Plugin(lat1, lon1,
-                                         brg, label_distance, &dlat, &dlon);
+  PositionBearingDistanceMercator_Plugin(lat1, lon1, brg, label_distance, &dlat,
+                                         &dlon);
 
   r_target->label_lat = dlat;
   r_target->label_lon = dlon;
@@ -1310,8 +1314,8 @@ void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   pPlugIn->DeleteEXT_Name(mySelectedRoute);
   pPlugIn->Add_EXT_db(extensions_file, mySelectedRoute, date_stamp);
   m_bDrawWptDisk = false;
-  //incorrect file name
-  //ReadRTZ(mySelectedRoute + ".rtz");
+  // incorrect file name
+  // ReadRTZ(mySelectedRoute + ".rtz");
 }
 
 void finSAR_editUIDialog::SetNMEAMessage(wxString sentence) {
@@ -1431,7 +1435,6 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   d_vector.clear();  // Set up a new vector
   d_target = new DirectionTarget;
 
-
   pugi::xml_document xmlDoc;
   pugi::xml_parse_result result =
       xmlDoc.load_file(file_name.mb_str(), parse_default | parse_declaration);
@@ -1491,13 +1494,13 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
     i_target->distance = dvalue;
 
     xml_node pLabel = indexNode.child("label");
-    stp = pLabel.attribute("label_distance").value();
-    stp.ToDouble(&dvalue);
-    i_target->label_distance = dvalue;
-
     stp = pLabel.attribute("label_lat").value();
     stp.ToDouble(&dvalue);
-    i_target->label_direction = dvalue;
+    i_target->label_lat = dvalue;
+
+    stp = pLabel.attribute("label_lon").value();
+    stp.ToDouble(&dvalue);
+    i_target->label_lon = dvalue;
 
     i_vector.push_back(*i_target);
   }
@@ -1548,7 +1551,8 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
     r_vector.push_back(*r_target);
   }
 
-    for (pugi::xml_node directionNode = targetNode.child("direction_target"); directionNode;
+  for (pugi::xml_node directionNode = targetNode.child("direction_target");
+       directionNode;
        directionNode = directionNode.next_sibling("direction_target")) {
     // wxMessageBox(indexNode.attribute("wp_id").value());
 
