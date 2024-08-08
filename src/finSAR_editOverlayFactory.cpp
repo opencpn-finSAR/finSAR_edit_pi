@@ -267,18 +267,22 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
 }
 
 void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
-  
-  
-  
-  
+    
   wxImage image = DrawDirectionArrows(200, 200, 1);
   wxCoord w = image.GetWidth();
   wxCoord h = image.GetHeight();
 
+  wxPoint rot_point(w / 2, h / 2);
+
+  wxImage rot_image = image.Rotate90(true);
+
   wxBitmap bm(image);
+
+  
+
+
   m_dc->DrawBitmap(bm, 200, 200, true);
   return;
-  
   
   
   double dlat, dlon;
@@ -1382,7 +1386,7 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
   wxCoord w, h;
   w = 400, h = 400;
 
-  wxBitmap bm(w * 2, h * 2);
+  wxBitmap bm(w, h);
 
   mdc.SelectObject(bm);
   mdc.Clear();
@@ -1406,7 +1410,7 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
   int y1 = (int)(yt * scale);
 
   p[0].x = x1 + 0;
-  p[0].y = y1 + 300;
+  p[0].y = y1 + 200;
 
   // Walk thru the point list
   for (int ip = 1; ip < NUM_DIRECTION_ARROW_POINTS; ip++) {
@@ -1451,7 +1455,10 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
   mdc.DrawPolygon(3, polyPoints);
   mdc.DrawPolygon(4, rectPoints);
 
-
+  mdc.SetTextForeground(text_color);
+  mdc.SetTextBackground(*wxWHITE);
+  wxPoint green_direction(200, 219);
+  mdc.DrawText("123", green_direction);
 
   // End of green arrow
   // Start of red arrow
@@ -1519,7 +1526,8 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
   mdc.DrawPolygon(3, polyReversePoints);
   mdc.DrawPolygon(4, rectReversePoints);
 
-
+  wxPoint red_direction(200, 170);
+  mdc.DrawText("123", red_direction);
 
   wxImage arrow = bm.ConvertToImage();
 
