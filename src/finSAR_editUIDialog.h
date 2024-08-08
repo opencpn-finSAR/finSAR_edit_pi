@@ -207,8 +207,8 @@ public:
   double beginLat, beginLon;
   double endLat, endLon;
   double distance;
-  double label_direction;
-  double label_distance;
+  double label_lat;
+  double label_lon;
 };
 
 class rtept {
@@ -452,7 +452,7 @@ private:
   void OnLoadExtensions(wxCommandEvent& event);
   void OnSaveExtensions(wxCommandEvent& event);
   void OnIndex(wxCommandEvent& event);
-  void SaveIndexRange(wxString route_name, wxString date_stamp);
+  void SaveIndexRangeDirection(wxString route_name, wxString date_stamp);
   void GetIndex(Position* A, Position* B);
   void OnRange(wxCommandEvent& event);
   void GetRange(Position* A, Position* B);

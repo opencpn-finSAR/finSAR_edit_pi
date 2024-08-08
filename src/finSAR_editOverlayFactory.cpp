@@ -248,9 +248,11 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
     wxPoint ie;
     GetCanvasPixLL(BBox, &ie, (*it).endLat, (*it).endLon);
     m_dc->DrawLine(ib.x, ib.y, ie.x, ie.y, true);
-    PositionBearingDistanceMercator_Plugin((*it).beginLat, (*it).beginLon,
-                                           (*it).label_direction,
-                                           (*it).label_distance, &dlat, &dlon);
+
+    double dlat, dlon;
+    dlat = (*it).label_lat;
+    dlon = (*it).label_lon;                           
+
     wxPoint il;
     GetCanvasPixLL(BBox, &il, dlat, dlon);
     double dist = (*it).distance;

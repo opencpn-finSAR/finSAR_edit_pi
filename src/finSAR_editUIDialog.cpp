@@ -224,7 +224,8 @@ int finSAR_editUIDialog::GetRandomNumber(int range_min, int range_max) {
   return (int)u;
 }
 
-void finSAR_editUIDialog::SaveIndexRange(wxString route_name, wxString date_stamp) {
+void finSAR_editUIDialog::SaveIndexRangeDirection(wxString route_name,
+                                                  wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
 
@@ -295,12 +296,14 @@ void finSAR_editUIDialog::SaveIndexRange(wxString route_name, wxString date_stam
 
     idn++;
   }
+
   for (std::vector<RangeTarget>::iterator itOutRange = r_vector.begin();
        itOutRange != r_vector.end(); itOutRange++) {
     xml_node r_targetpoint = m_targetNode.append_child("range_target");
 
     // wxString myIdn = wxString::Format("%i", idn);
-    r_targetpoint.append_attribute("wp_id").set_value((*itOutRange).wpId.mb_str());
+    r_targetpoint.append_attribute("wp_id").set_value(
+        (*itOutRange).wpId.mb_str());
     wxString wpid = (*itOutRange).wpId.mb_str();
     // wxMessageBox(wpid);
 
@@ -326,21 +329,42 @@ void finSAR_editUIDialog::SaveIndexRange(wxString route_name, wxString date_stam
 
     xml_node label = r_targetpoint.append_child("label");
 
-    wxString ldist = wxString::Format("%f", (*itOutRange).label_distance);
-    wxString ldir = wxString::Format("%f", (*itOutRange).label_direction);
+    wxString ldist = wxString::Format("%f", (*itOutRange).label_lat);
+    wxString ldir = wxString::Format("%f", (*itOutRange).label_lon);
 
-    label.append_attribute("label_distance").set_value(ldist);
-    label.append_attribute("label_direction").set_value(ldir);
+    label.append_attribute("label_lat").set_value(ldist);
+    label.append_attribute("label_lon").set_value(ldir);
 
     idn++;
   }
-  // done adding index targets
+
+  for (std::vector<DirectionTarget>::iterator itOutDirection = d_vector.begin();
+       itOutDirection != d_vector.end(); itOutDirection++) {
+
+    xml_node d_directionpoint = m_targetNode.append_child("direction_target");
+   
+    wxString dLat = wxString::Format("%f", (*itOutDirection).m_lat);
+    d_directionpoint.append_attribute("direction_lat").set_value(dLat);;
+
+    wxString dlon = wxString::Format("%f", (*itOutDirection).m_lon);
+    d_directionpoint.append_attribute("direction_lon").set_value(dlon);
+
+    wxString dir = wxString::Format("%f", (*itOutDirection).m_dir);
+    d_directionpoint.append_attribute("direction").set_value(dir);
+
+    idn++;
+  }
+
+  // done adding index, range and direction targets
   // Write xmlDoc into a file
   wxString file_name = route_name + ".xml";
   wxString file_path = pPlugIn->StandardPathEXT() + file_name;
   // Route name must be the same as the file name, without file extension
 
   xmlDoc.save_file(file_path.mb_str());
+
+  wxMessageBox(mySelectedRoute);
+
 }
 
 void finSAR_editUIDialog::SelectRoutePoints(wxString routeName) {}
@@ -611,7 +635,6 @@ int finSAR_editUIDialog::GetScale(double myChartScale) {
     return 6;
 }
 
-
 void finSAR_editUIDialog::key_shortcut(wxKeyEvent& event) {
   // wxMessageBox("here");
   //  of course, it doesn't have to be the control key. You can use others:
@@ -708,7 +731,6 @@ void finSAR_editUIDialog::MakeBoxPoints() {
 
   myPixHeight = pixheight * 2;
 }
-
 
 void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
   // This sleep is needed to give the time for the currently pressed modifier
@@ -1193,7 +1215,6 @@ void finSAR_editUIDialog::GetIndex(Position* A, Position* B) {
 }
 
 void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
- 
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
@@ -1204,12 +1225,10 @@ void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
   range_object->lat = wxString::Format("%f", centreLat);
   range_object->lon = wxString::Format("%f", centreLon);
   GetRange(active_waypoint, range_object);
-
 }
 
 void finSAR_editUIDialog::GetRange(Position* A, Position* B) {
-
-double value = 0.0;
+  double value = 0.0;
   A->lat.ToDouble(&value);
   double lat1 = value;
   A->lon.ToDouble(&value);
@@ -1234,22 +1253,26 @@ double value = 0.0;
   r_target->endLon = lon2;
 
   r_target->distance = dist;
-  r_target->label_distance = dist / 2;
-  r_target->label_direction = brg;
+
+  double label_distance = dist / 2; 
+  double dlat, dlon;
+  PositionBearingDistanceMercator_Plugin(lat1, lon1,
+                                         brg, label_distance, &dlat, &dlon);
+
+  r_target->label_lat = dlat;
+  r_target->label_lon = dlon;
 
   r_vector.push_back(*r_target);
-
 }
 
 void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
-  
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
   }
   // wxMessageBox(active_waypoint->wpName);
   // wxMessageBox(prev_waypoint->wpName);
-  
+
   GetDirection(active_waypoint, prev_waypoint);
 }
 
@@ -1269,10 +1292,10 @@ void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
   // Bearing A -> B
   DistanceBearingMercator_Plugin(lat1, lon1, lat2, lon2, &brg, &dist);
 
-   //wxString sbrg = wxString::Format("%f", brg);
-   //wxMessageBox(sbrg);
+  // wxString sbrg = wxString::Format("%f", brg);
+  // wxMessageBox(sbrg);
 
-  d_target = new DirectionTarget;  
+  d_target = new DirectionTarget;
   d_target->m_lat = centreLat;
   d_target->m_lon = centreLon;
   d_target->m_dir = brg;
@@ -1283,11 +1306,12 @@ void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
 void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
   wxString extensions_file = mySelectedRoute + ".xml";
-  SaveIndexRange(mySelectedRoute, date_stamp);
+  SaveIndexRangeDirection(mySelectedRoute, date_stamp);
   pPlugIn->DeleteEXT_Name(mySelectedRoute);
   pPlugIn->Add_EXT_db(extensions_file, mySelectedRoute, date_stamp);
   m_bDrawWptDisk = false;
-  ReadRTZ(mySelectedRoute + ".rtz");
+  //incorrect file name
+  //ReadRTZ(mySelectedRoute + ".rtz");
 }
 
 void finSAR_editUIDialog::SetNMEAMessage(wxString sentence) {
@@ -1404,6 +1428,9 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   i_target = new IndexTarget;
   r_vector.clear();  // Set up a new vector
   r_target = new RangeTarget;
+  d_vector.clear();  // Set up a new vector
+  d_target = new DirectionTarget;
+
 
   pugi::xml_document xmlDoc;
   pugi::xml_parse_result result =
@@ -1433,89 +1460,112 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   //
   pugi::xml_node targetNode = route.child("targets");
   if (targetNode == NULL) return;
-  
+
   for (pugi::xml_node indexNode = targetNode.child("index_target"); indexNode;
        indexNode = indexNode.next_sibling("index_target")) {
-      // wxMessageBox(indexNode.attribute("wp_id").value());
-      i_target->wpId = indexNode.attribute("wp_id").value();
-      xml_node pBeginElement = indexNode.child("begin");
+    // wxMessageBox(indexNode.attribute("wp_id").value());
+    i_target->wpId = indexNode.attribute("wp_id").value();
+    xml_node pBeginElement = indexNode.child("begin");
 
-      double dvalue = 0.0;
-      wxString stp = pBeginElement.attribute("lat").value();
-      stp.ToDouble(&dvalue);
-      i_target->beginLat = dvalue;
+    double dvalue = 0.0;
+    wxString stp = pBeginElement.attribute("lat").value();
+    stp.ToDouble(&dvalue);
+    i_target->beginLat = dvalue;
 
-      wxString stpl = pBeginElement.attribute("lon").value();
-      stpl.ToDouble(&dvalue);
-      i_target->beginLon = dvalue;
+    wxString stpl = pBeginElement.attribute("lon").value();
+    stpl.ToDouble(&dvalue);
+    i_target->beginLon = dvalue;
 
-      xml_node pEndElement = indexNode.child("end");
-      stp = pEndElement.attribute("lat").value();
-      stp.ToDouble(&dvalue);
-      i_target->endLat = dvalue;
+    xml_node pEndElement = indexNode.child("end");
+    stp = pEndElement.attribute("lat").value();
+    stp.ToDouble(&dvalue);
+    i_target->endLat = dvalue;
 
-      stpl = pEndElement.attribute("lon").value();
-      stpl.ToDouble(&dvalue);
-      i_target->endLon = dvalue;
+    stpl = pEndElement.attribute("lon").value();
+    stpl.ToDouble(&dvalue);
+    i_target->endLon = dvalue;
 
-      xml_node pDistance = indexNode.child("index_distance");
-      stp = pDistance.attribute("distance").value();
-      stp.ToDouble(&dvalue);
-      i_target->distance = dvalue;
+    xml_node pDistance = indexNode.child("index_distance");
+    stp = pDistance.attribute("distance").value();
+    stp.ToDouble(&dvalue);
+    i_target->distance = dvalue;
 
-      xml_node pLabel = indexNode.child("label");
-      stp = pLabel.attribute("label_distance").value();
-      stp.ToDouble(&dvalue);
-      i_target->label_distance = dvalue;
+    xml_node pLabel = indexNode.child("label");
+    stp = pLabel.attribute("label_distance").value();
+    stp.ToDouble(&dvalue);
+    i_target->label_distance = dvalue;
 
-      stp = pLabel.attribute("label_direction").value();
-      stp.ToDouble(&dvalue);
-      i_target->label_direction = dvalue;
+    stp = pLabel.attribute("label_lat").value();
+    stp.ToDouble(&dvalue);
+    i_target->label_direction = dvalue;
 
-      i_vector.push_back(*i_target);      
-    }
+    i_vector.push_back(*i_target);
+  }
 
   for (pugi::xml_node rangeNode = targetNode.child("range_target"); rangeNode;
        rangeNode = rangeNode.next_sibling("range_target")) {
-      
-      // wxMessageBox(indexNode.attribute("wp_id").value());
-      r_target->wpId = rangeNode.attribute("wp_id").value();
-      xml_node pBeginElement = rangeNode.child("begin");
+    // wxMessageBox(indexNode.attribute("wp_id").value());
+    r_target->wpId = rangeNode.attribute("wp_id").value();
+    xml_node pBeginElement = rangeNode.child("begin");
 
-      double dvalue = 0.0;
-      wxString stp = pBeginElement.attribute("lat").value();
-      stp.ToDouble(&dvalue);
-      r_target->beginLat = dvalue;
+    double dvalue = 0.0;
+    wxString stp = pBeginElement.attribute("lat").value();
+    stp.ToDouble(&dvalue);
+    r_target->beginLat = dvalue;
 
-      wxString stpl = pBeginElement.attribute("lon").value();
-      stpl.ToDouble(&dvalue);
-      r_target->beginLon = dvalue;
+    wxString stpl = pBeginElement.attribute("lon").value();
+    stpl.ToDouble(&dvalue);
+    r_target->beginLon = dvalue;
 
-      xml_node pEndElement = rangeNode.child("end");
-      stp = pEndElement.attribute("lat").value();
-      stp.ToDouble(&dvalue);
-      r_target->endLat = dvalue;
+    xml_node pEndElement = rangeNode.child("end");
+    stp = pEndElement.attribute("lat").value();
+    stp.ToDouble(&dvalue);
+    r_target->endLat = dvalue;
 
-      stpl = pEndElement.attribute("lon").value();
-      stpl.ToDouble(&dvalue);
-      r_target->endLon = dvalue;
+    stpl = pEndElement.attribute("lon").value();
+    stpl.ToDouble(&dvalue);
+    r_target->endLon = dvalue;
 
-      xml_node pDistance = rangeNode.child("range_distance");
-      stp = pDistance.attribute("distance").value();
-      //wxMessageBox(stp);
-      stp.ToDouble(&dvalue);
-      r_target->distance = dvalue;
+    xml_node pDistance = rangeNode.child("range_distance");
+    stp = pDistance.attribute("distance").value();
+    // wxMessageBox(stp);
+    stp.ToDouble(&dvalue);
+    r_target->distance = dvalue;
 
-      xml_node pLabel = rangeNode.child("label");
-      stp = pLabel.attribute("label_distance").value();
-      stp.ToDouble(&dvalue);
-      r_target->label_distance = dvalue;
+    xml_node pLabel = rangeNode.child("label");
+    stp = pLabel.attribute("label_distance").value();
+    stp.ToDouble(&dvalue);
+    r_target->distance = dvalue;
 
-      stp = pLabel.attribute("label_direction").value();
-      stp.ToDouble(&dvalue);
-      r_target->label_direction = dvalue;
+    stp = pLabel.attribute("label_lat").value();
+    stp.ToDouble(&dvalue);
+    r_target->label_lat = dvalue;
 
-      r_vector.push_back(*r_target);     
+    stp = pLabel.attribute("label_lon").value();
+    stp.ToDouble(&dvalue);
+    r_target->label_lon = dvalue;
+
+    r_vector.push_back(*r_target);
+  }
+
+    for (pugi::xml_node directionNode = targetNode.child("direction_target"); directionNode;
+       directionNode = directionNode.next_sibling("direction_target")) {
+    // wxMessageBox(indexNode.attribute("wp_id").value());
+
+    double dvalue = 0.0;
+    wxString stp = directionNode.attribute("direction_lat").value();
+    stp.ToDouble(&dvalue);
+    d_target->m_lat = dvalue;
+
+    wxString stpl = directionNode.attribute("direction_lon").value();
+    stpl.ToDouble(&dvalue);
+    d_target->m_lon = dvalue;
+
+    stp = directionNode.attribute("direction").value();
+    stp.ToDouble(&dvalue);
+    d_target->m_dir = dvalue;
+
+    d_vector.push_back(*d_target);
   }
 
   RequestRefresh(pParent);
