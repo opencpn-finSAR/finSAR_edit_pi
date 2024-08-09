@@ -86,10 +86,9 @@ GetRouteDialog::GetRouteDialog(wxWindow* parent, wxWindowID id,
   dialogText =
       new wxListView(this, wxID_ANY, p, sz, wxLC_NO_HEADER | wxLC_REPORT,
                      wxDefaultValidator, wxT(""));
-  wxFont* pVLFont = wxTheFontList->FindOrCreateFont(
-      12, wxFONTFAMILY_SWISS, wxNORMAL, wxFONTWEIGHT_NORMAL, FALSE,
-      wxString(_T("Arial")));
-  dialogText->SetFont(*pVLFont);
+  wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  
+  dialogText->SetFont(font);
 
   bSizer1->Add(dialogText, 0, wxALL, 5);
 
@@ -363,7 +362,6 @@ void finSAR_editUIDialog::SaveIndexRangeDirection(wxString route_name,
 
   xmlDoc.save_file(file_path.mb_str());
 
-  wxMessageBox(mySelectedRoute);
 }
 
 void finSAR_editUIDialog::SelectRoutePoints(wxString routeName) {}
@@ -1032,6 +1030,7 @@ void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
   r_vector.clear();
   d_vector.clear();
   m_bDrawWptDisk = false;
+  m_bDrawDirectionArrow = false;
 
   RequestRefresh(pParent);
 
@@ -1216,6 +1215,11 @@ void finSAR_editUIDialog::GetIndex(Position* A, Position* B) {
   i_target->label_lon = llon;
 
   i_vector.push_back(*i_target);
+
+  wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
+  wxString extensions_file = mySelectedRoute + ".xml";
+  SaveIndexRangeDirection(mySelectedRoute, date_stamp);
+
 }
 
 void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
@@ -1267,6 +1271,10 @@ void finSAR_editUIDialog::GetRange(Position* A, Position* B) {
   r_target->label_lon = dlon;
 
   r_vector.push_back(*r_target);
+
+  wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
+  wxString extensions_file = mySelectedRoute + ".xml";
+  SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
 
 void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
@@ -1276,7 +1284,10 @@ void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
   }
   // wxMessageBox(active_waypoint->wpName);
   // wxMessageBox(prev_waypoint->wpName);
-
+  if (!m_bDrawDirectionArrow) { 
+    wxMessageBox("No previous waypoint\nPlease activate the waypoint for the leg");  
+    return;
+  }
   GetDirection(active_waypoint, prev_waypoint);
 }
 
@@ -1305,6 +1316,10 @@ void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
   d_target->m_dir = brg;
 
   d_vector.push_back(*d_target);
+
+  wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
+  wxString extensions_file = mySelectedRoute + ".xml";
+  SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
 
 void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
@@ -1314,6 +1329,7 @@ void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   pPlugIn->DeleteEXT_Name(mySelectedRoute);
   pPlugIn->Add_EXT_db(extensions_file, mySelectedRoute, date_stamp);
   m_bDrawWptDisk = false;
+  m_bDrawDirectionArrow = false;
   // incorrect file name
   // ReadRTZ(mySelectedRoute + ".rtz");
 }
@@ -1583,6 +1599,7 @@ void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {
   c_lon = m_lon;
 
   m_bDrawWptDisk = false;
+  m_bDrawDirectionArrow = false;
 
   int leg_number = SetActiveWaypoint(c_lat, c_lon);
   mySelectedLeg = leg_number;
@@ -1646,6 +1663,7 @@ int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
   if (it_num != 0)
     FindPreviousWaypoint(it_name);
   else {
+
     active_waypoint = new Position;
     active_waypoint->wpName = it_name;
 
@@ -1657,6 +1675,7 @@ int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
     active_waypoint->lon = slon;
     active_waypoint->route_name = mySelectedRoute;
     m_bDrawWptDisk = true;
+    m_bDrawDirectionArrow = false;
   }
 
   return it_num;
@@ -1699,6 +1718,8 @@ Position* finSAR_editUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
       // wxMessageBox(prev_waypoint->wpId);
 
       m_bDrawWptDisk = true;
+      m_bDrawDirectionArrow = true;
+
       RequestRefresh(pParent);
 
       return active_waypoint;
@@ -1720,7 +1741,7 @@ int finSAR_editUIDialog::DeleteChartedRoute() {
   DeletePlugInRoute(uids[0]);
   return 1;
 }
-
+/*
 wxString finSAR_editUIDialog::FindWaypointGUID(wxString testName) {
   std::vector<std::unique_ptr<PlugIn_Route_Ex>> routes;
   auto uids = GetRouteGUIDArray();
@@ -1749,7 +1770,7 @@ wxString finSAR_editUIDialog::FindWaypointGUID(wxString testName) {
 
   myWaypoint;
 }
-
+*/
 double finSAR_editUIDialog::FindDistanceFromLeg(Position* A, Position* B,
                                                 Position* C) {
   double value = 0.0;

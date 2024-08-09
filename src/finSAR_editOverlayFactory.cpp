@@ -185,8 +185,6 @@ void finSAR_editOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
 }
 
 void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
-  double dlat, dlon;
-
   wxColour colour1 = wxColour("BLACK");
 
   wxPen pen1(colour1, 2);
@@ -195,9 +193,6 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
   // c_GLcolour = colour;  // for filling GL arrows
   if (m_dc) {
     m_dc->SetPen(pen1);
-
-    // brush.SetStyle(wxBRUSHSTYLE_SOLID);
-    // m_dc->SetBrush(brush);
   }
 
   for (std::vector<IndexTarget>::iterator it = m_dlg.i_vector.begin();
@@ -211,7 +206,7 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
 
     double dlat, dlon;
     dlat = (*it).label_lat;
-    dlon = (*it).label_lon;      
+    dlon = (*it).label_lon;
 
     wxPoint il;
     GetCanvasPixLL(BBox, &il, dlat, dlon);
@@ -227,8 +222,6 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
 }
 
 void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
-  double dlat, dlon;
-
   wxColour colour1 = wxColour("BLACK");
 
   wxPen pen1(colour1, 2);
@@ -253,7 +246,7 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
 
     double dlat, dlon;
     dlat = (*it).label_lat;
-    dlon = (*it).label_lon;                           
+    dlon = (*it).label_lon;
 
     wxPoint il;
     GetCanvasPixLL(BBox, &il, dlat, dlon);
@@ -269,7 +262,6 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
 }
 
 void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
-
   double dlat, dlon, direction_brg, rot_angle;
 
   for (std::vector<DirectionTarget>::iterator it = m_dlg.d_vector.begin();
@@ -289,25 +281,26 @@ void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
 
     wxPoint rot_point(w / 2, h / 2);
 
-    wxImage rot_image = image.Rotate(-rot_angle, rot_point, true,0);
+    wxImage rot_image = image.Rotate(-rot_angle, rot_point, true, 0);
     wxImage rot_90 = image.Rotate90(true);
 
     wxBitmap bm(rot_image);
 
-    m_dc->DrawBitmap(bm, dl.x - 75, dl.y -75, true);
+    m_dc->DrawBitmap(bm, dl.x - 75, dl.y - 75, true);
 
     // Now draw the direction labels
     bool reverse_label = false;
     if (direction_brg > 180) reverse_label = true;
 
-    wxImage label_image = DrawDirectionLabels(123, 0, 0, 1, reverse_label);
-    wxImage rot_label_image = label_image.Rotate(-rot_angle, rot_point, true, 0);
-    //wxImage rot_90 = image.Rotate90(true);
+    wxImage label_image =
+        DrawDirectionLabels(direction_brg, 0, 0, 1, reverse_label);
+    wxImage rot_label_image =
+        label_image.Rotate(-rot_angle, rot_point, true, 0);
+    // wxImage rot_90 = image.Rotate90(true);
 
     wxBitmap bml(rot_label_image);
 
     m_dc->DrawBitmap(bml, dl.x - 75, dl.y - 75, true);
-
   }
 }
 
@@ -461,11 +454,8 @@ wxImage &finSAR_editOverlayFactory::DrawGLText(double value, int precision) {
 
   wxMemoryDC mdc(wxNullBitmap);
 
-  wxFont *pTCFont;
-  pTCFont =
-      wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
-                                      wxString(_T ( "Eurostile Extended" )));
-  mdc.SetFont(*pTCFont);
+  wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  mdc.SetFont(font);
 
   int w, h;
   mdc.GetTextExtent(labels, &w, &h);
@@ -543,11 +533,8 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
 
   wxMemoryDC mdc(wxNullBitmap);
 
-  wxFont *pTCFont;
-  pTCFont =
-      wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
-                                      wxString(_T ( "Eurostile Extended" )));
-  mdc.SetFont(*pTCFont);
+  wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  mdc.SetFont(font);
 
   wxCoord w, h;
   mdc.GetTextExtent(labels, &w, &h);
@@ -560,24 +547,19 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
   wxColour disk_color = wxColour("BLACK");
   wxColour text_color = wxColour("WHITE");
 
-  wxPen penText(disk_color);
-  mdc.SetPen(penText);
-
   mdc.SetBackground(*wxTRANSPARENT_BRUSH);
-  mdc.Clear();
   mdc.SetBrush(disk_color);
-  mdc.SetPen(disk_color);
+
   wxCoord r = w / 2 - w / 200 - 1;
+
   mdc.DrawCircle(w / 2, w / 2, r);
 
-  mdc.SetBrush(*wxWHITE);
   mdc.SetTextForeground(text_color);
-  mdc.SetTextBackground(*wxWHITE);
+  mdc.SetPen(disk_color);
 
   int xd = 0;
   int yd = w / 2;
 
-  // int label_offset = 3;
   mdc.DrawText(labels, xd, yd - 12);
   mdc.SelectObject(wxNullBitmap);
 
@@ -624,11 +606,8 @@ wxImage &finSAR_editOverlayFactory::DrawGLRotateDisk(double value,
 
   wxMemoryDC mdc(wxNullBitmap);
 
-  wxFont *pTCFont;
-  pTCFont =
-      wxTheFontList->FindOrCreateFont(14, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
-                                      wxString(_T ( "Eurostile Extended" )));
-  mdc.SetFont(*pTCFont);
+  wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  mdc.SetFont(font);
 
   wxCoord w, h;
   mdc.GetTextExtent(labels, &w, &h);
@@ -701,12 +680,8 @@ wxImage &finSAR_editOverlayFactory::DrawGLTextDir(double value, int precision) {
 
   wxMemoryDC mdc(wxNullBitmap);
 
-  wxFont *pTCFont;
-  pTCFont =
-      wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
-                                      wxString(_T ( "Eurostile Extended" )));
-
-  mdc.SetFont(*pTCFont);
+  wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  mdc.SetFont(font);
 
   int w, h;
   mdc.GetTextExtent(labels, &w, &h);
@@ -764,11 +739,8 @@ wxImage &finSAR_editOverlayFactory::DrawGLTextString(wxString myText) {
 
   wxMemoryDC mdc(wxNullBitmap);
 
-  wxFont *pTCFont;
-  pTCFont =
-      wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
-                                      wxString(_T ( "Eurostile Extended" )));
-  mdc.SetFont(*pTCFont);
+  wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  mdc.SetFont(font);
 
   int w, h;
   mdc.GetTextExtent(labels, &w, &h);
@@ -1254,11 +1226,8 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
                                                        double scale) {
   wxMemoryDC mdc(wxNullBitmap);
 
-  wxFont *pTCFont;
-  pTCFont =
-      wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
-                                      wxString(_T ( "Eurostile Extended" )));
-  mdc.SetFont(*pTCFont);
+  wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  mdc.SetFont(font);
 
   wxCoord w, h;
   w = 150, h = 150;
@@ -1338,7 +1307,7 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
   mdc.SetTextForeground(text_color);
   mdc.SetTextBackground(*wxWHITE);
   wxPoint green_direction(50, 95);
-  //mdc.DrawText("123", green_direction);
+  // mdc.DrawText("123", green_direction);
 
   // End of green arrow
   // Start of red arrow
@@ -1407,7 +1376,7 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
   mdc.DrawPolygon(4, rectReversePoints);
 
   wxPoint red_direction(50, 52);
-  //mdc.DrawText("123", red_direction);
+  // mdc.DrawText("123", red_direction);
 
   wxImage arrow = bm.ConvertToImage();
 
@@ -1438,15 +1407,27 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
   return image;
 }
 
-wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x, int y,
-                                                       double scale, bool reverse) {
+wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x,
+                                                       int y, double scale,
+                                                       bool reverse) {
   wxMemoryDC mdc(wxNullBitmap);
 
-  wxFont *pTCFont;
-  pTCFont =
-      wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE,
-                                      wxString(_T ( "Eurostile Extended" )));
-  mdc.SetFont(*pTCFont);
+  wxString direction_brg = wxString::Format("%3.0f", value);
+  
+ 
+  if (value < 10) {
+    wxString one = direction_brg.Mid(0);
+    one.Prepend("00");
+    wxMessageBox(one);
+  }
+  else if (value > 9 && value < 100)
+      direction_brg.Prepend("0");  
+
+ direction_brg.Trim();
+
+
+  wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+  mdc.SetFont(font);
 
   wxCoord w, h;
   w = 150, h = 150;
@@ -1471,7 +1452,7 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x, int 
   mdc.SetTextForeground(text_color);
   mdc.SetTextBackground(*wxWHITE);
   wxPoint green_direction(50, 95);
-  mdc.DrawText("123", green_direction);
+  mdc.DrawText(direction_brg, green_direction);
 
   // End of green arrow
   // Start of red arrow
@@ -1487,8 +1468,7 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x, int 
 
   // Write red direction
 
-  mdc.DrawText("123", red_direction);
-
+  mdc.DrawText(direction_brg, red_direction);
 
   wxImage label_image = bm.ConvertToImage();
   wxImage label;
@@ -1497,7 +1477,7 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x, int 
     label = label_image.Rotate180();
 
   } else
-    label = label_image; 
+    label = label_image;
 
   // Setup the alpha channel.
   unsigned char *alphaData = new unsigned char[bm.GetWidth() * bm.GetHeight()];

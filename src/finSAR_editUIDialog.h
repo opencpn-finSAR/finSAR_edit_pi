@@ -322,10 +322,11 @@ public:
                                                   Position* C);
   int SetActiveWaypoint(double t_lat, double t_lon);
   bool m_bDrawWptDisk;
+  bool m_bDrawDirectionArrow;
   Position* FindPreviousWaypoint(wxString ActiveWpt);
 
   int DeleteChartedRoute();
-  wxString FindWaypointGUID(wxString testName);
+  //wxString FindWaypointGUID(wxString testName);
 
   PlugIn_Waypoint_Ex* active_wpt, prev_wpt;
 
