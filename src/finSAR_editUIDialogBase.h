@@ -58,9 +58,15 @@ class finSAR_editUIDialogBase : public wxFrame
 		wxTextCtrl* m_textCtrl8;
 		wxStaticText* m_staticText1;
 		wxTextCtrl* m_textExtName;
+		wxStaticText* m_staticText4;
+		wxStaticText* m_staticText41;
+		wxStaticText* m_staticText411;
 		wxButton* m_buttonAttach;
 		wxButton* m_buttonAttach1;
 		wxButton* m_buttonAttach2;
+		wxButton* m_buttonAttach21;
+		wxButton* m_buttonAttach22;
+		wxButton* m_buttonAttach23;
 		wxStaticLine* m_staticline231;
 		wxStaticLine* m_staticline232;
 		wxStaticLine* m_staticline2321;
@@ -87,6 +93,9 @@ class finSAR_editUIDialogBase : public wxFrame
 		virtual void OnIndex( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRange( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnDirection( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnIndexDelete( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnRangeDelete( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnDirectionDelete( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnSaveExtensions( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnInformation( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnAbout( wxCommandEvent& event ) { event.Skip(); }

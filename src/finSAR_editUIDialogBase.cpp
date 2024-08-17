@@ -32,7 +32,7 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	bSizer9 = new wxBoxSizer( wxVERTICAL );
 
 	m_textCtrl9 = new wxTextCtrl( m_panelRoutes, wxID_ANY, _("Routes"), wxDefaultPosition, wxDefaultSize, wxTE_CENTER );
-	m_textCtrl9->SetBackgroundColour( wxColour( 235, 238, 98 ) );
+	m_textCtrl9->SetBackgroundColour( wxColour( 255, 255, 0 ) );
 
 	bSizer9->Add( m_textCtrl9, 0, wxALL|wxEXPAND, 5 );
 
@@ -129,7 +129,7 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	m_panelRoutes->SetSizer( bSizer9 );
 	m_panelRoutes->Layout();
 	bSizer9->Fit( m_panelRoutes );
-	m_notebook1->AddPage( m_panelRoutes, _("         Routes       "), true );
+	m_notebook1->AddPage( m_panelRoutes, _("         Routes       "), false );
 	m_panelExtensions = new wxPanel( m_notebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	m_panelExtensions->SetBackgroundColour( wxColour( 139, 197, 197 ) );
 
@@ -181,20 +181,47 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	fgSizer2->SetFlexibleDirection( wxBOTH );
 	fgSizer2->SetNonFlexibleGrowMode( wxFLEX_GROWMODE_SPECIFIED );
 
-	m_buttonAttach = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Index"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText4 = new wxStaticText( sbSizer4->GetStaticBox(), wxID_ANY, _("Index"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText4->Wrap( -1 );
+	fgSizer2->Add( m_staticText4, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+
+	m_staticText41 = new wxStaticText( sbSizer4->GetStaticBox(), wxID_ANY, _("Range"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText41->Wrap( -1 );
+	fgSizer2->Add( m_staticText41, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+
+	m_staticText411 = new wxStaticText( sbSizer4->GetStaticBox(), wxID_ANY, _("Direction"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText411->Wrap( -1 );
+	fgSizer2->Add( m_staticText411, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5 );
+
+	m_buttonAttach = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("New"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_buttonAttach->SetFont( wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
 
 	fgSizer2->Add( m_buttonAttach, 0, wxALL, 5 );
 
-	m_buttonAttach1 = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Range"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonAttach1 = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("New"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_buttonAttach1->SetFont( wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
 
 	fgSizer2->Add( m_buttonAttach1, 0, wxALL, 5 );
 
-	m_buttonAttach2 = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Direction"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonAttach2 = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("New"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_buttonAttach2->SetFont( wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
 
 	fgSizer2->Add( m_buttonAttach2, 0, wxALL, 5 );
+
+	m_buttonAttach21 = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Del"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonAttach21->SetFont( wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
+
+	fgSizer2->Add( m_buttonAttach21, 0, wxALL, 5 );
+
+	m_buttonAttach22 = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Del"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonAttach22->SetFont( wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
+
+	fgSizer2->Add( m_buttonAttach22, 0, wxALL, 5 );
+
+	m_buttonAttach23 = new wxButton( sbSizer4->GetStaticBox(), wxID_ANY, _("Del"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonAttach23->SetFont( wxFont( 14, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Arial") ) );
+
+	fgSizer2->Add( m_buttonAttach23, 0, wxALL, 5 );
 
 	m_staticline231 = new wxStaticLine( sbSizer4->GetStaticBox(), wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	fgSizer2->Add( m_staticline231, 0, wxEXPAND | wxALL, 5 );
@@ -250,7 +277,7 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	m_panelExtensions->SetSizer( bSizer71 );
 	m_panelExtensions->Layout();
 	bSizer71->Fit( m_panelExtensions );
-	m_notebook1->AddPage( m_panelExtensions, _("     Extensions     "), false );
+	m_notebook1->AddPage( m_panelExtensions, _("     Extensions     "), true );
 
 	bSizer3->Add( m_notebook1, 0, wxEXPAND | wxALL, 5 );
 
@@ -320,6 +347,9 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	m_buttonAttach->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnIndex ), NULL, this );
 	m_buttonAttach1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnRange ), NULL, this );
 	m_buttonAttach2->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnDirection ), NULL, this );
+	m_buttonAttach21->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnIndexDelete ), NULL, this );
+	m_buttonAttach22->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnRangeDelete ), NULL, this );
+	m_buttonAttach23->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnDirectionDelete ), NULL, this );
 	m_buttonSave->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveExtensions ), NULL, this );
 	m_mHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnInformation ), this, m_mInformation->GetId());
 	m_mHelp->Bind(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler( finSAR_editUIDialogBase::OnAbout ), this, m_mAbout->GetId());
@@ -346,6 +376,9 @@ finSAR_editUIDialogBase::~finSAR_editUIDialogBase()
 	m_buttonAttach->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnIndex ), NULL, this );
 	m_buttonAttach1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnRange ), NULL, this );
 	m_buttonAttach2->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnDirection ), NULL, this );
+	m_buttonAttach21->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnIndexDelete ), NULL, this );
+	m_buttonAttach22->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnRangeDelete ), NULL, this );
+	m_buttonAttach23->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnDirectionDelete ), NULL, this );
 	m_buttonSave->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveExtensions ), NULL, this );
 
 }

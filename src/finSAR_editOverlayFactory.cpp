@@ -262,6 +262,24 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
 }
 
 void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
+  if (BBox->chart_scale > 1000000) {
+    return;
+  }
+
+  // Set up the scaler
+  double mmx = PlugInGetDisplaySizeMM();
+
+  int sx, sy;
+  wxDisplaySize(&sx, &sy);
+
+  double m_pix_per_mm = ((double)sx) / (mmx);
+
+  // int mm_per_knot = 10;
+  // float draw_scaler = mm_per_knot * m_pix_per_mm;
+
+  double scale = 1;
+  // m_pix_per_mm;
+
   double dlat, dlon, direction_brg, rot_angle;
 
   for (std::vector<DirectionTarget>::iterator it = m_dlg.d_vector.begin();
@@ -275,7 +293,7 @@ void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
     wxPoint dl;
     GetCanvasPixLL(BBox, &dl, dlat, dlon);
 
-    wxImage image = DrawDirectionArrows(0, 0, 1);
+    wxImage image = DrawDirectionArrows(0, 0, scale);
     wxCoord w = image.GetWidth();
     wxCoord h = image.GetHeight();
 
@@ -1413,18 +1431,31 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x,
   wxMemoryDC mdc(wxNullBitmap);
 
   wxString direction_brg = wxString::Format("%3.0f", value);
-  
- 
+
   if (value < 10) {
-    wxString one = direction_brg.Mid(0);
-    one.Prepend("00");
-    wxMessageBox(one);
-  }
-  else if (value > 9 && value < 100)
-      direction_brg.Prepend("0");  
+    direction_brg.Prepend("00");
+  } else if (value > 9 && value < 100)
+    direction_brg.Prepend("0");
 
- direction_brg.Trim();
+  direction_brg.Trim();
 
+  double rev = value + 180.0;
+  double reverse_direction = 0.0;
+  if (rev > 360)
+    reverse_direction = rev - 360;
+  else
+    reverse_direction = rev;
+
+  wxString reverse_direction_brg = wxString::Format("%3.0f", reverse_direction);
+
+  if (reverse_direction < 10) {
+    reverse_direction_brg.Prepend("00");
+  } else if (reverse_direction > 9 && reverse_direction < 100)
+    reverse_direction_brg.Prepend("0");
+
+  reverse_direction_brg.Trim();
+
+  // wxMessageBox(direction_brg);
 
   wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
   mdc.SetFont(font);
@@ -1451,7 +1482,16 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x,
 
   mdc.SetTextForeground(text_color);
   mdc.SetTextBackground(*wxWHITE);
-  wxPoint green_direction(50, 95);
+
+  int gx, gy;
+  if (value > 180) {
+    gx = 50, gy = 52;
+  } else {
+    gx = 50, gy = 95;
+  }
+
+  wxPoint green_direction(gx, gy);
+
   mdc.DrawText(direction_brg, green_direction);
 
   // End of green arrow
@@ -1464,11 +1504,19 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x,
   mdc.SetBackground(*wxTRANSPARENT_BRUSH);
   mdc.SetBrush(red_color);
 
-  wxPoint red_direction(50, 52);
+   int rx, ry;
+  if (value > 180) {
+    rx = 50, ry = 95;
+  } else {
+    rx = 50, ry = 52;
+  }
+
+
+  wxPoint red_direction(rx, ry);
 
   // Write red direction
 
-  mdc.DrawText(direction_brg, red_direction);
+  mdc.DrawText(reverse_direction_brg, red_direction);
 
   wxImage label_image = bm.ConvertToImage();
   wxImage label;

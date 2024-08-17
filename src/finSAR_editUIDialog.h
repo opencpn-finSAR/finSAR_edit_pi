@@ -455,6 +455,7 @@ private:
   void OnIndex(wxCommandEvent& event);
   void SaveIndexRangeDirection(wxString route_name, wxString date_stamp);
   void GetIndex(Position* A, Position* B);
+  void OnIndexDelete(wxCommandEvent& event);
   void OnRange(wxCommandEvent& event);
   void GetRange(Position* A, Position* B);
   void OnDirection(wxCommandEvent& event);
