@@ -274,11 +274,11 @@ void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
 
   double m_pix_per_mm = ((double)sx) / (mmx);
 
-  // int mm_per_knot = 10;
-  // float draw_scaler = mm_per_knot * m_pix_per_mm;
+  float draw_scaler = m_pix_per_mm;
 
-  double scale = 1;
-  // m_pix_per_mm;
+  double scale = draw_scaler / 3.5;
+
+  // End setting up scaler
 
   double dlat, dlon, direction_brg, rot_angle;
 

@@ -458,12 +458,10 @@ private:
   void OnIndexDelete(wxCommandEvent& event);
   void OnRange(wxCommandEvent& event);
   void GetRange(Position* A, Position* B);
+  void OnRangeDelete(wxCommandEvent& event);
   void OnDirection(wxCommandEvent& event);
   void GetDirection(Position* A, Position* B);
-  void OnIndexLabel(wxCommandEvent& event);
-  void OnIndexLabelSet(wxCommandEvent& event);
-
- 
+  void OnDirectionDelete(wxCommandEvent& event);
 };
 
 class GetRouteDialog : public wxDialog {

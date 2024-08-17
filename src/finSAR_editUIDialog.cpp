@@ -1316,6 +1316,49 @@ void finSAR_editUIDialog::GetRange(Position* A, Position* B) {
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
 
+void finSAR_editUIDialog::OnRangeDelete(wxCommandEvent& event) {
+  double label_distance = 1000;
+  double minDist = 500.0;
+  int index_num = 0;
+  int it_num = 0;
+  bool foundIndex = false;
+  double label_lat;
+  double label_lon;
+  double it_lat, it_lon;
+
+  if (r_vector.size() == 0) {
+    wxMessageBox("No RTZ file has been read");
+  }
+
+  // while (!foundWP) {
+  for (vector<RangeTarget>::iterator it = r_vector.begin();
+       it != r_vector.end(); it++) {
+    label_lat = (*it).label_lat;
+    label_lon = (*it).label_lon;
+
+    double brg;
+    DistanceBearingMercator_Plugin(centreLat, centreLon, label_lat, label_lon,
+                                   &brg, &label_distance);
+
+    if (label_distance < minDist) {
+      minDist = label_distance;
+      it_lat = label_lat;
+      it_lon = label_lon;
+      it_num = index_num;
+    }
+    index_num++;
+  }
+
+  r_vector.erase(r_vector.begin() + it_num);
+
+  wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
+  wxString extensions_file = mySelectedRoute + ".xml";
+  SaveIndexRangeDirection(mySelectedRoute, date_stamp);
+
+  RequestRefresh(pParent);
+}
+
+
 void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
@@ -1361,6 +1404,49 @@ void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
   wxString extensions_file = mySelectedRoute + ".xml";
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
+
+void finSAR_editUIDialog::OnDirectionDelete(wxCommandEvent& event) {
+  double label_distance = 1000;
+  double minDist = 500.0;
+  int index_num = 0;
+  int it_num = 0;
+  bool foundIndex = false;
+  double label_lat;
+  double label_lon;
+  double it_lat, it_lon;
+
+  if (d_vector.size() == 0) {
+    wxMessageBox("No RTZ file has been read");
+  }
+
+  // while (!foundWP) {
+  for (vector<DirectionTarget>::iterator it = d_vector.begin();
+       it != d_vector.end(); it++) {
+    label_lat = (*it).m_lat;
+    label_lon = (*it).m_lon;
+
+    double brg;
+    DistanceBearingMercator_Plugin(centreLat, centreLon, label_lat, label_lon,
+                                   &brg, &label_distance);
+
+    if (label_distance < minDist) {
+      minDist = label_distance;
+      it_lat = label_lat;
+      it_lon = label_lon;
+      it_num = index_num;
+    }
+    index_num++;
+  }
+
+  d_vector.erase(d_vector.begin() + it_num);
+
+  wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
+  wxString extensions_file = mySelectedRoute + ".xml";
+  SaveIndexRangeDirection(mySelectedRoute, date_stamp);
+
+  RequestRefresh(pParent);
+}
+
 
 void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
