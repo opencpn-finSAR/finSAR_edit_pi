@@ -145,7 +145,7 @@ int finSAR_edit_pi::Init(void) {
         "submitted INTEGER)";
     dbQuery(sql);
 
-    Add_RTZ_db("dummy");
+    Add_RTZ_db("-----");
 
       sql =
           "CREATE TABLE EXT ("
@@ -159,7 +159,7 @@ int finSAR_edit_pi::Init(void) {
       wxDateTime date_stamp = wxDateTime::Now();
       date_stamp.MakeUTC(false);
       wxString dateLabel = date_stamp.Format(_T("%Y-%m-%d %H:%M:%S"));      
-      Add_EXT_db("dummy.xml", "dummy", dateLabel);
+      Add_EXT_db("-----.xml", "-----", dateLabel);
     
 
   }
@@ -189,7 +189,7 @@ int finSAR_edit_pi::Init(void) {
 #endif
 
   return (WANTS_OVERLAY_CALLBACK | WANTS_OPENGL_OVERLAY_CALLBACK |
-          WANTS_NMEA_SENTENCES | WANTS_TOOLBAR_CALLBACK | WANTS_CURSOR_LATLON |
+          WANTS_TOOLBAR_CALLBACK | WANTS_CURSOR_LATLON |
           INSTALLS_TOOLBAR_TOOL | WANTS_CONFIG | WANTS_ONPAINT_VIEWPORT |
           WANTS_PLUGIN_MESSAGING);
 }
@@ -476,21 +476,7 @@ void finSAR_edit_pi::dbFreeResults(char **results) {
 
 void finSAR_edit_pi::FillRouteNamesDropdown() {
   m_pfinSAR_editDialog->m_choiceRoutes->Clear();
-
   m_pfinSAR_editDialog->m_choiceRoutes->Append(GetRouteList());
-  /*
-  for (int i = 0; i < GetSurveyList().Count(); i++) {
-    if (GetSurveyList()[i] == m_activesurveyname) {
-      m_pSurveyDialog->m_chSurvey->SetSelection(i);
-      int st = GetSurveyId(m_pSurveyDialog->m_chSurvey->GetString(0));
-      SetActiveSurveyId(st);
-    } else {
-      m_pSurveyDialog->m_chSurvey->SetSelection(0);
-      int s = GetSurveyId(m_pSurveyDialog->m_chSurvey->GetString(0));
-      SetActiveSurveyId(s);
-    }
-  }
-  */
   m_pfinSAR_editDialog->m_choiceRoutes->SetSelection(0);  // So something shows
 }
 
@@ -581,14 +567,6 @@ bool finSAR_edit_pi::RenderGLOverlay(wxGLContext *pcontext,
   m_pfinSAR_editOverlayFactory->RenderOverlay(piDC, *vp);
   return true;
 }
-/*
-void finSAR_edit_pi::SetCursorLatLon(double lat, double lon) {
-  if (m_pfinSAR_editDialog) m_pfinSAR_editDialog->SetCursorLatLon(lat, lon);
-
-  m_cursor_lat = lat;
-  m_cursor_lon = lon;
-}
-*/
 
 void finSAR_edit_pi::SetPositionFix(PlugIn_Position_Fix &pfix) {
   m_ship_lon = pfix.Lon;
@@ -656,33 +634,6 @@ void finSAR_edit_pi::OnContextMenuItemCallback(int id) {
 void finSAR_edit_pi::SetCursorLatLon(double lat, double lon) {
   m_cursor_lat = lat;
   m_cursor_lon = lon;
-}
-
-/*
-bool finSAR_edit_pi::MouseEventHook(wxMouseEvent &event) {
- // if (!m_pfinSAR_editDialog) return false;
-
-   if (event.LeftDown()) {
-     //wxMessageBox("here");
-     if (m_pfinSAR_editDialog) {
-       m_cursor_lat = GetCursorLat();
-       m_cursor_lon = GetCursorLon();
-       wxString lat = wxString::Format("%f", m_cursor_lat);
-       wxString lon = wxString::Format("%f", m_cursor_lon);
-
-       m_pfinSAR_editDialog->m_Lat1->SetValue(lat);
-       m_pfinSAR_editDialog->m_Lon1->SetValue(lon);
-     }
-
-   }
-
- return true;
-}
-*/
-void finSAR_edit_pi::SetNMEASentence(wxString &sentence) {
-  if (NULL != m_pfinSAR_editDialog) {
-    m_pfinSAR_editDialog->SetNMEAMessage(sentence);
-  }
 }
 
 void finSAR_edit_pi::SetPluginMessage(wxString &message_id,

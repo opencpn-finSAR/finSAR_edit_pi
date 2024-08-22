@@ -60,14 +60,7 @@ SET(SRC
         src/icons.cpp
         src/NavFunc.cpp
         src/NavFunc.h
-        src/routeprop.cpp
-        src/routeprop.h
-        src/tableroutes.cpp
-        src/tableroutes.h
-        src/logger.cpp
-        src/logger.h
         src/pugixml.hpp
-
     )
 
 set(PKG_API_LIB api-18)  #  A directory in libs/ e. g., api-17 or api-16

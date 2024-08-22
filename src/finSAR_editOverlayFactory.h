@@ -53,32 +53,6 @@ static wxPoint ReverseArrowArray[NUM_REVERSE_ARROW_POINTS] = {
 
 
 //----------------------------------------------------------------------------------------------------------
-//    finSAR_edit Overlay Specification
-//----------------------------------------------------------------------------------------------------------
-
-class finSAR_editOverlay {
-public:
-  finSAR_editOverlay(void) {
-    m_iTexture = 0;
-    m_pDCBitmap = NULL, m_pRGBA = NULL;
-  }
-
-  ~finSAR_editOverlay(void) {
-    if (m_iTexture)
-      // glDeleteTextures( 1, &m_iTexture );
-      delete m_pDCBitmap, delete[] m_pRGBA;
-  }
-
-  unsigned int m_iTexture; /* opengl mode */
-
-  wxBitmap *m_pDCBitmap; /* dc mode */
-  unsigned char *m_pRGBA;
-
-  int m_width;
-  int m_height;
-};
-
-//----------------------------------------------------------------------------------------------------------
 //    finSAR_edit Overlay Factory Specification
 //----------------------------------------------------------------------------------------------------------
 
@@ -103,26 +77,6 @@ public:
   void setData(double lat1, double lon1);
   bool RenderOverlay(piDC &dc, PlugIn_ViewPort &vp);
   void Reset();
-  wxImage &DrawGLText(double value, int precision);
-  wxImage &DrawGLTextDir(double value, int precision);
-  wxImage &DrawGLTextString(wxString myText);
-  wxImage &DrawGLPolygon();
-
-  void finSAR_editOverlayFactory::DrawGLLabels(finSAR_editOverlayFactory *pof,
-                                               piDC *dc, PlugIn_ViewPort *vp,
-                                               wxBitmap &imageLabel,
-                                               double myLat, double myLon,
-                                               int offset);
-
-  void drawGLPolygons(finSAR_editOverlayFactory *pof, wxDC *dc,
-                      PlugIn_ViewPort *vp, wxImage &imageLabel, double myLat,
-                      double myLon, int offset);
-
-  void DrawOLBitmap(const wxBitmap &bitmap, wxCoord x, wxCoord y, bool usemask);
-  PlugIn_ViewPort *vp;
-  bool m_bShowRate;
-  bool m_bShowDirection;
-  bool m_bShowFillColour;
   wxDateTime m_dtUseNew;
 
   piDC *m_dc;
@@ -140,24 +94,16 @@ private:
   void DrawAllLinesInViewPort(PlugIn_ViewPort *BBox);
   wxBitmap m_bmp;
   wxImage &DrawLabel(double value, int precision);
-  wxImage &DrawGLRotateDisk(double value, int precision);
-  void DrawRotatedLabel(PlugIn_ViewPort *BBox);
   void DrawWptDisk(PlugIn_ViewPort *BBox);
-  void DrawBearingLineInViewPort(PlugIn_ViewPort *BBox);
   void DrawIndexTargets(PlugIn_ViewPort *BBox);
   void DrawRangeTargets(PlugIn_ViewPort *BBox);
-  void DrawDirectionTargets(PlugIn_ViewPort *BBox);
- // void DrawAllDirectionsInViewPort(PlugIn_ViewPort *BBox);
 
+  void DrawDirectionTargets(PlugIn_ViewPort *BBox);
   wxImage DrawDirectionArrows(int x, int y, double scale);
   wxImage DrawDirectionLabels(double value, int x, int y, double scale, bool reverse);
 
   wxPoint p[12];
   wxPoint r[12];
-
-  void DrawGLLine(double x1, double y1, double x2, double y2, double width,
-                  wxColour myColour);
-  void DrawMessageWindow(wxString msg, int x, int y, wxFont *mfont);
 
   double m_last_vp_scale;
 

@@ -69,7 +69,7 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	bSizer9->Add( bSizer1011, 0, wxEXPAND, 5 );
 
 	m_button11 = new wxButton( m_panelRoutes, wxID_ANY, _("New"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_button11->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_ACTIVECAPTION ) );
+	m_button11->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_INACTIVECAPTION ) );
 
 	bSizer9->Add( m_button11, 0, wxALL|wxEXPAND, 5 );
 
@@ -82,6 +82,11 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	m_button1121->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_INACTIVECAPTION ) );
 
 	bSizer9->Add( m_button1121, 0, wxALL|wxEXPAND, 5 );
+
+	m_button11211 = new wxButton( m_panelRoutes, wxID_ANY, _("Export"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_button11211->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_INACTIVECAPTION ) );
+
+	bSizer9->Add( m_button11211, 0, wxALIGN_CENTER_HORIZONTAL|wxALL|wxEXPAND, 5 );
 
 	wxStaticBoxSizer* sbSizer2;
 	sbSizer2 = new wxStaticBoxSizer( new wxStaticBox( m_panelRoutes, wxID_ANY, _("Route Selection") ), wxVERTICAL );
@@ -129,7 +134,7 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	m_panelRoutes->SetSizer( bSizer9 );
 	m_panelRoutes->Layout();
 	bSizer9->Fit( m_panelRoutes );
-	m_notebook1->AddPage( m_panelRoutes, _("         Routes       "), false );
+	m_notebook1->AddPage( m_panelRoutes, _("         Routes       "), true );
 	m_panelExtensions = new wxPanel( m_notebook1, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	m_panelExtensions->SetBackgroundColour( wxColour( 139, 197, 197 ) );
 
@@ -277,7 +282,7 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	m_panelExtensions->SetSizer( bSizer71 );
 	m_panelExtensions->Layout();
 	bSizer71->Fit( m_panelExtensions );
-	m_notebook1->AddPage( m_panelExtensions, _("     Extensions     "), true );
+	m_notebook1->AddPage( m_panelExtensions, _("     Extensions     "), false );
 
 	bSizer3->Add( m_notebook1, 0, wxEXPAND | wxALL, 5 );
 
@@ -341,6 +346,7 @@ finSAR_editUIDialogBase::finSAR_editUIDialogBase( wxWindow* parent, wxWindowID i
 	m_button11->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnNewRoute ), NULL, this );
 	m_button112->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveRoute ), NULL, this );
 	m_button1121->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnImportRoute ), NULL, this );
+	m_button11211->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnExportRoute ), NULL, this );
 	m_bLoadRoute->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadRoute ), NULL, this );
 	m_bDeleteRoute->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnDeleteRoute ), NULL, this );
 	m_panelExtensions->Connect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ), NULL, this );
@@ -370,6 +376,7 @@ finSAR_editUIDialogBase::~finSAR_editUIDialogBase()
 	m_button11->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnNewRoute ), NULL, this );
 	m_button112->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnSaveRoute ), NULL, this );
 	m_button1121->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnImportRoute ), NULL, this );
+	m_button11211->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnExportRoute ), NULL, this );
 	m_bLoadRoute->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnLoadRoute ), NULL, this );
 	m_bDeleteRoute->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( finSAR_editUIDialogBase::OnDeleteRoute ), NULL, this );
 	m_panelExtensions->Disconnect( wxEVT_KEY_DOWN, wxKeyEventHandler( finSAR_editUIDialogBase::key_shortcut ), NULL, this );

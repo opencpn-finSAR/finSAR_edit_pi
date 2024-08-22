@@ -122,7 +122,7 @@ public:
   wxString StandardPathEXT();
 
   finSAR_editUIDialog *m_pfinSAR_editDialog;
-  void SetNMEASentence(wxString &sentence);
+
   wxString wp_Btw;
 
   	// ******** Database stuff ******************************************
