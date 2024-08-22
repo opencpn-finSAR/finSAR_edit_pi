@@ -151,7 +151,6 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
   return true;
 }
 
-
 void finSAR_editOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("YELLOW");
   wxBrush brush(colour);
@@ -183,8 +182,11 @@ void finSAR_editOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
 
 void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
   wxColour colour1 = wxColour("BLACK");
+  wxColour colour2 = wxColour("WHITE");
 
   wxPen pen1(colour1, 2);
+  wxPen pen2(colour2, 2);
+
   pen1.SetStyle(wxPENSTYLE_SHORT_DASH);
 
   // c_GLcolour = colour;  // for filling GL arrows
@@ -208,6 +210,17 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
     wxPoint il;
     GetCanvasPixLL(BBox, &il, dlat, dlon);
     double dist = (*it).distance;
+    wxString dist_text = wxString::Format("%3.0f", dist * 100);
+
+    if (dist < 0.10) {
+      std::string s = dist_text;
+      string r = s.substr(2, 1);
+      unsigned int number_of_zeros = 2 - r.length();  // add 1 zero
+
+      r.insert(0, number_of_zeros, '0');
+      dist_text = r;
+    }
+    dist_text = " " + dist_text;
 
     wxImage image = DrawLabel(dist, 1);
     wxCoord w = image.GetWidth();
@@ -215,21 +228,27 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
 
     wxBitmap bm(image);
     m_dc->DrawBitmap(bm, il.x - w / 4, il.y - h / 4, true);
+
+    wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+    m_dc->SetFont(font);
+    m_dc->SetTextForeground("WHITE");
+    m_dc->SetPen(pen2);
+    m_dc->DrawText(dist_text, il.x - w / 4, il.y - h / 4 + 6);
   }
 }
 
 void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
   wxColour colour1 = wxColour("BLACK");
+  wxColour colour2 = wxColour("WHITE");
 
   wxPen pen1(colour1, 2);
+  wxPen pen2(colour2, 2);
+
   pen1.SetStyle(wxPENSTYLE_SHORT_DASH);
 
   // c_GLcolour = colour;  // for filling GL arrows
   if (m_dc) {
     m_dc->SetPen(pen1);
-
-    // brush.SetStyle(wxBRUSHSTYLE_SOLID);
-    // m_dc->SetBrush(brush);
   }
 
   for (std::vector<RangeTarget>::iterator it = m_dlg.r_vector.begin();
@@ -248,6 +267,17 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
     wxPoint il;
     GetCanvasPixLL(BBox, &il, dlat, dlon);
     double dist = (*it).distance;
+    wxString dist_text = wxString::Format("%3.0f", dist * 100);
+
+    if (dist < 0.10) {
+      std::string s = dist_text;
+      string r = s.substr(2, 1);
+      unsigned int number_of_zeros = 2 - r.length();  // add 1 zero
+
+      r.insert(0, number_of_zeros, '0');
+      dist_text = r;
+    }
+    dist_text = " " + dist_text;
 
     wxImage image = DrawLabel(dist, 1);
     wxCoord w = image.GetWidth();
@@ -255,6 +285,12 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
 
     wxBitmap bm(image);
     m_dc->DrawBitmap(bm, il.x - w / 4, il.y - h / 4, true);
+
+    wxFont font(12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+    m_dc->SetFont(font);
+    m_dc->SetTextForeground("WHITE");
+    m_dc->SetPen(pen2);
+    m_dc->DrawText(dist_text, il.x - w / 4, il.y - h / 4 + 6);
   }
 }
 
@@ -387,6 +423,10 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
 
   labels = wxString::Format("%3.0f", value);
   labels = " " + labels + " ";
+
+  if (value < 0.01) {
+    labels = " " + labels;
+  }
   // labels.Printf("%.*f", p, value);
 
   wxMemoryDC mdc(wxNullBitmap);
@@ -412,13 +452,17 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
 
   mdc.DrawCircle(w / 2, w / 2, r);
 
-  mdc.SetTextForeground(text_color);
-  mdc.SetPen(text_color);
+  //
+  // Now drawing in DrawIndexTargets to avoid transparency of text
+  //
+
+  // mdc.SetTextForeground(text_color);
+  // mdc.SetPen(text_color);
 
   int xd = 0;
   int yd = w / 2;
 
-  mdc.DrawText(labels, xd, yd - 12);
+  // mdc.DrawText(labels, xd, yd - 12);
   mdc.SelectObject(wxNullBitmap);
 
   m_labelCache[value] = bm.ConvertToImage();
@@ -643,11 +687,21 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x,
   wxString direction_brg = wxString::Format("%3.0f", value);
 
   if (value < 10) {
-    direction_brg.Prepend("00");
-  } else if (value > 9 && value < 100)
-    direction_brg.Prepend("0");
+    std::string s = direction_brg;
+    string r = s.substr(2, 1);
+    unsigned int number_of_zeros = 3 - r.length();  // add 2 zero
 
-  direction_brg.Trim();
+    r.insert(0, number_of_zeros, '0');
+    direction_brg = r;
+
+  } else if (value > 9 && value < 100) {
+    std::string s = direction_brg;
+    string r = s.substr(1, 2);
+    unsigned int number_of_zeros = 3 - r.length();  // add 1 zero
+
+    r.insert(0, number_of_zeros, '0');
+    direction_brg = r;
+  }
 
   double rev = value + 180.0;
   double reverse_direction = 0.0;
@@ -659,11 +713,21 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x,
   wxString reverse_direction_brg = wxString::Format("%3.0f", reverse_direction);
 
   if (reverse_direction < 10) {
-    reverse_direction_brg.Prepend("00");
-  } else if (reverse_direction > 9 && reverse_direction < 100)
-    reverse_direction_brg.Prepend("0");
+    std::string s = reverse_direction_brg;
+    string r = s.substr(2, 1);
+    unsigned int number_of_zeros = 3 - r.length();  // add 2 zero
 
-  reverse_direction_brg.Trim();
+    r.insert(0, number_of_zeros, '0');
+    reverse_direction_brg = r;
+
+  } else if (reverse_direction > 9 && reverse_direction < 100) {
+    std::string s = reverse_direction_brg;
+    string r = s.substr(1, 2);
+    unsigned int number_of_zeros = 3 - r.length();  // add 1 zero
+
+    r.insert(0, number_of_zeros, '0');
+    reverse_direction_brg = r;
+  }
 
   // wxMessageBox(direction_brg);
 
@@ -714,13 +778,12 @@ wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x,
   mdc.SetBackground(*wxTRANSPARENT_BRUSH);
   mdc.SetBrush(red_color);
 
-   int rx, ry;
+  int rx, ry;
   if (value > 180) {
     rx = 50, ry = 95;
   } else {
     rx = 50, ry = 52;
   }
-
 
   wxPoint red_direction(rx, ry);
 

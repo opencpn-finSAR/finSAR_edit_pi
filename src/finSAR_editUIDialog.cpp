@@ -109,7 +109,7 @@ GetRouteDialog::GetRouteDialog(wxWindow* parent, wxWindowID id,
 GetRouteDialog::~GetRouteDialog() {}
 
 finSAR_editUIDialog::finSAR_editUIDialog(wxWindow* parent, finSAR_edit_pi* ppi)
-    : finSAR_editUIDialogBase(parent){
+    : finSAR_editUIDialogBase(parent) {
   pParent = parent;
   pPlugIn = ppi;
   m_bBearingLine = false;
@@ -155,14 +155,8 @@ finSAR_editUIDialog::~finSAR_editUIDialog() {
   i_vector.clear();
   r_vector.clear();
   d_vector.clear();
-  // SaveXML(m_default_configuration_path);
 }
-/*
-void finSAR_editUIDialog::SetCursorLatLon(double lat, double lon) {
-  m_cursor_lon = lon;
-  m_cursor_lat = lat;
-}
-*/
+
 void finSAR_editUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
   if (m_vp == vp) return;
 
@@ -170,7 +164,6 @@ void finSAR_editUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
   m_bMoveUpDownLeftRight = false;
   centreLat = m_vp->clat;
   centreLon = m_vp->clon;
-  // RequestRefresh(pParent);
 }
 
 void finSAR_editUIDialog::OnClose(wxCloseEvent& event) {
@@ -230,16 +223,6 @@ void finSAR_editUIDialog::SaveIndexRangeDirection(wxString route_name,
 
   // Create XML root node called extensions
   xml_node pRoot = xmlDoc.append_child("extensions");
-
-  // ************* Add routeInfo to root node *******
-
-  // xml_node routeInfo = pRoot.append_child("routeInfo");
-  // routeInfo.append_attribute("routeName").set_value(route_name.mb_str());
-
-  // Insert cat's name as first child of animal
-
-  // ************* Add waypoints *******
-  // xml_node targetpoints = pRoot.append_child("target_points");
 
   int idn = 0;
   wxString route;
@@ -457,7 +440,6 @@ void finSAR_editUIDialog::AddTestItems(wxCommandEvent& event) {
   }
   wxString testca = wxString::Format("%i", ca);
   wxString testcf = wxString::Format("%i", cf);
-
 }
 
 int finSAR_editUIDialog::GetScale(double myChartScale) {
@@ -598,28 +580,6 @@ void finSAR_editUIDialog::key_shortcut(wxKeyEvent& event) {
   }
   event.Skip();
 }
-
-/*
-void finSAR_editUIDialog::SetBearingWaypoint() {
- // wxMessageBox("here");
-  centreLat = m_vp->clat;
-  centreLon = m_vp->clon;
-
-  PlugIn_Waypoint_Ex* wayPoint = new PlugIn_Waypoint_Ex;
-  wayPoint->m_MarkName = "bearing";
-  wayPoint->m_GUID = "bearing";
-  wayPoint->m_lat = centreLat;
-  wayPoint->m_lon = centreLon;
-  wayPoint->IsVisible = true;
-  wayPoint->IsNameVisible = false;
-  wayPoint->IconName = "circle";
-  AddSingleWaypointEx(wayPoint);
-
-  RequestRefresh(pParent);
-
-  //this->m_Lat1->SetValue(wxString::Format("%f", centreLat));
-  //this->m_Lon1->SetValue(wxString::Format("%f", centreLon));
-}*/
 
 void finSAR_editUIDialog::MakeBoxPoints() {
   myZoom = GetScale(m_vp->chart_scale);
@@ -943,9 +903,6 @@ void finSAR_editUIDialog::OnImportRoute(wxCommandEvent& event) {
     my_positions.push_back(my_position);
   }
 
-  // int count = my_positions.size();
-  // wxString mycount = wxString::Format("%i", count);
-
   ChartTheRoute(route_name);
 
   wxMessageBox("Press \"Save\" to complete the import");
@@ -1018,8 +975,7 @@ void finSAR_editUIDialog::ExportRoute(wxString route) {
   // Write xmlDoc into a file
 
   wxFileDialog dlg(this, _("Save in RTZ format"), wxEmptyString, route_name,
-                   " RTZ files(*.rtz) | *.rtz",
-                   wxFD_SAVE);
+                   " RTZ files(*.rtz) | *.rtz", wxFD_SAVE);
 
   if (dlg.ShowModal() == wxID_CANCEL) {
     return;
@@ -1100,13 +1056,9 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
     position.append_attribute("lat").set_value(sLat);
     position.append_attribute("lon").set_value(sLon);
   }
-  // done adding waypoints
-  // Write xmlDoc into a file
 
   wxString file_name = route_name + ".rtz";
   wxString file_path = pPlugIn->StandardPathRTZ() + file_name;
-
-  // wxMessageBox(file_path);
 
   // Route name must be the same as the file name, without file extension
 
@@ -1277,15 +1229,11 @@ void finSAR_editUIDialog::DeleteEXTFile(wxString route_name) {
   }
 }
 
-void finSAR_editUIDialog::OnLoadExtensions(wxCommandEvent& event) {}
-
 void finSAR_editUIDialog::OnIndex(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
   }
-  // wxMessageBox(active_waypoint->wpName);
-  // wxMessageBox(prev_waypoint->wpName);
   GetIndex(active_waypoint, prev_waypoint);
   RequestRefresh(pParent);
 }
@@ -1408,8 +1356,6 @@ void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
   }
-  // wxMessageBox(active_waypoint->wpName);
-  // wxMessageBox(prev_waypoint->wpName);
   Position* range_object = new Position;
   range_object->lat = wxString::Format("%f", centreLat);
   range_object->lon = wxString::Format("%f", centreLon);
@@ -1472,7 +1418,6 @@ void finSAR_editUIDialog::OnRangeDelete(wxCommandEvent& event) {
     wxMessageBox("No RTZ file has been read");
   }
 
-  // while (!foundWP) {
   for (vector<RangeTarget>::iterator it = r_vector.begin();
        it != r_vector.end(); it++) {
     label_lat = (*it).label_lat;
@@ -1505,8 +1450,6 @@ void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
   }
-  // wxMessageBox(active_waypoint->wpName);
-  // wxMessageBox(prev_waypoint->wpName);
   if (!m_bDrawDirectionArrow) {
     wxMessageBox(
         "No previous waypoint\nPlease activate the waypoint for the leg");
@@ -1530,9 +1473,6 @@ void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
 
   // Bearing A -> B
   DistanceBearingMercator_Plugin(lat1, lon1, lat2, lon2, &brg, &dist);
-
-  // wxString sbrg = wxString::Format("%f", brg);
-  // wxMessageBox(sbrg);
 
   d_target = new DirectionTarget;
   d_target->m_lat = centreLat;
@@ -1560,7 +1500,6 @@ void finSAR_editUIDialog::OnDirectionDelete(wxCommandEvent& event) {
     wxMessageBox("No RTZ file has been read");
   }
 
-  // while (!foundWP) {
   for (vector<DirectionTarget>::iterator it = d_vector.begin();
        it != d_vector.end(); it++) {
     label_lat = (*it).m_lat;
@@ -1596,8 +1535,6 @@ void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   pPlugIn->Add_EXT_db(extensions_file, mySelectedRoute, date_stamp);
   m_bDrawWptDisk = false;
   m_bDrawDirectionArrow = false;
-  // incorrect file name
-  // ReadRTZ(mySelectedRoute + ".rtz");
 }
 
 void finSAR_editUIDialog::ReadRTZ(wxString file_name) {
@@ -1684,8 +1621,6 @@ void finSAR_editUIDialog::ReadRTZ(wxString file_name) {
 
   int count = my_positions.size();
   wxString mycount = wxString::Format("%i", count);
-  // wxMessageBox(mycount);
-  // SetRTZversion(rtz_version);
 }
 
 void finSAR_editUIDialog::ReadEXT(wxString file_name) {
@@ -1699,22 +1634,7 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   pugi::xml_document xmlDoc;
   pugi::xml_parse_result result =
       xmlDoc.load_file(file_name.mb_str(), parse_default | parse_declaration);
-  /*
-  pugi::xml_node pRoot = xmlDoc.child("targets");
-  if (pRoot == nullptr) return;
-
-  wxString error;
-  wxProgressDialog* progressdialog = NULL;
-
-  xml_node pDateElement = pRoot.child("parent_date_stamp");
-
-  if (pDateElement == nullptr) return;
-
-  string date_stamp = pDateElement.attribute("date_stamp").value();
-  i_target->date_stamp = date_stamp;
-*/
   bool exists = false;
-  // wxMessageBox(date_stamp);
 
   pugi::xml_node root = xmlDoc.child("extensions");
   pugi::xml_node route = root.child("route");
@@ -1727,7 +1647,6 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
 
   for (pugi::xml_node indexNode = targetNode.child("index_target"); indexNode;
        indexNode = indexNode.next_sibling("index_target")) {
-    // wxMessageBox(indexNode.attribute("wp_id").value());
     i_target->wpId = indexNode.attribute("wp_id").value();
     xml_node pBeginElement = indexNode.child("begin");
 
@@ -1768,7 +1687,6 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
 
   for (pugi::xml_node rangeNode = targetNode.child("range_target"); rangeNode;
        rangeNode = rangeNode.next_sibling("range_target")) {
-    // wxMessageBox(indexNode.attribute("wp_id").value());
     r_target->wpId = rangeNode.attribute("wp_id").value();
     xml_node pBeginElement = rangeNode.child("begin");
 
@@ -1815,8 +1733,6 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   for (pugi::xml_node directionNode = targetNode.child("direction_target");
        directionNode;
        directionNode = directionNode.next_sibling("direction_target")) {
-    // wxMessageBox(indexNode.attribute("wp_id").value());
-
     double dvalue = 0.0;
     wxString stp = directionNode.attribute("direction_lat").value();
     stp.ToDouble(&dvalue);
@@ -1837,9 +1753,6 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
 }
 
 void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {
-  // wxMessageBox("found");
-  // return;
-
   c_lat = m_lat;
   c_lon = m_lon;
 
@@ -1848,9 +1761,6 @@ void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {
 
   int leg_number = SetActiveWaypoint(c_lat, c_lon);
   mySelectedLeg = leg_number;
-
-  // wxString comp = wxString::Format("%i", leg_number);
-  // wxMessageBox(comp);
 }
 
 int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
@@ -1896,14 +1806,8 @@ int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
       it_name = wp_name;
       it_lat = rLat;
       it_lon = rLon;
-      // foundWP = true;
-      // break;
     }
   }
-  // foundWP;
-  // wxMessageBox(it_name);
-  // FindWaypointGUID(it_name);
-  //
 
   if (it_num != 0)
     FindPreviousWaypoint(it_name);
@@ -1939,9 +1843,7 @@ Position* finSAR_editUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
       active_waypoint->lat = (*itp).lat;
       active_waypoint->lon = (*itp).lon;
       active_waypoint->route_name = (*itp).route_name;
-      // wxMessageBox(active_waypoint->route_name);
       active_waypoint->wpId = (*itp).wpId;
-      // wxMessageBox(active_waypoint->wpId);
 
       double value = 0.0;
       wxString slat = active_waypoint->lat;
@@ -1985,36 +1887,7 @@ int finSAR_editUIDialog::DeleteChartedRoute() {
   DeletePlugInRoute(uids[0]);
   return 1;
 }
-/*
-wxString finSAR_editUIDialog::FindWaypointGUID(wxString testName) {
-  std::vector<std::unique_ptr<PlugIn_Route_Ex>> routes;
-  auto uids = GetRouteGUIDArray();
-  if (uids.size() > 1) {
-    wxMessageBox("Clear the other routes");
-    return wxEmptyString;
-  }
 
-  thisRoute = GetRouteEx_Plugin(uids[0]);
-
-  myList = thisRoute->pWaypointList;
-
-  PlugIn_Waypoint_Ex* myWaypoint;
-  PlugIn_Waypoint_Ex* myPrevWaypoint;
-
-  wxPlugin_WaypointExListNode* pwpnode = myList->GetFirst();
-  while (pwpnode) {
-    myWaypoint = pwpnode->GetData();
-    if (myWaypoint->m_MarkName == testName) {
-      wxMessageBox("found");
-      break;
-    };
-    myPrevWaypoint = myWaypoint;
-    pwpnode = pwpnode->GetNext();
-  }
-
-  myWaypoint;
-}
-*/
 double finSAR_editUIDialog::FindDistanceFromLeg(Position* A, Position* B,
                                                 Position* C) {
   double value = 0.0;
@@ -2053,4 +1926,3 @@ double finSAR_editUIDialog::FindDistanceFromLeg(Position* A, Position* B,
 
   return distance;
 }
-

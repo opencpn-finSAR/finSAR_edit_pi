@@ -230,22 +230,6 @@ public:
   int leg_number;
 };
 
-
-struct RouteMapPosition {
-  RouteMapPosition(wxString n, double lat0, double lon0)
-      : Name(n), lat(lat0), lon(lon0) {}
-
-public:
-  wxString Name;
-  double lat, lon;
-};
-
-class TidalRoute {
-public:
-  wxString Name, Type, Start, StartTime, End, EndTime, Time, Distance, m_GUID;
-  list<Position> m_positionslist;
-};
-
 #define pi 3.14159265358979323846
 
 class finSAR_editUIDialog : public finSAR_editUIDialogBase {
@@ -255,7 +239,7 @@ public:
 
   finSAR_edit_pi* pPlugIn;
 
-  //void SetCursorLatLon(double lat, double lon);
+  // void SetCursorLatLon(double lat, double lon);
 
   void SetViewPort(PlugIn_ViewPort* vp);
   PlugIn_ViewPort* vp;
@@ -281,15 +265,14 @@ public:
 
   void OnContextMenu(double m_lat, double m_lon);
 
-  double FindDistanceFromLeg(Position* A, Position* B,
-                                                  Position* C);
+  double FindDistanceFromLeg(Position* A, Position* B, Position* C);
   int SetActiveWaypoint(double t_lat, double t_lon);
   bool m_bDrawWptDisk;
   bool m_bDrawDirectionArrow;
   Position* FindPreviousWaypoint(wxString ActiveWpt);
 
   int DeleteChartedRoute();
-  PlugIn_Waypoint_Ex* active_wpt, prev_wpt;
+  PlugIn_Waypoint_Ex *active_wpt, prev_wpt;
 
   double c_lat, c_lon;
 
@@ -297,13 +280,6 @@ public:
   double rad2deg(double rad);
   wxString SelectRoute(bool isDR);
   void SelectRoutePoints(wxString routeName);
-
-  int m_tcNum;
-  double m_tcLat, m_tcLon;
-
-  vector<RouteMapPosition> Positions;
-  wxString m_default_configuration_path;
-  wxString m_default_files_path;
 
   Position my_position;
   vector<Position> my_positions;
@@ -368,7 +344,7 @@ private:
   wxString mySelectedRoute;
   int mySelectedLeg;
 
-  int GetRandomNumber(int range_min, int range_max);  
+  int GetRandomNumber(int range_min, int range_max);
   double m_cursor_lat, m_cursor_lon;
   wxString g_SData_Locn;
 
