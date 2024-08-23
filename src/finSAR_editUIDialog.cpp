@@ -168,6 +168,11 @@ void finSAR_editUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
 
 void finSAR_editUIDialog::OnClose(wxCloseEvent& event) {
   pPlugIn->OnfinSAR_editDialogClose();
+
+  i_vector.clear();
+  r_vector.clear();
+  d_vector.clear();
+
   DeleteChartedRoute();
 }
 
@@ -1191,6 +1196,7 @@ void finSAR_editUIDialog::OnDeleteRoute(wxCommandEvent& event) {
   i_vector.clear();
   r_vector.clear();
   d_vector.clear();
+  m_bDrawWptDisk = false;
 
   m_choiceRoutes->Delete(c);
   m_choiceRoutes->SetSelection(0);

@@ -80,7 +80,7 @@ public:
   //    The override PlugIn Methods
   bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
   bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
-  //void SetCursorLatLon(double lat, double lon);
+  // void SetCursorLatLon(double lat, double lon);
   void SetPositionFix(PlugIn_Position_Fix &pfix);
   void SetDefaults(void);
   int GetToolbarToolCount(void);
@@ -101,7 +101,7 @@ public:
   void OnContextMenuItemCallback(int id);
   void SetCursorLatLon(double lat, double lon);
 
- // bool MouseEventHook(wxMouseEvent &event);
+  // bool MouseEventHook(wxMouseEvent &event);
   void OnfinSAR_editDialogClose();
 
   wxString GetFolderSelected() { return m_CopyFolderSelected; }
@@ -123,21 +123,20 @@ public:
 
   finSAR_editUIDialog *m_pfinSAR_editDialog;
 
-  wxString wp_Btw;
-
-  	// ******** Database stuff ******************************************
+  // ******** Database stuff ******************************************
 
   sqlite3 *m_database;
   int ret;
   char *err_msg;
   bool b_dbUsable;
 
-  int Add_RTZ_db(wxString route_name);  
-  int Add_EXT_db(wxString extensions_file, wxString route_name, wxString rtz_date_stamp); 
+  int Add_RTZ_db(wxString route_name);
+  int Add_EXT_db(wxString extensions_file, wxString route_name,
+                 wxString rtz_date_stamp);
 
   int GetActiveFileDBId() { return m_activeFileDB; }
   void SetActiveFileDBId(int id) { m_activeFileDB = id; }
-  
+
   int m_activeFileDB;
 
   void DeleteRTZ_Id(int id);
@@ -148,7 +147,7 @@ public:
   void dbGetTable(wxString sql, char ***results, int &n_rows, int &n_columns);
   void dbFreeResults(char **results);
   int GetRoute_Id(wxString route_name);
-  wxString GetRTZDateStamp(wxString route_name); 
+  wxString GetRTZDateStamp(wxString route_name);
   void FillRouteNamesDropdown();
   wxArrayString GetRouteList();
 
@@ -186,13 +185,6 @@ private:
 
   wxBitmap m_panelBitmap;
   double m_ship_lon, m_ship_lat;
-
-  void SetActiveLegInfo(Plugin_Active_Leg_Info &leg_info);
-  wxString wp_name;
-  
-  bool m_route_active;
-  void SetPluginMessage(wxString &message_id, wxString &message_body);
-  Plugin_Active_Leg_Info myleg_info;
 
   bool dbQuery(wxString sql);
 };
