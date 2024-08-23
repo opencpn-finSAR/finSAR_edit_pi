@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  finSAR_ops Plugin
+ * Purpose:  finSAR_edit Plugin
  * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
@@ -36,21 +36,21 @@
 
 #include "ocpn_plugin.h"
 
-#include "finSAR_ops_pi.h"
-#include "finSAR_opsUIDialogBase.h"
-#include "finSAR_opsUIDialog.h"
+#include "finSAR_edit_pi.h"
+#include "finSAR_editUIDialogBase.h"
+#include "finSAR_editUIDialog.h"
 
 // the class factories, used to create and destroy instances of the PlugIn
 
 extern "C" DECL_EXP opencpn_plugin *create_pi(void *ppimgr) {
-  return new finSAR_ops_pi(ppimgr);
+  return new finSAR_edit_pi(ppimgr);
 }
 
 extern "C" DECL_EXP void destroy_pi(opencpn_plugin *p) { delete p; }
 
 //---------------------------------------------------------------------------------------------------------
 //
-//    finSAR_ops PlugIn Implementation
+//    finSAR_edit PlugIn Implementation
 //
 //---------------------------------------------------------------------------------------------------------
 
@@ -62,16 +62,16 @@ extern "C" DECL_EXP void destroy_pi(opencpn_plugin *p) { delete p; }
 //
 //---------------------------------------------------------------------------------------------------------
 
-finSAR_ops_pi::finSAR_ops_pi(void *ppimgr) : opencpn_plugin_118(ppimgr) {
+finSAR_edit_pi::finSAR_edit_pi(void *ppimgr) : opencpn_plugin_118(ppimgr) {
   // Create the PlugIn icons
   initialize_images();
 
   wxFileName fn;
 
-  auto path = GetPluginDataDir("finSAR_ops_pi");
+  auto path = GetPluginDataDir("finSAR_edit_pi");
   fn.SetPath(path);
   fn.AppendDir("data");
-  fn.SetFullName("finSAR_ops_panel_icon.png");
+  fn.SetFullName("finSAR_edit_panel_icon.png");
 
   path = fn.GetFullPath();
 
@@ -86,27 +86,27 @@ finSAR_ops_pi::finSAR_ops_pi(void *ppimgr) : opencpn_plugin_118(ppimgr) {
   if (panelIcon.IsOk())
     m_panelBitmap = wxBitmap(panelIcon);
   else
-    wxLogWarning("finSAR_ops panel icon has NOT been loaded");
+    wxLogWarning("finSAR_edit panel icon has NOT been loaded");
 
-  m_bShowfinSAR_ops = false;
+  m_bShowfinSAR_edit = false;
 }
 
-finSAR_ops_pi::~finSAR_ops_pi(void) {
-  delete _img_finSAR_ops_pi;
-  delete _img_finSAR_ops;
+finSAR_edit_pi::~finSAR_edit_pi(void) {
+  delete _img_finSAR_edit_pi;
+  delete _img_finSAR_edit;
 }
 
-int finSAR_ops_pi::Init(void) {
-  AddLocaleCatalog(_T("opencpn-finSAR_ops_pi"));
+int finSAR_edit_pi::Init(void) {
+  AddLocaleCatalog(_T("opencpn-finSAR_edit_pi"));
 
   // Set some default private member parameters
-  m_finSAR_ops_dialog_x = 0;
-  m_finSAR_ops_dialog_y = 0;
-  m_finSAR_ops_dialog_sx = 200;
-  m_finSAR_ops_dialog_sy = 400;
-  m_pfinSAR_opsDialog = NULL;
-  m_pfinSAR_opsOverlayFactory = NULL;
-  m_bfinSAR_opsShowIcon = true;
+  m_finSAR_edit_dialog_x = 0;
+  m_finSAR_edit_dialog_y = 0;
+  m_finSAR_edit_dialog_sx = 200;
+  m_finSAR_edit_dialog_sy = 400;
+  m_pfinSAR_editDialog = NULL;
+  m_pfinSAR_editOverlayFactory = NULL;
+  m_bfinSAR_editShowIcon = true;
 
   ::wxDisplaySize(&m_display_width, &m_display_height);
 
@@ -168,21 +168,21 @@ int finSAR_ops_pi::Init(void) {
   extpath = StandardPathEXT();
 
   // Get a pointer to the opencpn display canvas, to use as a parent for the
-  // finSAR_ops dialog
+  // finSAR_edit dialog
   m_parent_window = GetOCPNCanvasWindow();
 
   //    This PlugIn needs a toolbar icon, so request its insertion if enabled
   //    locally
-  if (m_bfinSAR_opsShowIcon)
+  if (m_bfinSAR_editShowIcon)
 #ifdef ocpnUSE_SVG
     m_leftclick_tool_id = InsertPlugInToolSVG(
-        _T("finSAR_ops"), _svg_finSAR_ops, _svg_finSAR_ops,
-        _svg_finSAR_ops_toggled, wxITEM_CHECK, _("finSAR_ops"), _T(""), NULL,
-        finSAR_ops_TOOL_POSITION, 0, this);
+        _T("finSAR_edit"), _svg_finSAR_edit, _svg_finSAR_edit,
+        _svg_finSAR_edit_toggled, wxITEM_CHECK, _("finSAR_edit"), _T(""), NULL,
+        finSAR_edit_TOOL_POSITION, 0, this);
 #else
     m_leftclick_tool_id = InsertPlugInTool(
-        _T(""), _img_finSAR_ops, _img_finSAR_ops, wxITEM_CHECK,
-        _("finSAR_ops"), _T(""), NULL, finSAR_ops_TOOL_POSITION, 0, this);
+        _T(""), _img_finSAR_edit, _img_finSAR_edit, wxITEM_CHECK,
+        _("finSAR_edit"), _T(""), NULL, finSAR_edit_TOOL_POSITION, 0, this);
 #endif
 
   return (WANTS_OVERLAY_CALLBACK | WANTS_OPENGL_OVERLAY_CALLBACK |
@@ -190,52 +190,52 @@ int finSAR_ops_pi::Init(void) {
           WANTS_CONFIG | WANTS_ONPAINT_VIEWPORT | WANTS_PLUGIN_MESSAGING);
 }
 
-bool finSAR_ops_pi::DeInit(void) {
-  if (m_pfinSAR_opsDialog) {
-    m_pfinSAR_opsDialog->Close();
-    delete m_pfinSAR_opsDialog;
-    m_pfinSAR_opsDialog = NULL;
+bool finSAR_edit_pi::DeInit(void) {
+  if (m_pfinSAR_editDialog) {
+    m_pfinSAR_editDialog->Close();
+    delete m_pfinSAR_editDialog;
+    m_pfinSAR_editDialog = NULL;
   }
 
-  delete m_pfinSAR_opsOverlayFactory;
-  m_pfinSAR_opsOverlayFactory = NULL;
+  delete m_pfinSAR_editOverlayFactory;
+  m_pfinSAR_editOverlayFactory = NULL;
 
   return true;
 }
 
-int finSAR_ops_pi::GetAPIVersionMajor() { return atoi(API_VERSION); }
+int finSAR_edit_pi::GetAPIVersionMajor() { return atoi(API_VERSION); }
 
-int finSAR_ops_pi::GetAPIVersionMinor() {
+int finSAR_edit_pi::GetAPIVersionMinor() {
   std::string v(API_VERSION);
   size_t dotpos = v.find('.');
   return atoi(v.substr(dotpos + 1).c_str());
 }
 
-int finSAR_ops_pi::GetPlugInVersionMajor() { return PLUGIN_VERSION_MAJOR; }
+int finSAR_edit_pi::GetPlugInVersionMajor() { return PLUGIN_VERSION_MAJOR; }
 
-int finSAR_ops_pi::GetPlugInVersionMinor() { return PLUGIN_VERSION_MINOR; }
+int finSAR_edit_pi::GetPlugInVersionMinor() { return PLUGIN_VERSION_MINOR; }
 
-wxBitmap *finSAR_ops_pi::GetPlugInBitmap() { return &m_panelBitmap; }
+wxBitmap *finSAR_edit_pi::GetPlugInBitmap() { return &m_panelBitmap; }
 
-wxString finSAR_ops_pi::GetCommonName() { return PLUGIN_API_NAME; }
+wxString finSAR_edit_pi::GetCommonName() { return PLUGIN_API_NAME; }
 
-wxString finSAR_ops_pi::GetShortDescription() { return PKG_SUMMARY; }
+wxString finSAR_edit_pi::GetShortDescription() { return PKG_SUMMARY; }
 
-wxString finSAR_ops_pi::GetLongDescription() { return PKG_DESCRIPTION; }
+wxString finSAR_edit_pi::GetLongDescription() { return PKG_DESCRIPTION; }
 
-void finSAR_ops_pi::SetDefaults(void) {}
+void finSAR_edit_pi::SetDefaults(void) {}
 
-int finSAR_ops_pi::GetToolbarToolCount(void) { return 1; }
+int finSAR_edit_pi::GetToolbarToolCount(void) { return 1; }
 
-void finSAR_ops_pi::OnToolbarToolCallback(int id) {
-  if (!m_pfinSAR_opsDialog) {
-    m_pfinSAR_opsDialog = new finSAR_opsUIDialog(m_parent_window, this);
-    wxPoint p = wxPoint(m_finSAR_ops_dialog_x, m_finSAR_ops_dialog_y);
-    m_pfinSAR_opsDialog->pPlugIn = this;
-    m_pfinSAR_opsDialog->Move(
+void finSAR_edit_pi::OnToolbarToolCallback(int id) {
+  if (!m_pfinSAR_editDialog) {
+    m_pfinSAR_editDialog = new finSAR_editUIDialog(m_parent_window, this);
+    wxPoint p = wxPoint(m_finSAR_edit_dialog_x, m_finSAR_edit_dialog_y);
+    m_pfinSAR_editDialog->pPlugIn = this;
+    m_pfinSAR_editDialog->Move(
         0,
         0);  // workaround for gtk autocentre dialog behavior
-    m_pfinSAR_opsDialog->Move(p);
+    m_pfinSAR_editDialog->Move(p);
 
     // Clear route & mark manager
     auto uids = GetRouteGUIDArray();
@@ -246,9 +246,9 @@ void finSAR_ops_pi::OnToolbarToolCallback(int id) {
     FillRouteNamesDropdown();
 
     // Create the drawing factory
-    m_pfinSAR_opsOverlayFactory =
-        new finSAR_opsOverlayFactory(*m_pfinSAR_opsDialog);
-    m_pfinSAR_opsOverlayFactory->SetParentSize(m_display_width,
+    m_pfinSAR_editOverlayFactory =
+        new finSAR_editOverlayFactory(*m_pfinSAR_editDialog);
+    m_pfinSAR_editOverlayFactory->SetParentSize(m_display_width,
                                                 m_display_height);
 
     wxMenu dummy_menu;
@@ -257,7 +257,7 @@ void finSAR_ops_pi::OnToolbarToolCallback(int id) {
     SetCanvasContextMenuItemViz(m_position_menu_id, true);
   }
 
-  // Qualify the finSAR_ops dialog position
+  // Qualify the finSAR_edit dialog position
   bool b_reset_pos = false;
 
 #ifdef __WXMSW__
@@ -265,10 +265,10 @@ void finSAR_ops_pi::OnToolbarToolCallback(int id) {
   //  If the requested window does not intersect any installed monitor,
   //  then default to simple primary monitor positioning.
   RECT frame_title_rect;
-  frame_title_rect.left = m_finSAR_ops_dialog_x;
-  frame_title_rect.top = m_finSAR_ops_dialog_y;
-  frame_title_rect.right = m_finSAR_ops_dialog_x + m_finSAR_ops_dialog_sx;
-  frame_title_rect.bottom = m_finSAR_ops_dialog_y + 30;
+  frame_title_rect.left = m_finSAR_edit_dialog_x;
+  frame_title_rect.top = m_finSAR_edit_dialog_y;
+  frame_title_rect.right = m_finSAR_edit_dialog_x + m_finSAR_edit_dialog_sx;
+  frame_title_rect.bottom = m_finSAR_edit_dialog_y + 30;
 
   if (NULL == MonitorFromRect(&frame_title_rect, MONITOR_DEFAULTTONULL))
     b_reset_pos = true;
@@ -276,9 +276,9 @@ void finSAR_ops_pi::OnToolbarToolCallback(int id) {
   //    Make sure drag bar (title bar) of window on Client Area of screen, with
   //    a little slop...
   wxRect window_title_rect;  // conservative estimate
-  window_title_rect.x = m_finSAR_ops_dialog_x;
-  window_title_rect.y = m_finSAR_ops_dialog_y;
-  window_title_rect.width = m_finSAR_ops_dialog_sx;
+  window_title_rect.x = m_finSAR_edit_dialog_x;
+  window_title_rect.y = m_finSAR_edit_dialog_y;
+  window_title_rect.width = m_finSAR_edit_dialog_sx;
   window_title_rect.height = 30;
 
   wxRect ClientRect = wxGetClientDisplayRect();
@@ -289,41 +289,41 @@ void finSAR_ops_pi::OnToolbarToolCallback(int id) {
 #endif
 
   if (b_reset_pos) {
-    m_finSAR_ops_dialog_x = 20;
-    m_finSAR_ops_dialog_y = 170;
-    m_finSAR_ops_dialog_sx = 300;
-    m_finSAR_ops_dialog_sy = 540;
+    m_finSAR_edit_dialog_x = 20;
+    m_finSAR_edit_dialog_y = 170;
+    m_finSAR_edit_dialog_sx = 300;
+    m_finSAR_edit_dialog_sy = 540;
   }
 
-  // Toggle finSAR_ops overlay display
-  m_bShowfinSAR_ops = !m_bShowfinSAR_ops;
+  // Toggle finSAR_edit overlay display
+  m_bShowfinSAR_edit = !m_bShowfinSAR_edit;
 
   //    Toggle dialog?
-  if (m_bShowfinSAR_ops) {
-    m_pfinSAR_opsDialog->Show();
+  if (m_bShowfinSAR_edit) {
+    m_pfinSAR_editDialog->Show();
   } else {
-    m_pfinSAR_opsDialog->Hide();
+    m_pfinSAR_editDialog->Hide();
   }
 
   // Toggle is handled by the toolbar but we must keep plugin manager b_toggle
   // updated to actual status to ensure correct status upon toolbar rebuild
-  SetToolbarItemState(m_leftclick_tool_id, m_bShowfinSAR_ops);
+  SetToolbarItemState(m_leftclick_tool_id, m_bShowfinSAR_edit);
 
   RequestRefresh(m_parent_window);  // refresh main window
 }
 
-void finSAR_ops_pi::OnfinSAR_opsDialogClose() {
-  m_bShowfinSAR_ops = false;
-  SetToolbarItemState(m_leftclick_tool_id, m_bShowfinSAR_ops);
+void finSAR_edit_pi::OnfinSAR_editDialogClose() {
+  m_bShowfinSAR_edit = false;
+  SetToolbarItemState(m_leftclick_tool_id, m_bShowfinSAR_edit);
 
-  m_pfinSAR_opsDialog->Hide();
+  m_pfinSAR_editDialog->Hide();
 
   SaveConfig();
 
   RequestRefresh(m_parent_window);  // refresh main window
 }
 
-int finSAR_ops_pi::Add_RTZ_db(wxString route_name) {
+int finSAR_edit_pi::Add_RTZ_db(wxString route_name) {
   wxString sql = wxString::Format(
       "INSERT INTO RTZ (route_name, created, submitted) "
       "VALUES ('%s', current_timestamp, 0)",
@@ -333,7 +333,7 @@ int finSAR_ops_pi::Add_RTZ_db(wxString route_name) {
   return sqlite3_last_insert_rowid(m_database);
 }
 
-int finSAR_ops_pi::GetRoute_Id(wxString route_name) {
+int finSAR_edit_pi::GetRoute_Id(wxString route_name) {
   wxString rte = route_name;
   wxString sql1 = wxString::Format(
       "SELECT route_id FROM RTZ WHERE route_name = '%s'", route_name.c_str());
@@ -347,7 +347,7 @@ int finSAR_ops_pi::GetRoute_Id(wxString route_name) {
   return dbGetIntNotNullValue(sql);
 }
 
-wxString finSAR_ops_pi::GetRTZDateStamp(wxString route_name) {
+wxString finSAR_edit_pi::GetRTZDateStamp(wxString route_name) {
   char **result;
   int n_rows;
   int n_columns;
@@ -374,14 +374,14 @@ wxString finSAR_ops_pi::GetRTZDateStamp(wxString route_name) {
   return output;
 }
 
-void finSAR_ops_pi::DeleteRTZ_Id(int id) {
+void finSAR_edit_pi::DeleteRTZ_Id(int id) {
   wxString sql;
   sql = wxString::Format("DELETE FROM RTZ WHERE route_id = %i", id);
   // wxMessageBox(sql);
   dbQuery(sql);
 }
 
-void finSAR_ops_pi::DeleteRTZ_Name(wxString route_name) {
+void finSAR_edit_pi::DeleteRTZ_Name(wxString route_name) {
   wxString sql;
   sql = wxString::Format("DELETE FROM RTZ WHERE route_name = \'%s\'",
                          route_name.c_str());
@@ -394,7 +394,7 @@ void finSAR_ops_pi::DeleteRTZ_Name(wxString route_name) {
     wxMessageBox("Error");
 }
 
-void finSAR_ops_pi::DeleteEXT_Name(wxString route_name) {
+void finSAR_edit_pi::DeleteEXT_Name(wxString route_name) {
   wxString sql;
   sql = wxString::Format("DELETE FROM EXT WHERE route_name = \'%s\'",
                          route_name.c_str());
@@ -407,7 +407,7 @@ void finSAR_ops_pi::DeleteEXT_Name(wxString route_name) {
     wxMessageBox("Error");
 }
 
-int finSAR_ops_pi::Add_EXT_db(wxString extensions_file, wxString route_name,
+int finSAR_edit_pi::Add_EXT_db(wxString extensions_file, wxString route_name,
                                wxString rtz_date_stamp) {
   wxString sql = wxString::Format(
       "INSERT INTO EXT (extensions_file, route_name, rtz_date_stamp, created, "
@@ -419,7 +419,7 @@ int finSAR_ops_pi::Add_EXT_db(wxString extensions_file, wxString route_name,
   return sqlite3_last_insert_rowid(m_database);
 }
 
-bool finSAR_ops_pi::dbQuery(wxString sql) {
+bool finSAR_edit_pi::dbQuery(wxString sql) {
   if (!b_dbUsable) return false;
   ret = sqlite3_exec(m_database, sql.mb_str(), NULL, NULL, &err_msg);
   if (ret != SQLITE_OK) {
@@ -433,7 +433,7 @@ bool finSAR_ops_pi::dbQuery(wxString sql) {
   return b_dbUsable;
 }
 
-int finSAR_ops_pi::dbGetIntNotNullValue(wxString sql) {
+int finSAR_edit_pi::dbGetIntNotNullValue(wxString sql) {
   char **result;
   int n_rows;
   int n_columns;
@@ -447,7 +447,7 @@ int finSAR_ops_pi::dbGetIntNotNullValue(wxString sql) {
     return 0;
 }
 
-void finSAR_ops_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
+void finSAR_edit_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
                                 int &n_columns) {
   ret = sqlite3_get_table(m_database, sql.mb_str(), results, &n_rows,
                           &n_columns, &err_msg);
@@ -460,17 +460,17 @@ void finSAR_ops_pi::dbGetTable(wxString sql, char ***results, int &n_rows,
   }
 }
 
-void finSAR_ops_pi::dbFreeResults(char **results) {
+void finSAR_edit_pi::dbFreeResults(char **results) {
   sqlite3_free_table(results);
 }
 
-void finSAR_ops_pi::FillRouteNamesDropdown() {
-  m_pfinSAR_opsDialog->m_choiceRoutes->Clear();
-  m_pfinSAR_opsDialog->m_choiceRoutes->Append(GetRouteList());
-  m_pfinSAR_opsDialog->m_choiceRoutes->SetSelection(0);  // So something shows
+void finSAR_edit_pi::FillRouteNamesDropdown() {
+  m_pfinSAR_editDialog->m_choiceRoutes->Clear();
+  m_pfinSAR_editDialog->m_choiceRoutes->Append(GetRouteList());
+  m_pfinSAR_editDialog->m_choiceRoutes->SetSelection(0);  // So something shows
 }
 
-wxArrayString finSAR_ops_pi::GetRouteList() {
+wxArrayString finSAR_edit_pi::GetRouteList() {
   char **result;
   int n_rows;
   int n_columns;
@@ -488,7 +488,7 @@ wxArrayString finSAR_ops_pi::GetRouteList() {
   return routes;
 }
 
-wxString finSAR_ops_pi::StandardPath() {
+wxString finSAR_edit_pi::StandardPath() {
   wxString stdPath(*GetpPrivateApplicationDataLocation());
   wxString s = wxFileName::GetPathSeparator();
 
@@ -501,7 +501,7 @@ wxString finSAR_ops_pi::StandardPath() {
   return stdPath;
 }
 
-wxString finSAR_ops_pi::StandardPathRTZ() {
+wxString finSAR_edit_pi::StandardPathRTZ() {
   wxString stdPath(*GetpPrivateApplicationDataLocation());
   wxString s = wxFileName::GetPathSeparator();
 
@@ -512,7 +512,7 @@ wxString finSAR_ops_pi::StandardPathRTZ() {
   return stdPath;
 }
 
-wxString finSAR_ops_pi::StandardPathEXT() {
+wxString finSAR_edit_pi::StandardPathEXT() {
   wxString stdPath(*GetpPrivateApplicationDataLocation());
   wxString s = wxFileName::GetPathSeparator();
 
@@ -523,55 +523,55 @@ wxString finSAR_ops_pi::StandardPathEXT() {
   return stdPath;
 }
 
-bool finSAR_ops_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) {
-  if (!m_pfinSAR_opsDialog || !m_pfinSAR_opsDialog->IsShown() ||
-      !m_pfinSAR_opsOverlayFactory)
+bool finSAR_edit_pi::RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp) {
+  if (!m_pfinSAR_editDialog || !m_pfinSAR_editDialog->IsShown() ||
+      !m_pfinSAR_editOverlayFactory)
     return false;
 
-  if (m_pfinSAR_opsDialog) {
-    m_pfinSAR_opsDialog->SetViewPort(vp);
-    m_pfinSAR_opsDialog->MakeBoxPoints();
+  if (m_pfinSAR_editDialog) {
+    m_pfinSAR_editDialog->SetViewPort(vp);
+    m_pfinSAR_editDialog->MakeBoxPoints();
   }
 
   piDC pidc(dc);
 
-  m_pfinSAR_opsOverlayFactory->RenderOverlay(pidc, *vp);
+  m_pfinSAR_editOverlayFactory->RenderOverlay(pidc, *vp);
   return true;
 }
 
-bool finSAR_ops_pi::RenderGLOverlay(wxGLContext *pcontext,
+bool finSAR_edit_pi::RenderGLOverlay(wxGLContext *pcontext,
                                      PlugIn_ViewPort *vp) {
-  if (!m_pfinSAR_opsDialog || !m_pfinSAR_opsDialog->IsShown() ||
-      !m_pfinSAR_opsOverlayFactory)
+  if (!m_pfinSAR_editDialog || !m_pfinSAR_editDialog->IsShown() ||
+      !m_pfinSAR_editOverlayFactory)
     return false;
 
-  if (m_pfinSAR_opsDialog) {
-    m_pfinSAR_opsDialog->SetViewPort(vp);
-    m_pfinSAR_opsDialog->MakeBoxPoints();
+  if (m_pfinSAR_editDialog) {
+    m_pfinSAR_editDialog->SetViewPort(vp);
+    m_pfinSAR_editDialog->MakeBoxPoints();
   }
 
   piDC piDC;
   glEnable(GL_BLEND);
   piDC.SetVP(vp);
 
-  m_pfinSAR_opsOverlayFactory->RenderOverlay(piDC, *vp);
+  m_pfinSAR_editOverlayFactory->RenderOverlay(piDC, *vp);
   return true;
 }
 
-void finSAR_ops_pi::SetPositionFix(PlugIn_Position_Fix &pfix) {
+void finSAR_edit_pi::SetPositionFix(PlugIn_Position_Fix &pfix) {
   m_ship_lon = pfix.Lon;
   m_ship_lat = pfix.Lat;
   // std::cout<<"Ship--> Lat: "<<m_ship_lat<<" Lon: "<<m_ship_lon<<std::endl;
   //}
 }
-bool finSAR_ops_pi::LoadConfig(void) {
+bool finSAR_edit_pi::LoadConfig(void) {
   wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
 
   if (!pConf) return false;
 
-  pConf->SetPath(_T( "/PlugIns/finSAR_ops" ));
+  pConf->SetPath(_T( "/PlugIns/finSAR_edit" ));
 
-  m_CopyFolderSelected = pConf->Read(_T( "finSAR_opsFolder" ));
+  m_CopyFolderSelected = pConf->Read(_T( "finSAR_editFolder" ));
 
   if (m_CopyFolderSelected == wxEmptyString) {
     wxString g_SData_Locn = *GetpSharedDataLocation();
@@ -582,46 +582,46 @@ bool finSAR_ops_pi::LoadConfig(void) {
     m_CopyFolderSelected = *pTC_Dir;
   }
 
-  m_finSAR_ops_dialog_sx = pConf->Read(_T( "finSAR_opsDialogSizeX" ), 300L);
-  m_finSAR_ops_dialog_sy = pConf->Read(_T( "finSAR_opsDialogSizeY" ), 540L);
-  m_finSAR_ops_dialog_x = pConf->Read(_T( "finSAR_opsDialogPosX" ), 20L);
-  m_finSAR_ops_dialog_y = pConf->Read(_T( "finSAR_opsDialogPosY" ), 170L);
+  m_finSAR_edit_dialog_sx = pConf->Read(_T( "finSAR_editDialogSizeX" ), 300L);
+  m_finSAR_edit_dialog_sy = pConf->Read(_T( "finSAR_editDialogSizeY" ), 540L);
+  m_finSAR_edit_dialog_x = pConf->Read(_T( "finSAR_editDialogPosX" ), 20L);
+  m_finSAR_edit_dialog_y = pConf->Read(_T( "finSAR_editDialogPosY" ), 170L);
 
   return true;
 }
 
-bool finSAR_ops_pi::SaveConfig(void) {
+bool finSAR_edit_pi::SaveConfig(void) {
   wxFileConfig *pConf = (wxFileConfig *)m_pconfig;
 
   if (!pConf) return false;
 
-  pConf->SetPath(_T( "/PlugIns/finSAR_ops" ));
+  pConf->SetPath(_T( "/PlugIns/finSAR_edit" ));
 
-  pConf->Write(_T( "finSAR_opsFolder" ), m_CopyFolderSelected);
+  pConf->Write(_T( "finSAR_editFolder" ), m_CopyFolderSelected);
 
-  pConf->Write(_T( "finSAR_opsDialogSizeX" ), m_finSAR_ops_dialog_sx);
-  pConf->Write(_T( "finSAR_opsDialogSizeY" ), m_finSAR_ops_dialog_sy);
-  pConf->Write(_T( "finSAR_opsDialogPosX" ), m_finSAR_ops_dialog_x);
-  pConf->Write(_T( "finSAR_opsDialogPosY" ), m_finSAR_ops_dialog_y);
+  pConf->Write(_T( "finSAR_editDialogSizeX" ), m_finSAR_edit_dialog_sx);
+  pConf->Write(_T( "finSAR_editDialogSizeY" ), m_finSAR_edit_dialog_sy);
+  pConf->Write(_T( "finSAR_editDialogPosX" ), m_finSAR_edit_dialog_x);
+  pConf->Write(_T( "finSAR_editDialogPosY" ), m_finSAR_edit_dialog_y);
 
   return true;
 }
 
-void finSAR_ops_pi::SetColorScheme(PI_ColorScheme cs) {
-  DimeWindow(m_pfinSAR_opsDialog);
+void finSAR_edit_pi::SetColorScheme(PI_ColorScheme cs) {
+  DimeWindow(m_pfinSAR_editDialog);
 }
 
-void finSAR_ops_pi::OnContextMenuItemCallback(int id) {
-  if (!m_pfinSAR_opsDialog) return;
+void finSAR_edit_pi::OnContextMenuItemCallback(int id) {
+  if (!m_pfinSAR_editDialog) return;
 
   if (id == m_position_menu_id) {
     m_cursor_lat = GetCursorLat();
     m_cursor_lon = GetCursorLon();
-    m_pfinSAR_opsDialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
+    m_pfinSAR_editDialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
   }
 }
 
-void finSAR_ops_pi::SetCursorLatLon(double lat, double lon) {
+void finSAR_edit_pi::SetCursorLatLon(double lat, double lon) {
   m_cursor_lat = lat;
   m_cursor_lon = lon;
 }

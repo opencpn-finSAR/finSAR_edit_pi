@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  finSAR_ops Plugin Friends
+ * Purpose:  finSAR_edit Plugin Friends
  * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
@@ -24,8 +24,8 @@
  ***************************************************************************
  */
 
-#ifndef __finSAR_opsUIDIALOG_H__
-#define __finSAR_opsUIDIALOG_H__
+#ifndef __finSAR_editUIDIALOG_H__
+#define __finSAR_editUIDIALOG_H__
 
 #include "wx/wxprec.h"
 
@@ -36,7 +36,7 @@
 #include <wx/fileconf.h>
 #include <wx/glcanvas.h>
 
-#include "finSAR_opsUIDialogBase.h"
+#include "finSAR_editUIDialogBase.h"
 #include "NavFunc.h"
 
 #include <wx/progdlg.h>
@@ -130,12 +130,12 @@ static const long long lNaN = 0xfff8000000000000;
        (Y) * (Y))  // much faster than hypot#define distance(X, Y) sqrt((X)*(X)
                    // + (Y)*(Y)) // much faster than hypot
 
-class finSAR_opsOverlayFactory;
+class finSAR_editOverlayFactory;
 class PlugIn_ViewPort;
 class PositionRecordSet;
 
 class wxFileConfig;
-class finSAR_ops_pi;
+class finSAR_edit_pi;
 class wxGraphicsContext;
 class routeprop;
 class IndexTarget;
@@ -232,12 +232,12 @@ public:
 
 #define pi 3.14159265358979323846
 
-class finSAR_opsUIDialog : public finSAR_opsUIDialogBase {
+class finSAR_editUIDialog : public finSAR_editUIDialogBase {
 public:
-  finSAR_opsUIDialog(wxWindow* parent, finSAR_ops_pi* ppi);
-  ~finSAR_opsUIDialog();
+  finSAR_editUIDialog(wxWindow* parent, finSAR_edit_pi* ppi);
+  ~finSAR_editUIDialog();
 
-  finSAR_ops_pi* pPlugIn;
+  finSAR_edit_pi* pPlugIn;
 
   // void SetCursorLatLon(double lat, double lon);
 

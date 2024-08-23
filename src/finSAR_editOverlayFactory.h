@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  finSAR_ops Plugin Freinds
+ * Purpose:  finSAR_edit Plugin Freinds
  * Author:   David Register
  *
  ***************************************************************************
@@ -53,15 +53,15 @@ static wxPoint ReverseArrowArray[NUM_REVERSE_ARROW_POINTS] = {
 
 
 //----------------------------------------------------------------------------------------------------------
-//    finSAR_ops Overlay Factory Specification
+//    finSAR_edit Overlay Factory Specification
 //----------------------------------------------------------------------------------------------------------
 
-class finSAR_opsUIDialog;
+class finSAR_editUIDialog;
 
-class finSAR_opsOverlayFactory {
+class finSAR_editOverlayFactory {
 public:
-  finSAR_opsOverlayFactory(finSAR_opsUIDialog &dlg);
-  ~finSAR_opsOverlayFactory();
+  finSAR_editOverlayFactory(finSAR_editUIDialog &dlg);
+  ~finSAR_editOverlayFactory();
 
   void SetSettings(bool hiDefGraphics, bool GradualColors) {
     m_hiDefGraphics = hiDefGraphics;
@@ -128,5 +128,5 @@ private:
   std::map<double, wxImage> m_labelCache;
   std::map<wxString, wxImage> m_labelCacheText;
 
-  finSAR_opsUIDialog &m_dlg;
+  finSAR_editUIDialog &m_dlg;
 };

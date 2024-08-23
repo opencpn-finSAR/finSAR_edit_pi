@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  finSAR_ops Plugin
+ * Purpose:  finSAR_edit Plugin
  * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
@@ -24,8 +24,8 @@
  ***************************************************************************
  */
 
-#ifndef _finSAR_opsPI_H_
-#define _finSAR_opsPI_H_
+#ifndef _finSAR_editPI_H_
+#define _finSAR_editPI_H_
 
 #include "wx/wxprec.h"
 
@@ -36,8 +36,8 @@
 
 #include <sqlite3.h>
 #include "ocpn_plugin.h"
-#include "finSAR_opsOverlayFactory.h"
-#include "finSAR_opsUIDialog.h"
+#include "finSAR_editOverlayFactory.h"
+#include "finSAR_editUIDialog.h"
 #include <wx/datetime.h>
 #include "pidc.h"
 #include <wx/tokenzr.h>
@@ -46,7 +46,7 @@
 #define DATABASE_NAME "finSAR.db"
 
 class piDC;
-class finSAR_opsUIDialog;
+class finSAR_editUIDialog;
 
 #define ABOUT_AUTHOR_URL "http://mikerossiter.co.uk"
 
@@ -56,13 +56,13 @@ class finSAR_opsUIDialog;
 //    The PlugIn Class Definition
 //----------------------------------------------------------------------------------------------------------
 
-#define finSAR_ops_TOOL_POSITION \
+#define finSAR_edit_TOOL_POSITION \
   -1  // Request default positioning of toolbar tool
 
-class finSAR_ops_pi : public opencpn_plugin_118 {
+class finSAR_edit_pi : public opencpn_plugin_118 {
 public:
-  finSAR_ops_pi(void *ppimgr);
-  ~finSAR_ops_pi(void);
+  finSAR_edit_pi(void *ppimgr);
+  ~finSAR_edit_pi(void);
 
   //    The required PlugIn Methods
   int Init(void);
@@ -90,10 +90,10 @@ public:
   double GetCursorLat(void) { return m_cursor_lat; }
 
   // Other public methods
-  void SetfinSAR_opsDialogX(int x) { m_finSAR_ops_dialog_x = x; };
-  void SetfinSAR_opsDialogY(int x) { m_finSAR_ops_dialog_y = x; }
-  void SetfinSAR_opsDialogSizeX(int x) { m_finSAR_ops_dialog_sx = x; }
-  void SetfinSAR_opsDialogSizeY(int x) { m_finSAR_ops_dialog_sy = x; }
+  void SetfinSAR_editDialogX(int x) { m_finSAR_edit_dialog_x = x; };
+  void SetfinSAR_editDialogY(int x) { m_finSAR_edit_dialog_y = x; }
+  void SetfinSAR_editDialogSizeX(int x) { m_finSAR_edit_dialog_sx = x; }
+  void SetfinSAR_editDialogSizeY(int x) { m_finSAR_edit_dialog_sy = x; }
   void SetColorScheme(PI_ColorScheme cs);
   double GetShipLon(void) { return m_ship_lon; }
   double GetShipLat(void) { return m_ship_lat; }
@@ -102,26 +102,26 @@ public:
   void SetCursorLatLon(double lat, double lon);
 
   // bool MouseEventHook(wxMouseEvent &event);
-  void OnfinSAR_opsDialogClose();
+  void OnfinSAR_editDialogClose();
 
   wxString GetFolderSelected() { return m_CopyFolderSelected; }
   int GetIntervalSelected() { return m_CopyIntervalSelected; }
 
-  finSAR_opsOverlayFactory *GetfinSAR_opsOverlayFactory() {
-    return m_pfinSAR_opsOverlayFactory;
+  finSAR_editOverlayFactory *GetfinSAR_editOverlayFactory() {
+    return m_pfinSAR_editOverlayFactory;
   }
 
   double m_boat_lat, m_boat_lon;
 
   double m_tr_spd;
   double m_tr_dir;
-  finSAR_opsOverlayFactory *m_pfinSAR_opsOverlayFactory;
+  finSAR_editOverlayFactory *m_pfinSAR_editOverlayFactory;
 
   wxString StandardPath();
   wxString StandardPathRTZ();
   wxString StandardPathEXT();
 
-  finSAR_opsUIDialog *m_pfinSAR_opsDialog;
+  finSAR_editUIDialog *m_pfinSAR_editDialog;
 
   // ******** Database stuff ******************************************
 
@@ -164,8 +164,8 @@ private:
   int m_display_width, m_display_height;
   int m_leftclick_tool_id;
 
-  int m_finSAR_ops_dialog_x, m_finSAR_ops_dialog_y;
-  int m_finSAR_ops_dialog_sx, m_finSAR_ops_dialog_sy;
+  int m_finSAR_edit_dialog_x, m_finSAR_edit_dialog_y;
+  int m_finSAR_edit_dialog_sx, m_finSAR_edit_dialog_sy;
 
   wxString m_CopyFolderSelected;
   int m_CopyIntervalSelected;
@@ -176,11 +176,11 @@ private:
   wxString m_RequestConfig;
   wxString *pTC_Dir;
 
-  bool m_bfinSAR_opsShowIcon;
+  bool m_bfinSAR_editShowIcon;
 
   int m_height;
 
-  bool m_bShowfinSAR_ops;
+  bool m_bShowfinSAR_edit;
   int m_table_menu_id;
 
   wxBitmap m_panelBitmap;
