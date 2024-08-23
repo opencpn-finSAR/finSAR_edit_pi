@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  finSAR_edit Object
+ * Purpose:  finSAR_ops Object
  * Author:   Mike Rossiter
  *
  ***************************************************************************
@@ -37,7 +37,7 @@
 #include <math.h>
 #include <time.h>
 
-#include "finSAR_edit_pi.h"
+#include "finSAR_ops_pi.h"
 #include "icons.h"
 #include <wx/arrimpl.cpp>
 
@@ -108,8 +108,8 @@ GetRouteDialog::GetRouteDialog(wxWindow* parent, wxWindowID id,
 
 GetRouteDialog::~GetRouteDialog() {}
 
-finSAR_editUIDialog::finSAR_editUIDialog(wxWindow* parent, finSAR_edit_pi* ppi)
-    : finSAR_editUIDialogBase(parent) {
+finSAR_opsUIDialog::finSAR_opsUIDialog(wxWindow* parent, finSAR_ops_pi* ppi)
+    : finSAR_opsUIDialogBase(parent) {
   pParent = parent;
   pPlugIn = ppi;
   m_bBearingLine = false;
@@ -117,16 +117,16 @@ finSAR_editUIDialog::finSAR_editUIDialog(wxWindow* parent, finSAR_edit_pi* ppi)
   wxFileConfig* pConf = GetOCPNConfigObject();
 
   if (pConf) {
-    pConf->SetPath(_T ( "/PlugIns/finSAR_edit" ));
+    pConf->SetPath(_T ( "/PlugIns/finSAR_ops" ));
 
-    pConf->Read(_T("finSAR_editFolder"), &m_FolderSelected);
+    pConf->Read(_T("finSAR_opsFolder"), &m_FolderSelected);
   }
 
   // m_dirPicker1->GetTextCtrlValue();
 
   // wxMessageBox(m_FolderSelected);
 
-  this->Connect(wxEVT_MOVE, wxMoveEventHandler(finSAR_editUIDialog::OnMove));
+  this->Connect(wxEVT_MOVE, wxMoveEventHandler(finSAR_opsUIDialog::OnMove));
 
   m_dtNow = wxDateTime::Now();
   m_dtNow.MakeUTC(false);
@@ -144,12 +144,12 @@ finSAR_editUIDialog::finSAR_editUIDialog(wxWindow* parent, finSAR_edit_pi* ppi)
   id_wpt = wxEmptyString;
 }
 
-finSAR_editUIDialog::~finSAR_editUIDialog() {
+finSAR_opsUIDialog::~finSAR_opsUIDialog() {
   wxFileConfig* pConf = GetOCPNConfigObject();
   ;
 
   if (pConf) {
-    pConf->SetPath(_T ( "/PlugIns/finSAR_edit" ));
+    pConf->SetPath(_T ( "/PlugIns/finSAR_ops" ));
   }
 
   i_vector.clear();
@@ -157,7 +157,7 @@ finSAR_editUIDialog::~finSAR_editUIDialog() {
   d_vector.clear();
 }
 
-void finSAR_editUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
+void finSAR_opsUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
   if (m_vp == vp) return;
 
   m_vp = new PlugIn_ViewPort(*vp);
@@ -166,8 +166,8 @@ void finSAR_editUIDialog::SetViewPort(PlugIn_ViewPort* vp) {
   centreLon = m_vp->clon;
 }
 
-void finSAR_editUIDialog::OnClose(wxCloseEvent& event) {
-  pPlugIn->OnfinSAR_editDialogClose();
+void finSAR_opsUIDialog::OnClose(wxCloseEvent& event) {
+  pPlugIn->OnfinSAR_opsDialogClose();
 
   i_vector.clear();
   r_vector.clear();
@@ -176,25 +176,25 @@ void finSAR_editUIDialog::OnClose(wxCloseEvent& event) {
   DeleteChartedRoute();
 }
 
-void finSAR_editUIDialog::OnMove(wxMoveEvent& event) {
+void finSAR_opsUIDialog::OnMove(wxMoveEvent& event) {
   //    Record the dialog position
   wxPoint p = GetPosition();
-  pPlugIn->SetfinSAR_editDialogX(p.x);
-  pPlugIn->SetfinSAR_editDialogY(p.y);
+  pPlugIn->SetfinSAR_opsDialogX(p.x);
+  pPlugIn->SetfinSAR_opsDialogY(p.y);
 
   event.Skip();
 }
 
-void finSAR_editUIDialog::OnSize(wxSizeEvent& event) {
+void finSAR_opsUIDialog::OnSize(wxSizeEvent& event) {
   //    Record the dialog size
   wxSize p = event.GetSize();
-  pPlugIn->SetfinSAR_editDialogSizeX(p.x);
-  pPlugIn->SetfinSAR_editDialogSizeY(p.y);
+  pPlugIn->SetfinSAR_opsDialogSizeX(p.x);
+  pPlugIn->SetfinSAR_opsDialogSizeY(p.y);
 
   event.Skip();
 }
 
-wxString finSAR_editUIDialog::MakeDateTimeLabel(wxDateTime myDateTime) {
+wxString finSAR_opsUIDialog::MakeDateTimeLabel(wxDateTime myDateTime) {
   wxDateTime dt = myDateTime;
 
   wxString s2 = dt.Format("%Y-%m-%d");
@@ -204,18 +204,18 @@ wxString finSAR_editUIDialog::MakeDateTimeLabel(wxDateTime myDateTime) {
   return dateLabel;
 }
 
-void finSAR_editUIDialog::OnInformation(wxCommandEvent& event) {}
+void finSAR_opsUIDialog::OnInformation(wxCommandEvent& event) {}
 
-void finSAR_editUIDialog::AddChartRoute(wxString myRoute) {}
+void finSAR_opsUIDialog::AddChartRoute(wxString myRoute) {}
 
-int finSAR_editUIDialog::GetRandomNumber(int range_min, int range_max) {
+int finSAR_opsUIDialog::GetRandomNumber(int range_min, int range_max) {
   long u = (long)wxRound(
       ((double)rand() / ((double)(RAND_MAX) + 1) * (range_max - range_min)) +
       range_min);
   return (int)u;
 }
 
-void finSAR_editUIDialog::SaveIndexRangeDirection(wxString route_name,
+void finSAR_opsUIDialog::SaveIndexRangeDirection(wxString route_name,
                                                   wxString date_stamp) {
   // Create Main level XML container
   xml_document xmlDoc;
@@ -345,18 +345,18 @@ void finSAR_editUIDialog::SaveIndexRangeDirection(wxString route_name,
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void finSAR_editUIDialog::SelectRoutePoints(wxString routeName) {}
+void finSAR_opsUIDialog::SelectRoutePoints(wxString routeName) {}
 
-wxString finSAR_editUIDialog::SelectRoute(bool isDR) { return ""; }
+wxString finSAR_opsUIDialog::SelectRoute(bool isDR) { return ""; }
 
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 /*:: This function converts decimal degrees to radians :*/
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
-double finSAR_editUIDialog::deg2rad(double deg) { return (deg * pi / 180); }
+double finSAR_opsUIDialog::deg2rad(double deg) { return (deg * pi / 180); }
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
 /*:: This function converts radians to decimal degrees :*/
 /*:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::*/
-double finSAR_editUIDialog::rad2deg(double rad) { return (rad * 180 / pi); };
+double finSAR_opsUIDialog::rad2deg(double rad) { return (rad * 180 / pi); };
 
 struct xml_string_writer : pugi::xml_writer {
   std::string result;
@@ -378,7 +378,7 @@ std::string InnerXML(pugi::xml_node target) {
   return writer.result;
 }
 
-void finSAR_editUIDialog::AddTestItems(wxCommandEvent& event) {
+void finSAR_opsUIDialog::AddTestItems(wxCommandEvent& event) {
   wxString filename;
   wxFileDialog dlg(this, "Select file", wxEmptyString, wxEmptyString,
                    "RTZ files(*.rtz) | *.*;*.*", wxFD_OPEN);
@@ -447,7 +447,7 @@ void finSAR_editUIDialog::AddTestItems(wxCommandEvent& event) {
   wxString testcf = wxString::Format("%i", cf);
 }
 
-int finSAR_editUIDialog::GetScale(double myChartScale) {
+int finSAR_opsUIDialog::GetScale(double myChartScale) {
   // If myChartScale is not exactly as shown in OpenCPN get the best scale to
   // use.
 
@@ -563,7 +563,7 @@ int finSAR_editUIDialog::GetScale(double myChartScale) {
     return 6;
 }
 
-void finSAR_editUIDialog::key_shortcut(wxKeyEvent& event) {
+void finSAR_opsUIDialog::key_shortcut(wxKeyEvent& event) {
   // wxMessageBox("here");
   //  of course, it doesn't have to be the control key. You can use others:
   //  http://docs.wxwidgets.org/stable/wx_wxkeyevent.html
@@ -586,7 +586,7 @@ void finSAR_editUIDialog::key_shortcut(wxKeyEvent& event) {
   event.Skip();
 }
 
-void finSAR_editUIDialog::MakeBoxPoints() {
+void finSAR_opsUIDialog::MakeBoxPoints() {
   myZoom = GetScale(m_vp->chart_scale);
 
   double boxlat = m_vp->clat;
@@ -638,7 +638,7 @@ void finSAR_editUIDialog::MakeBoxPoints() {
   myPixHeight = pixheight * 2;
 }
 
-void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnNewRoute(wxCommandEvent& event) {
   // This sleep is needed to give the time for the currently pressed modifier
   // keys, if any, to be released. Notice that Control modifier could well be
   // pressed if this command was activated from the menu using accelerator
@@ -668,14 +668,14 @@ void finSAR_editUIDialog::OnNewRoute(wxCommandEvent& event) {
   // sim.KeyUp(82, wxMOD_CONTROL);
 }
 
-void finSAR_editUIDialog::OnSaveRoute(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnSaveRoute(wxCommandEvent& event) {
   // This sleep is needed to give the time for the currently pressed modifier
   // keys, if any, to be released. Notice that Control modifier could well be
   // pressed if this command was activated from the menu using accelerator
   // and keeping it pressed would totally derail the test below, e.g. "A" key
   // press would actually become "Ctrl+A" selecting the entire text and so on.
 
-  pPlugIn->m_pfinSAR_editDialog->SetFocus();
+  pPlugIn->m_pfinSAR_opsDialog->SetFocus();
   wxUIActionSimulator sim;
   sim.KeyUp(82, wxMOD_CONTROL);
   //
@@ -819,7 +819,7 @@ void finSAR_editUIDialog::OnSaveRoute(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::OnImportRoute(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnImportRoute(wxCommandEvent& event) {
   rtz_version = "";
   Position my_position;
   my_positions.clear();
@@ -913,17 +913,17 @@ void finSAR_editUIDialog::OnImportRoute(wxCommandEvent& event) {
   wxMessageBox("Press \"Save\" to complete the import");
 }
 
-void finSAR_editUIDialog::OnExportRoute(wxCommandEvent& event) {
-  int c = pPlugIn->m_pfinSAR_editDialog->m_choiceRoutes->GetSelection();
+void finSAR_opsUIDialog::OnExportRoute(wxCommandEvent& event) {
+  int c = pPlugIn->m_pfinSAR_opsDialog->m_choiceRoutes->GetSelection();
   if (c == 0) {
     wxMessageBox("No route has been selected\nAborting");
     return;
   }
-  wxString rt = pPlugIn->m_pfinSAR_editDialog->m_choiceRoutes->GetString(c);
+  wxString rt = pPlugIn->m_pfinSAR_opsDialog->m_choiceRoutes->GetString(c);
   ExportRoute(rt);
 }
 
-void finSAR_editUIDialog::ExportRoute(wxString route) {
+void finSAR_opsUIDialog::ExportRoute(wxString route) {
   wxString route_name = route;
 
   // Create Main level XML container
@@ -1010,7 +1010,7 @@ void finSAR_editUIDialog::ExportRoute(wxString route) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
+void finSAR_opsUIDialog::WriteRTZ(wxString route_name) {
   // Select the route from the route table
   //
   // Create Main level XML container
@@ -1070,7 +1070,7 @@ void finSAR_editUIDialog::WriteRTZ(wxString route_name) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void finSAR_editUIDialog::WriteEXT(wxString route_name) {
+void finSAR_opsUIDialog::WriteEXT(wxString route_name) {
   // Select the route from the route table
   //
   // Create Main level XML container
@@ -1101,9 +1101,9 @@ void finSAR_editUIDialog::WriteEXT(wxString route_name) {
   xmlDoc.save_file(file_path.mb_str());
 }
 
-void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
-  int c = pPlugIn->m_pfinSAR_editDialog->m_choiceRoutes->GetSelection();
-  wxString rt = pPlugIn->m_pfinSAR_editDialog->m_choiceRoutes->GetString(c);
+void finSAR_opsUIDialog::OnLoadRoute(wxCommandEvent& event) {
+  int c = pPlugIn->m_pfinSAR_opsDialog->m_choiceRoutes->GetSelection();
+  wxString rt = pPlugIn->m_pfinSAR_opsDialog->m_choiceRoutes->GetString(c);
 
   auto uids = GetRouteGUIDArray();
   for (size_t i = 0; i < uids.size(); i++) {
@@ -1119,7 +1119,6 @@ void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
   wxString file_folder = pPlugIn->StandardPathRTZ();
   wxString file_name = file_folder + rt + ".rtz";
   m_textCtrlRouteInUse->SetValue(rt);
-  m_textExtName->SetValue(rt + ".xml");
   // wxMessageBox(file_name);
   ReadRTZ(file_name);
   ChartTheRoute(file_name);
@@ -1138,7 +1137,7 @@ void finSAR_editUIDialog::OnLoadRoute(wxCommandEvent& event) {
   mySelectedLeg = 999;
 }
 
-void finSAR_editUIDialog::ChartTheRoute(wxString myRoute) {
+void finSAR_opsUIDialog::ChartTheRoute(wxString myRoute) {
   PlugIn_Route_Ex* newRoute =
       new PlugIn_Route_Ex;  // for adding a route on OpenCPN chart display
 
@@ -1179,7 +1178,7 @@ void finSAR_editUIDialog::ChartTheRoute(wxString myRoute) {
   GetParent()->Refresh();
 }
 
-void finSAR_editUIDialog::OnDeleteRoute(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnDeleteRoute(wxCommandEvent& event) {
   int c = m_choiceRoutes->GetSelection();
   wxString rt = m_choiceRoutes->GetString(c);
   if (rt == "-----") {
@@ -1201,13 +1200,12 @@ void finSAR_editUIDialog::OnDeleteRoute(wxCommandEvent& event) {
   m_choiceRoutes->Delete(c);
   m_choiceRoutes->SetSelection(0);
   m_textCtrlRouteInUse->SetValue("");
-  m_textExtName->SetValue("");
   DeleteChartedRoute();
 
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::DeleteRTZFile(wxString route_name) {
+void finSAR_opsUIDialog::DeleteRTZFile(wxString route_name) {
   wxString rt = route_name;
   wxString file_folder = pPlugIn->StandardPathRTZ();
   wxString file_name = file_folder + rt + ".rtz";
@@ -1221,7 +1219,7 @@ void finSAR_editUIDialog::DeleteRTZFile(wxString route_name) {
   }
 }
 
-void finSAR_editUIDialog::DeleteEXTFile(wxString route_name) {
+void finSAR_opsUIDialog::DeleteEXTFile(wxString route_name) {
   wxString rt = route_name;
   wxString file_folder = pPlugIn->StandardPathEXT();
   wxString file_name = file_folder + rt + ".xml";
@@ -1235,7 +1233,7 @@ void finSAR_editUIDialog::DeleteEXTFile(wxString route_name) {
   }
 }
 
-void finSAR_editUIDialog::OnIndex(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnIndex(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
@@ -1244,7 +1242,7 @@ void finSAR_editUIDialog::OnIndex(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::GetIndex(Position* A, Position* B) {
+void finSAR_opsUIDialog::GetIndex(Position* A, Position* B) {
   double value = 0.0;
   A->lat.ToDouble(&value);
   double lat1 = value;
@@ -1315,7 +1313,7 @@ void finSAR_editUIDialog::GetIndex(Position* A, Position* B) {
   wxString extensions_file = mySelectedRoute + ".xml";
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
-void finSAR_editUIDialog::OnIndexDelete(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnIndexDelete(wxCommandEvent& event) {
   double label_distance = 1000;
   double minDist = 500.0;
   int index_num = 0;
@@ -1357,7 +1355,7 @@ void finSAR_editUIDialog::OnIndexDelete(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnRange(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
@@ -1368,7 +1366,7 @@ void finSAR_editUIDialog::OnRange(wxCommandEvent& event) {
   GetRange(active_waypoint, range_object);
 }
 
-void finSAR_editUIDialog::GetRange(Position* A, Position* B) {
+void finSAR_opsUIDialog::GetRange(Position* A, Position* B) {
   double value = 0.0;
   A->lat.ToDouble(&value);
   double lat1 = value;
@@ -1410,7 +1408,7 @@ void finSAR_editUIDialog::GetRange(Position* A, Position* B) {
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
 
-void finSAR_editUIDialog::OnRangeDelete(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnRangeDelete(wxCommandEvent& event) {
   double label_distance = 1000;
   double minDist = 500.0;
   int index_num = 0;
@@ -1451,7 +1449,7 @@ void finSAR_editUIDialog::OnRangeDelete(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnDirection(wxCommandEvent& event) {
   if (mySelectedLeg == 999) {
     wxMessageBox("Please activate the waypoint for the leg");
     return;
@@ -1464,7 +1462,7 @@ void finSAR_editUIDialog::OnDirection(wxCommandEvent& event) {
   GetDirection(active_waypoint, prev_waypoint);
 }
 
-void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
+void finSAR_opsUIDialog::GetDirection(Position* A, Position* B) {
   double value = 0.0;
   A->lat.ToDouble(&value);
   double lat1 = value;
@@ -1492,7 +1490,7 @@ void finSAR_editUIDialog::GetDirection(Position* A, Position* B) {
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
 }
 
-void finSAR_editUIDialog::OnDirectionDelete(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnDirectionDelete(wxCommandEvent& event) {
   double label_distance = 1000;
   double minDist = 500.0;
   int index_num = 0;
@@ -1533,7 +1531,7 @@ void finSAR_editUIDialog::OnDirectionDelete(wxCommandEvent& event) {
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
+void finSAR_opsUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   wxString date_stamp = pPlugIn->GetRTZDateStamp(mySelectedRoute);
   wxString extensions_file = mySelectedRoute + ".xml";
   SaveIndexRangeDirection(mySelectedRoute, date_stamp);
@@ -1543,7 +1541,7 @@ void finSAR_editUIDialog::OnSaveExtensions(wxCommandEvent& event) {
   m_bDrawDirectionArrow = false;
 }
 
-void finSAR_editUIDialog::ReadRTZ(wxString file_name) {
+void finSAR_opsUIDialog::ReadRTZ(wxString file_name) {
   my_positions.clear();  // Set up a new vector
 
   wxString file = file_name;
@@ -1629,7 +1627,7 @@ void finSAR_editUIDialog::ReadRTZ(wxString file_name) {
   wxString mycount = wxString::Format("%i", count);
 }
 
-void finSAR_editUIDialog::ReadEXT(wxString file_name) {
+void finSAR_opsUIDialog::ReadEXT(wxString file_name) {
   i_vector.clear();  // Set up a new vector
   i_target = new IndexTarget;
   r_vector.clear();  // Set up a new vector
@@ -1758,7 +1756,7 @@ void finSAR_editUIDialog::ReadEXT(wxString file_name) {
   RequestRefresh(pParent);
 }
 
-void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {
+void finSAR_opsUIDialog::OnContextMenu(double m_lat, double m_lon) {
   c_lat = m_lat;
   c_lon = m_lon;
 
@@ -1769,7 +1767,7 @@ void finSAR_editUIDialog::OnContextMenu(double m_lat, double m_lon) {
   mySelectedLeg = leg_number;
 }
 
-int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
+int finSAR_opsUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
   double wpDistance = 1000;
   double rLat, rLon;
   double minDist = 500.0;
@@ -1835,7 +1833,7 @@ int finSAR_editUIDialog::SetActiveWaypoint(double t_lat, double t_lon) {
   return it_num;
 }
 
-Position* finSAR_editUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
+Position* finSAR_opsUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
   active_waypoint = new Position;
   prev_waypoint = new Position;
   std::vector<Position>::iterator prev;
@@ -1882,7 +1880,7 @@ Position* finSAR_editUIDialog::FindPreviousWaypoint(wxString ActiveWpt) {
   return active_waypoint;
 }
 
-int finSAR_editUIDialog::DeleteChartedRoute() {
+int finSAR_opsUIDialog::DeleteChartedRoute() {
   std::vector<std::unique_ptr<PlugIn_Route_Ex>> routes;
   auto uids = GetRouteGUIDArray();
   if (uids.size() > 1) {
@@ -1894,7 +1892,7 @@ int finSAR_editUIDialog::DeleteChartedRoute() {
   return 1;
 }
 
-double finSAR_editUIDialog::FindDistanceFromLeg(Position* A, Position* B,
+double finSAR_opsUIDialog::FindDistanceFromLeg(Position* A, Position* B,
                                                 Position* C) {
   double value = 0.0;
   A->lat.ToDouble(&value);

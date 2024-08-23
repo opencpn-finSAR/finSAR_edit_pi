@@ -1,7 +1,7 @@
 /******************************************************************************
  *
  * Project:  OpenCPN
- * Purpose:  finSAR_edit Object
+ * Purpose:  finSAR_ops Object
  * Author:   David Register, Mike Rossiter
  *
  ***************************************************************************
@@ -35,9 +35,9 @@
 #include <wx/graphics.h>
 #include <wx/progdlg.h>
 
-#include "finSAR_editUIDialog.h"
-#include "finSAR_editUIDialogBase.h"
-#include "finSAR_editOverlayFactory.h"
+#include "finSAR_opsUIDialog.h"
+#include "finSAR_opsUIDialogBase.h"
+#include "finSAR_opsOverlayFactory.h"
 #include <vector>
 
 #ifdef __WXOSX__
@@ -55,7 +55,7 @@
 
 using namespace std;
 
-class finSAR_editUIDialog;
+class finSAR_opsUIDialog;
 class PlugIn_ViewPort;
 class piDC;
 class IndexTarget;
@@ -93,9 +93,9 @@ static GLboolean QueryExtension(const char *extName) {
 }
 
 //----------------------------------------------------------------------------------------------------------
-//    finSAR_edit Overlay Factory Implementation
+//    finSAR_ops Overlay Factory Implementation
 //----------------------------------------------------------------------------------------------------------
-finSAR_editOverlayFactory::finSAR_editOverlayFactory(finSAR_editUIDialog &dlg)
+finSAR_opsOverlayFactory::finSAR_opsOverlayFactory(finSAR_opsUIDialog &dlg)
     : m_dlg(dlg) {
   m_dFont_map = new wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL,
                            wxFONTWEIGHT_NORMAL);
@@ -106,16 +106,16 @@ finSAR_editOverlayFactory::finSAR_editOverlayFactory(finSAR_editUIDialog &dlg)
   m_dtUseNew = m_dlg.m_dtNow;
 }
 
-finSAR_editOverlayFactory::~finSAR_editOverlayFactory() {}
+finSAR_opsOverlayFactory::~finSAR_opsOverlayFactory() {}
 
-void finSAR_editOverlayFactory::Reset() {}
+void finSAR_opsOverlayFactory::Reset() {}
 
-void finSAR_editOverlayFactory::setData(double lat1, double lon1) {
+void finSAR_opsOverlayFactory::setData(double lat1, double lon1) {
   myLat1 = lat1;
   myLon1 = lon1;
 }
 
-bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
+bool finSAR_opsOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
   m_dc = &dc;
 
   if (!dc.GetDC()) {
@@ -151,7 +151,7 @@ bool finSAR_editOverlayFactory::RenderOverlay(piDC &dc, PlugIn_ViewPort &vp) {
   return true;
 }
 
-void finSAR_editOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
+void finSAR_opsOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("YELLOW");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -180,7 +180,7 @@ void finSAR_editOverlayFactory::DrawWptDisk(PlugIn_ViewPort *BBox) {
   }
 }
 
-void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
+void finSAR_opsOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
   wxColour colour1 = wxColour("BLACK");
   wxColour colour2 = wxColour("WHITE");
 
@@ -237,7 +237,7 @@ void finSAR_editOverlayFactory::DrawIndexTargets(PlugIn_ViewPort *BBox) {
   }
 }
 
-void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
+void finSAR_opsOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
   wxColour colour1 = wxColour("BLACK");
   wxColour colour2 = wxColour("WHITE");
 
@@ -294,7 +294,7 @@ void finSAR_editOverlayFactory::DrawRangeTargets(PlugIn_ViewPort *BBox) {
   }
 }
 
-void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
+void finSAR_opsOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
   if (BBox->chart_scale > 1000000) {
     return;
   }
@@ -355,7 +355,7 @@ void finSAR_editOverlayFactory::DrawDirectionTargets(PlugIn_ViewPort *BBox) {
   }
 }
 
-void finSAR_editOverlayFactory::DrawAllLinesInViewPort(PlugIn_ViewPort *BBox) {
+void finSAR_opsOverlayFactory::DrawAllLinesInViewPort(PlugIn_ViewPort *BBox) {
   wxColour colour = wxColour("RED");
   wxBrush brush(colour);
   c_GLcolour = colour;  // for filling GL arrows
@@ -414,7 +414,7 @@ void finSAR_editOverlayFactory::DrawAllLinesInViewPort(PlugIn_ViewPort *BBox) {
   }
 }
 
-wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
+wxImage &finSAR_opsOverlayFactory::DrawLabel(double value, int precision) {
   wxString labels;
 
   int p = precision;
@@ -494,7 +494,7 @@ wxImage &finSAR_editOverlayFactory::DrawLabel(double value, int precision) {
   return image;
 }
 
-wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
+wxImage finSAR_opsOverlayFactory::DrawDirectionArrows(int x, int y,
                                                        double scale) {
   wxMemoryDC mdc(wxNullBitmap);
 
@@ -679,7 +679,7 @@ wxImage finSAR_editOverlayFactory::DrawDirectionArrows(int x, int y,
   return image;
 }
 
-wxImage finSAR_editOverlayFactory::DrawDirectionLabels(double value, int x,
+wxImage finSAR_opsOverlayFactory::DrawDirectionLabels(double value, int x,
                                                        int y, double scale,
                                                        bool reverse) {
   wxMemoryDC mdc(wxNullBitmap);
